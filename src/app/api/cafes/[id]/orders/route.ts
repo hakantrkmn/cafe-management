@@ -96,19 +96,33 @@ export async function POST(
 
     // Create order with items in transaction
     const order = await prisma.$transaction(async (tx) => {
-      // Get products from this order only (allow duplicates)
-      const orderProducts = body.orderItems.flatMap((item) =>
-        Array(item.quantity).fill(item.menuItemId)
-      );
+      // Create products array with individual payment tracking
+      const orderProductsPromises = body.orderItems.map(async (item) => {
+        const menuItem = await tx.menuItem.findUniqueOrThrow({
+          where: { id: item.menuItemId },
+        });
 
-      // Create order with only this order's products
+        // Her ürün için ayrı entry oluştur
+        return Array(item.quantity)
+          .fill(null)
+          .map(() => ({
+            id: item.menuItemId,
+            isPaid: false,
+            price: menuItem.price,
+          }));
+      });
+
+      const orderProductsArrays = await Promise.all(orderProductsPromises);
+      const orderProducts = orderProductsArrays.flat();
+
+      // Create order with individual product payment tracking
       const newOrder = await tx.order.create({
         data: {
           cafeId,
           tableId: body.tableId,
           staffId: session.user.id,
           totalAmount,
-          products: orderProducts, // Sadece bu siparişin ürünleri (duplicate'ler dahil)
+          products: orderProducts,
         },
       });
 

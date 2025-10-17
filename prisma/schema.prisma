@@ -143,7 +143,7 @@ model Order {
   staffId     String    @db.ObjectId
   totalAmount Float
   isPaid      Boolean   @default(false)
-  products    String[]  @default([]) // Masa bazlı analiz için tüketilen ürün ID'leri
+  products    Json[]    @default([]) // Her ürün için ayrı ödeme durumu: [{id: string, isPaid: boolean, price: number}]
   createdAt   DateTime  @default(now())
   paidAt      DateTime?
   updatedAt   DateTime  @updatedAt

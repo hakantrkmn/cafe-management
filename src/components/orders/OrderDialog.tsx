@@ -42,6 +42,7 @@ interface OrderDialogProps {
   onAddToExistingOrder: (orderId: string) => void;
   onMarkAsPaid: (orderId: string) => void;
   onMarkAllAsPaid: () => void;
+  onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   isSaving: boolean;
 }
 
@@ -63,6 +64,7 @@ export function OrderDialog({
   onAddToExistingOrder,
   onMarkAsPaid,
   onMarkAllAsPaid,
+  onMarkProductAsPaid,
   isSaving,
 }: OrderDialogProps) {
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
@@ -138,6 +140,7 @@ export function OrderDialog({
                     onAddToExistingOrder={onAddToExistingOrder}
                     onMarkAsPaid={onMarkAsPaid}
                     onMarkAllAsPaid={onMarkAllAsPaid}
+                    onMarkProductAsPaid={onMarkProductAsPaid}
                     isSaving={isSaving}
                     selectedTableName={selectedTableName}
                   />

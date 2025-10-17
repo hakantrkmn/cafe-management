@@ -113,6 +113,7 @@ export default function OrdersPage() {
           onAddToExistingOrder={addToExistingOrder}
           onMarkAsPaid={markOrderAsPaid}
           onMarkAllAsPaid={markAllAsPaid}
+          onMarkProductAsPaid={orderOperations.markProductAsPaid}
           isSaving={orderOperations.isSaving}
         />
       </div>

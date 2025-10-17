@@ -4,6 +4,7 @@ import { useCreateOrder, useOrders, useUpdateOrder } from "@/queries/order";
 import {
   CreateOrderRequest,
   OrderCartItem,
+  OrderProduct,
   OrderWithRelations,
   UpdateOrderRequest,
 } from "@/types";
@@ -17,9 +18,16 @@ interface UseOrderOperationsReturn {
     orderId: string,
     cartItems: OrderCartItem[]
   ) => Promise<void>;
-  markOrderAsPaid: (orderId: string, products?: string[]) => Promise<void>;
+  markOrderAsPaid: (
+    orderId: string,
+    products?: OrderProduct[]
+  ) => Promise<void>;
+  markProductAsPaid: (orderId: string, productIndex: number) => Promise<void>;
   markAllAsPaid: (tableId: string) => Promise<void>;
-  updateOrderProducts: (orderId: string, products: string[]) => Promise<void>;
+  updateOrderProducts: (
+    orderId: string,
+    products: OrderProduct[]
+  ) => Promise<void>;
   getTableProducts: (tableId: string) => string[];
   isSaving: boolean;
 }
@@ -114,11 +122,11 @@ export function useOrderOperations({
 
   // Mark order as paid
   const markOrderAsPaid = useCallback(
-    async (orderId: string, products?: string[]): Promise<void> => {
+    async (orderId: string, products?: OrderProduct[]): Promise<void> => {
       if (!cafeId) return;
 
       try {
-        const updateData: { isPaid: boolean; products?: string[] } = {
+        const updateData: { isPaid: boolean; products?: OrderProduct[] } = {
           isPaid: true,
         };
         if (products) {
@@ -138,6 +146,47 @@ export function useOrderOperations({
     [cafeId, updateOrderMutation]
   );
 
+  // Mark individual product as paid
+  const markProductAsPaid = useCallback(
+    async (orderId: string, productIndex: number): Promise<void> => {
+      if (!cafeId) return;
+
+      try {
+        // Mevcut siparişi bul
+        const order = orders.find((o: OrderWithRelations) => o.id === orderId);
+        if (!order || !order.products) return;
+
+        // Products array'ini kopyala ve belirtilen index'teki ürünü ödendi olarak işaretle
+        const updatedProducts = [...order.products];
+        if (updatedProducts[productIndex]) {
+          updatedProducts[productIndex] = {
+            ...updatedProducts[productIndex],
+            isPaid: true,
+          };
+        }
+
+        // Tüm ürünler ödendi mi kontrol et
+        const allProductsPaid = updatedProducts.every(
+          (product: OrderProduct) => product.isPaid
+        );
+
+        await updateOrderMutation.mutateAsync({
+          cafeId,
+          orderId,
+          data: {
+            products: updatedProducts,
+            isPaid: allProductsPaid, // Tüm ürünler ödendiyse siparişi de ödendi olarak işaretle
+            paidAt: allProductsPaid ? new Date() : null,
+          } as UpdateOrderRequest,
+        });
+      } catch (error) {
+        console.error("Error marking product as paid:", error);
+        throw error;
+      }
+    },
+    [cafeId, orders, updateOrderMutation]
+  );
+
   // Mark all orders as paid
   const markAllAsPaid = useCallback(
     async (tableId: string): Promise<void> => {
@@ -151,15 +200,21 @@ export function useOrderOperations({
       try {
         await Promise.all(
           tableOrders.map(async (order: OrderWithRelations) => {
-            const orderProducts = order.orderItems.map(
-              (item) => item.menuItemId
+            // Mevcut products array'ini kopyala ve tüm ürünleri ödendi olarak işaretle
+            const updatedProducts = order.products.map(
+              (product: OrderProduct) => ({
+                ...product,
+                isPaid: true,
+              })
             );
+
             await updateOrderMutation.mutateAsync({
               cafeId,
               orderId: order.id,
               data: {
                 isPaid: true,
-                products: orderProducts,
+                products: updatedProducts,
+                paidAt: new Date(),
               } as UpdateOrderRequest,
             });
           })
@@ -174,7 +229,7 @@ export function useOrderOperations({
 
   // Update order products array
   const updateOrderProducts = useCallback(
-    async (orderId: string, products: string[]): Promise<void> => {
+    async (orderId: string, products: OrderProduct[]): Promise<void> => {
       if (!cafeId) return;
 
       try {
@@ -201,7 +256,11 @@ export function useOrderOperations({
       // Sadece ödenmiş siparişlerin products array'ini birleştir
       const allProducts = tableOrders.reduce(
         (acc: string[], order: OrderWithRelations) => {
-          return [...acc, ...(order.products || [])];
+          const paidProducts =
+            order.products
+              ?.filter((product: OrderProduct) => product.isPaid)
+              ?.map((product: OrderProduct) => product.id) || [];
+          return [...acc, ...paidProducts];
         },
         []
       );
@@ -218,6 +277,7 @@ export function useOrderOperations({
     saveOrder,
     addToExistingOrder,
     markOrderAsPaid,
+    markProductAsPaid,
     markAllAsPaid,
     updateOrderProducts,
     getTableProducts,

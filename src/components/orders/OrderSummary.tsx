@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatOrderId, formatPrice } from "@/lib/formatters";
-import { OrderCartItem, OrderWithRelations } from "@/types";
+import { OrderCartItem, OrderProduct, OrderWithRelations } from "@/types";
 import { CreditCard, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 
 interface OrderSummaryProps {
@@ -18,6 +18,7 @@ interface OrderSummaryProps {
   onAddToExistingOrder: (orderId: string) => void;
   onMarkAsPaid: (orderId: string) => void;
   onMarkAllAsPaid: () => void;
+  onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   isSaving: boolean;
   selectedTableName?: string;
 }
@@ -32,6 +33,7 @@ export function OrderSummary({
   onAddToExistingOrder,
   onMarkAsPaid,
   onMarkAllAsPaid,
+  onMarkProductAsPaid,
   isSaving,
   selectedTableName,
 }: OrderSummaryProps) {
@@ -93,48 +95,67 @@ export function OrderSummary({
                   </div>
                 </div>
 
-                {/* Order Items List */}
+                {/* Products List - Her ürün ayrı ayrı gösterilir */}
                 <div className="space-y-2">
-                  {order.orderItems.map((orderItem, index) => (
-                    <div key={index} className="text-sm bg-gray-50 p-2 rounded">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-medium">
-                            {orderItem.menuItem?.name || "Bilinmeyen Ürün"}
-                          </p>
-                          {orderItem.orderItemExtras &&
-                            orderItem.orderItemExtras.length > 0 && (
-                              <div className="mt-1">
-                                {orderItem.orderItemExtras.map(
-                                  (orderItemExtra, extraIndex) => (
-                                    <Badge
-                                      key={extraIndex}
-                                      variant="secondary"
-                                      className="mr-1 mb-1 text-xs"
-                                    >
-                                      {orderItemExtra.extra?.name ||
-                                        "Bilinmeyen Ekstra"}{" "}
-                                      x{orderItemExtra.quantity}
-                                    </Badge>
-                                  )
+                  {order.products && order.products.length > 0 ? (
+                    order.products.map((product: OrderProduct, index) => {
+                      // Bu ürün için menu item bilgisini bul
+                      const menuItem = order.orderItems.find(
+                        (item) => item.menuItemId === product.id
+                      )?.menuItem;
+
+                      return (
+                        <div
+                          key={`${order.id}-product-${index}`}
+                          className={`text-sm p-2 rounded border ${
+                            product.isPaid
+                              ? "bg-green-50 border-green-200"
+                              : "bg-gray-50 border-gray-200"
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">
+                                  {menuItem?.name || "Bilinmeyen Ürün"}
+                                </p>
+                                {product.isPaid && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs bg-green-100 text-green-800"
+                                  >
+                                    Ödendi
+                                  </Badge>
                                 )}
                               </div>
-                            )}
+                            </div>
+                            <div className="text-right ml-2">
+                              <p className="font-medium">
+                                {formatPrice(product.price)}
+                              </p>
+                              {!product.isPaid && (
+                                <Button
+                                  size="sm"
+                                  onClick={() =>
+                                    onMarkProductAsPaid(order.id, index)
+                                  }
+                                  disabled={isSaving}
+                                  className="mt-1 bg-green-600 hover:bg-green-700 text-xs"
+                                >
+                                  <CreditCard className="h-3 w-3 mr-1" />
+                                  Öde
+                                </Button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-right ml-2">
-                          <p className="font-medium">
-                            {formatPrice(
-                              (orderItem.menuItem?.price || 0) *
-                                orderItem.quantity
-                            )}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            x{orderItem.quantity}
-                          </p>
-                        </div>
-                      </div>
+                      );
+                    })
+                  ) : (
+                    <div className="text-sm text-muted-foreground p-2">
+                      Henüz ürün eklenmemiş
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </Card>
@@ -163,7 +184,7 @@ export function OrderSummary({
                       <div className="mt-1">
                         {item.extras.map((extra, index) => (
                           <Badge
-                            key={index}
+                            key={`${item.id}-extra-${extra.extraId}-${index}`}
                             variant="secondary"
                             className="mr-1 mb-1"
                           >

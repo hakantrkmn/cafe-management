@@ -67,12 +67,12 @@ export interface TableWithRelations extends Table {
   orders: Order[];
 }
 
-export interface OrderWithRelations extends Order {
+export interface OrderWithRelations extends Omit<Order, "products"> {
   cafe: Cafe;
   table: Table;
   staff: User;
   orderItems: OrderItemWithRelations[];
-  products: string[]; // Masa bazlı analiz için tüketilen ürün ID'leri
+  products: OrderProduct[]; // Her ürün için ayrı ödeme durumu
 }
 
 export interface OrderItemWithRelations extends OrderItem {
@@ -89,6 +89,13 @@ export interface OrderItemExtraWithRelations extends OrderItemExtra {
 export interface AllowedStaffWithRelations extends AllowedStaff {
   cafe: Cafe;
   user?: User | null;
+}
+
+// Product interface for individual product payment tracking
+export interface OrderProduct {
+  id: string; // menuItemId (foreign key to MenuItem)
+  isPaid: boolean;
+  price: number;
 }
 
 // API Request/Response types
@@ -150,7 +157,8 @@ export interface CreateOrderItemExtraRequest {
 export interface UpdateOrderRequest {
   isPaid?: boolean;
   orderItems?: CreateOrderItemRequest[];
-  products?: string[];
+  products?: OrderProduct[];
+  paidAt?: Date | null;
 }
 
 // Order Cart Types (Local State)

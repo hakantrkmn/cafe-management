@@ -50,21 +50,55 @@ export async function PATCH(
       const updateData: {
         isPaid: boolean;
         paidAt: Date | null;
-        products?: string[];
+        products?: { id: string; isPaid: boolean; price: number }[];
       } = {
         isPaid: body.isPaid,
         paidAt: body.isPaid ? new Date() : null,
       };
 
-      // Eğer ödeme alınıyorsa, bu siparişin ürünlerini products array'ine ekle
-      if (body.isPaid && body.products !== undefined) {
+      // Eğer products array'i de gönderilmişse, onu da güncelle
+      if (body.products !== undefined) {
         updateData.products = body.products;
-        console.log("Adding products to paid order:", body.products);
+        // Tüm ürünler ödendi mi kontrol et (products array'inden)
+        const allProductsPaid = body.products.every(
+          (product: { isPaid: boolean }) => product.isPaid
+        );
+
+        // Eğer tüm ürünler ödendiyse, siparişi de ödendi olarak işaretle
+        if (allProductsPaid) {
+          updateData.isPaid = true;
+          updateData.paidAt = new Date();
+        }
       }
 
       updatedOrder = await prisma.order.update({
         where: { id: orderId },
         data: updateData,
+        include: {
+          table: true,
+          staff: true,
+          orderItems: {
+            include: {
+              orderItemExtras: true,
+            },
+          },
+        },
+      });
+    } else if (body.products !== undefined) {
+      // Sadece products array'i güncelleniyorsa (markProductAsPaid durumu)
+
+      // Tüm ürünler ödendi mi kontrol et
+      const allProductsPaid = body.products.every(
+        (product: { isPaid: boolean }) => product.isPaid
+      );
+
+      updatedOrder = await prisma.order.update({
+        where: { id: orderId },
+        data: {
+          products: body.products,
+          isPaid: allProductsPaid, // Tüm ürünler ödendiyse siparişi de ödendi olarak işaretle
+          paidAt: allProductsPaid ? new Date() : null,
+        },
         include: {
           table: true,
           staff: true,
@@ -119,11 +153,25 @@ export async function PATCH(
 
       // Update order in transaction
       updatedOrder = await prisma.$transaction(async (tx) => {
-        // Get new products from the items being added (allow duplicates)
-        const newProducts = body.orderItems.flatMap(
-          (item: CreateOrderItemRequest) =>
-            Array(item.quantity).fill(item.menuItemId)
+        // Create new products with individual payment tracking
+        const newProductsPromises = body.orderItems.map(
+          async (item: CreateOrderItemRequest) => {
+            const menuItem = await tx.menuItem.findUniqueOrThrow({
+              where: { id: item.menuItemId },
+            });
+
+            return Array(item.quantity)
+              .fill(null)
+              .map(() => ({
+                id: item.menuItemId,
+                isPaid: false,
+                price: menuItem.price,
+              }));
+          }
         );
+
+        // Wait for all async operations to complete
+        const resolvedNewProducts = await Promise.all(newProductsPromises);
 
         // Get existing products from this order only
         const currentOrder = await tx.order.findUnique({
@@ -134,7 +182,7 @@ export async function PATCH(
         // Combine with existing products in this order only (allow duplicates)
         const updatedProducts = [
           ...(currentOrder?.products || []),
-          ...newProducts,
+          ...resolvedNewProducts.flat(),
         ];
 
         // Create new order items
@@ -207,24 +255,6 @@ export async function PATCH(
         });
 
         return updatedOrder;
-      });
-    } else if (body.products !== undefined) {
-      // Sadece products array'ini güncelle
-      console.log("Updating only products array:", body.products);
-      updatedOrder = await prisma.order.update({
-        where: { id: orderId },
-        data: {
-          products: body.products,
-        },
-        include: {
-          table: true,
-          staff: true,
-          orderItems: {
-            include: {
-              orderItemExtras: true,
-            },
-          },
-        },
       });
     }
 

@@ -123,8 +123,12 @@ export function useOrdersPage() {
         const order = orderOperations.orders.find((o) => o.id === orderId);
         if (!order) return;
 
-        // Bu siparişin ürünlerini al
-        const orderProducts = order.orderItems.map((item) => item.menuItemId);
+        // Bu siparişin ürünlerini al ve OrderProduct formatına çevir
+        const orderProducts = order.orderItems.map((item) => ({
+          id: item.menuItemId,
+          isPaid: true,
+          price: item.menuItemPrice,
+        }));
 
         // Siparişi ödendi olarak işaretle ve products array'ini güncelle
         await orderOperations.markOrderAsPaid(orderId, orderProducts);
@@ -145,7 +149,11 @@ export function useOrdersPage() {
       // Her siparişi ayrı ayrı ödendi olarak işaretle
       await Promise.all(
         tableOrders.map(async (order) => {
-          const orderProducts = order.orderItems.map((item) => item.menuItemId);
+          const orderProducts = order.orderItems.map((item) => ({
+            id: item.menuItemId,
+            isPaid: true,
+            price: item.menuItemPrice,
+          }));
           await orderOperations.markOrderAsPaid(order.id, orderProducts);
         })
       );
@@ -194,6 +202,7 @@ export function useOrdersPage() {
     saveOrder,
     addToExistingOrder,
     markOrderAsPaid,
+    markProductAsPaid: orderOperations.markProductAsPaid,
     markAllAsPaid,
     closeOrderDialog,
   };

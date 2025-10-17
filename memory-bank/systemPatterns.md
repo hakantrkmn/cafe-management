@@ -11,6 +11,26 @@ The system follows a modern full-stack architecture with Next.js App Router, emp
 
 ## Core System Patterns
 
+### 0. Products Array Analytics Pattern
+
+**Purpose**: Track product consumption per table for analytics and reporting
+
+**Implementation**:
+
+- Each Order has a `products: string[]` field
+- Products array populated when orders are paid
+- Duplicate products allowed for accurate quantity tracking
+- Table-level analytics by aggregating paid orders
+
+**Key Components**:
+
+- Order creation: Products array populated with order items
+- Order updates: New products appended to existing array
+- Payment processing: Products array finalized and locked
+- Analytics: Aggregate products from all paid orders per table
+
+## Core System Patterns
+
 ### 1. App Router Pattern
 
 ```
