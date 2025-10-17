@@ -583,4 +583,155 @@
   .mobile-table-card.has-orders {
     @apply bg-blue-50 border-blue-200 hover:border-blue-300;
   }
+
+  /* Gamze Love Message Styles */
+  .gamze-love-message {
+    @apply relative bg-gradient-to-br from-pink-500 via-red-500 to-purple-600 rounded-3xl px-4 py-4 shadow-2xl;
+    animation: love-appear 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+
+  .gamze-love-content {
+    @apply text-center;
+    animation: love-content 1s ease-out 0.3s forwards;
+  }
+
+  /* Mobile responsive adjustments for Gamze love message */
+  @media (max-width: 768px) {
+    .gamze-love-message {
+      @apply mx-20 px-4 py-4;
+      animation: love-appear-mobile 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)
+        forwards;
+      min-height: 160px;
+    }
+
+    .gamze-love-content {
+      animation: love-content-mobile 0.8s ease-out 0.2s forwards;
+    }
+
+    .gamze-love-message::before,
+    .gamze-love-message::after {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .gamze-love-message {
+      @apply mx-2 px-3 py-3;
+      min-height: 120px;
+    }
+
+    .gamze-love-content {
+      /* Content centered with flexbox */
+    }
+
+    .gamze-love-message::before,
+    .gamze-love-message::after {
+      font-size: 1rem; /* Smaller hearts on very small screens */
+      animation-duration: 2s; /* Slower animation for better visibility */
+    }
+  }
+
+  @keyframes love-appear {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes love-content {
+    0% {
+      transform: translateY(20px) scale(0.8);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Additional floating hearts animation */
+  .gamze-love-message::before,
+  .gamze-love-message::after {
+    content: "💖";
+    position: absolute;
+    font-size: 2rem;
+    animation: float-hearts 3s ease-in-out infinite;
+  }
+
+  .gamze-love-message::before {
+    top: -20px;
+    left: -20px;
+    animation-delay: 0s;
+  }
+
+  .gamze-love-message::after {
+    top: -20px;
+    right: -20px;
+    animation-delay: 1s;
+  }
+
+  @keyframes float-hearts {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(-30px) rotate(360deg);
+      opacity: 1;
+    }
+  }
+
+  /* Mobile-specific animations */
+  @keyframes love-appear-mobile {
+    0% {
+      transform: scale(0.5) rotate(-90deg) translateY(50px);
+      opacity: 0;
+      filter: blur(4px);
+    }
+    30% {
+      transform: scale(1.1) rotate(5deg) translateY(-10px);
+      opacity: 0.7;
+      filter: blur(2px);
+    }
+    70% {
+      transform: scale(0.95) rotate(-2deg) translateY(3px);
+      filter: blur(1px);
+    }
+    100% {
+      transform: scale(1) rotate(0deg) translateY(0px);
+      opacity: 1;
+      filter: blur(0px);
+    }
+  }
+
+  @keyframes love-content-mobile {
+    0% {
+      transform: translateY(20px) scale(0.9) rotate(-5deg);
+      opacity: 0;
+      filter: blur(3px);
+    }
+    50% {
+      transform: translateY(-3px) scale(1.02) rotate(1deg);
+      opacity: 0.8;
+      filter: blur(1px);
+    }
+    100% {
+      transform: translateY(0) scale(1) rotate(0deg);
+      opacity: 1;
+      filter: blur(0px);
+    }
+  }
 }
