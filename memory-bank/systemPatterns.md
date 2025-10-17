@@ -123,7 +123,7 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 - **MenuForm**: Menu item creation and update form ✅
 - **CategoryForm**: Category creation and update form ✅
 - **ExtraForm**: Extra creation and update form ✅
-- **OrderForm**: Order creation and modification form (planned)
+- **OrderForm**: Order creation and modification form ✅
 
 ### 3. Data Display Components
 
@@ -144,7 +144,13 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 - **MenuItemDialogs**: Menu item-specific dialogs (add/edit/delete) ✅
 - **ExtraDialogs**: Extra-specific dialogs (add/edit/delete) ✅
 - **SaveButton**: Batch save functionality ✅
-- **OrderList**: Order tracking and management (planned)
+- **OrderList**: Order tracking and management ✅
+- **TableLayoutEditor**: Drag-and-drop table positioning with localStorage persistence ✅
+- **OrderDialog**: Modal-based order creation with tabbed interface ✅
+- **MenuSelection**: Category-based menu browsing with responsive grid ✅
+- **OrderSummary**: Cart management with payment processing ✅
+- **ExtraSelectionDialog**: Extras selection with quantity management ✅
+- **useOrdersPage**: Complete order page logic with cart management and table operations ✅
 - **Chart**: Data visualization (future)
 - **StatusIndicator**: Real-time status display (future)
 
@@ -252,3 +258,13 @@ export function useFeaturePage() {
 - **CSS Architecture**: Component classes in globals.css for maintainable styling
 - **Responsive Design**: Esthetic container sizing with max-width constraints
 - **TanStack Query Optimization**: Fixed cache invalidation for real-time updates
+- **Order System Architecture**: Complete order workflow with drag-and-drop table layout
+- **Local State Management**: Cart state management with localStorage persistence
+- **Responsive Order Interface**: Mobile-optimized components with proper spacing
+- **Tab-based Order UI**: Replaced resizable panels with tabbed interface for better UX
+- **Bulk Operations**: "Mark All as Paid" functionality for efficient payment processing
+- **API Data Relationships**: Proper include statements for order data with menuItem and extras
+- **Order Page Hook**: Complete order page logic with cart management and table operations
+- **Transaction Handling**: Database transactions for order creation and payment processing
+- **Table Status Management**: Real-time table status tracking (available, occupied, has-orders)
+- **Cart Management**: Add, remove, update quantities with extras support and localStorage persistence

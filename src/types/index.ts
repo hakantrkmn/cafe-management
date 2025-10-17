@@ -72,6 +72,7 @@ export interface OrderWithRelations extends Order {
   table: Table;
   staff: User;
   orderItems: OrderItemWithRelations[];
+  products: string[]; // Masa bazlı analiz için tüketilen ürün ID'leri
 }
 
 export interface OrderItemWithRelations extends OrderItem {
@@ -143,6 +144,57 @@ export interface CreateOrderItemRequest {
 
 export interface CreateOrderItemExtraRequest {
   extraId: string;
+  quantity: number;
+}
+
+export interface UpdateOrderRequest {
+  isPaid?: boolean;
+  orderItems?: CreateOrderItemRequest[];
+  products?: string[];
+}
+
+// Order Cart Types (Local State)
+export interface OrderCartItem {
+  id: string; // temporary ID for local state
+  menuItemId: string;
+  menuItemName: string;
+  menuItemPrice: number;
+  quantity: number;
+  extras: OrderCartExtra[];
+  subtotal: number;
+}
+
+export interface OrderCartExtra {
+  extraId: string;
+  extraName: string;
+  extraPrice: number;
+  quantity: number;
+}
+
+// Table Layout Types
+export interface TablePosition {
+  id: string;
+  x: number;
+  y: number;
+}
+
+export interface TableLayout {
+  [tableId: string]: TablePosition;
+}
+
+// Table Status Types
+export type TableStatus = "available" | "occupied" | "has-orders";
+
+// Extra Selection Types
+export interface ExtraWithQuantity {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface SelectedExtra {
+  extra: Extra;
   quantity: number;
 }
 

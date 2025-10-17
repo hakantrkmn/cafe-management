@@ -87,7 +87,7 @@ export function TableDialogs({
             <DialogDescription>Masa bilgilerini güncelleyin</DialogDescription>
           </DialogHeader>
           <TableForm
-            initialData={editingTable}
+            initialData={editingTable || undefined}
             onSubmit={onSubmitEdit}
             isLoading={isLoading}
             submitText="Güncelle"

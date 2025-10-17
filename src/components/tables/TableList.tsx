@@ -26,7 +26,8 @@ export function TableList({
         <TableIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
         <p>Henüz masa eklenmemiş</p>
         <p className="text-sm">
-          Yukarıdaki "Masa Ekle" butonunu kullanarak ilk masanızı ekleyin
+          Yukarıdaki &quot;Masa Ekle&quot; butonunu kullanarak ilk masanızı
+          ekleyin
         </p>
       </div>
     );

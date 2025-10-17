@@ -42,13 +42,35 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          // If user is STAFF and doesn't have cafeId, get it from AllowedStaff
+          let finalCafeId = user.cafeId;
+          let finalCafe = user.cafe;
+
+          if (user.role === "STAFF" && !user.cafeId) {
+            const allowedStaff = await prisma.allowedStaff.findFirst({
+              where: { userId: user.id },
+              include: { cafe: true },
+            });
+
+            if (allowedStaff) {
+              finalCafeId = allowedStaff.cafeId;
+              finalCafe = allowedStaff.cafe;
+
+              // Update user's cafeId in database
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { cafeId: allowedStaff.cafeId },
+              });
+            }
+          }
+
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
-            cafeId: user.cafeId || undefined,
-            cafe: user.cafe,
+            cafeId: finalCafeId || undefined,
+            cafe: finalCafe,
             managedCafe: user.managedCafe,
           };
         } catch (error) {

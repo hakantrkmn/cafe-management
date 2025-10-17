@@ -10,8 +10,8 @@ interface TableCardProps {
     name: string;
     isOccupied: boolean;
   };
-  onEdit: (table: any) => void;
-  onDelete: (table: any) => void;
+  onEdit: (table: { id: string; name: string; isOccupied: boolean }) => void;
+  onDelete: (table: { id: string; name: string; isOccupied: boolean }) => void;
   isLoading: boolean;
 }
 

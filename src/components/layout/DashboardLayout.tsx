@@ -12,7 +12,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useLogout } from "@/queries/auth";
-import { LogOut, Settings, User } from "lucide-react";
+import {
+  Home,
+  LogOut,
+  Menu,
+  Settings,
+  ShoppingCart,
+  Table,
+  User,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 import { ReactNode } from "react";
 
 interface DashboardLayoutProps {
@@ -114,6 +124,62 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
       </header>
+
+      {/* Navigation */}
+      <nav className="border-b bg-card">
+        <div className="flex h-12 items-center px-6">
+          <div className="flex items-center space-x-6">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Home className="h-4 w-4" />
+              Ana Sayfa
+            </Link>
+
+            {isManager ? (
+              <>
+                <Link
+                  href="/dashboard/menu"
+                  className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Menu className="h-4 w-4" />
+                  Menü Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/tables"
+                  className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Table className="h-4 w-4" />
+                  Masa Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/staff"
+                  className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Users className="h-4 w-4" />
+                  Personel Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  Ayarlar
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/dashboard/orders"
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Sipariş Yönetimi
+              </Link>
+            )}
+          </div>
+        </div>
+      </nav>
 
       {/* Main Content */}
       <main className="flex-1">{children}</main>

@@ -28,7 +28,7 @@ const menuItemSchema = z.object({
   name: z.string().min(1, "Menü öğesi adı zorunludur"),
   price: z.number().min(0, "Fiyat 0'dan büyük olmalıdır"),
   description: z.string().optional(),
-  isAvailable: z.boolean().default(true),
+  isAvailable: z.boolean(),
 });
 
 type MenuItemFormData = z.infer<typeof menuItemSchema>;

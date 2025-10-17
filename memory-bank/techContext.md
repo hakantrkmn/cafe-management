@@ -68,6 +68,10 @@ src/
 - **bcryptjs**: ^3.0.2 (password hashing)
 - **Sonner**: ^2.0.7 (toast notifications)
 - **Lucide React**: ^0.546.0 (icons)
+- **@dnd-kit/core**: ^6.3.1 (drag and drop functionality)
+- **@dnd-kit/sortable**: ^10.0.0 (sortable drag and drop)
+- **@dnd-kit/utilities**: ^3.2.2 (drag and drop utilities)
+- **react-resizable-panels**: ^3.0.6 (resizable panel components)
 
 ## Technical Decisions Made
 
@@ -86,6 +90,11 @@ src/
 13. **Component Architecture**: Modular, reusable components ✅
 14. **API Design**: RESTful endpoints with proper error handling ✅
 15. **Next.js 15 Compatibility**: Params await pattern for dynamic routes ✅
+16. **Drag and Drop**: @dnd-kit for table layout management ✅
+17. **Local Storage**: Table position persistence with localStorage ✅
+18. **Responsive Design**: Mobile-first order interface ✅
+19. **Order System**: Complete order workflow with cart management ✅
+20. **Transaction Handling**: Database transactions for data consistency ✅
 
 ## Technical Decisions Pending
 
@@ -96,7 +105,7 @@ src/
 
 ## Recently Completed Technical Work
 
-### Manager Features Implementation (December 2024)
+### Manager Features Implementation (December 2024 - October 2025)
 
 - **API Routes**: Complete CRUD operations for cafe, staff, and table management
 - **Component Refactoring**: Modular architecture with reusable form components
@@ -105,7 +114,7 @@ src/
 - **State Management**: TanStack Query integration for all manager features
 - **UI Components**: Modern shadcn/ui components with Turkish localization
 
-### Menu Management System Implementation (December 2024)
+### Menu Management System Implementation (December 2024 - October 2025)
 
 - **Tab-based Architecture**: Separate tabs for Categories, Menu Items, and Extras
 - **Local State Management**: Batch save functionality with status tracking
@@ -114,7 +123,7 @@ src/
 - **Form Management**: React Hook Form + Zod validation for all menu forms
 - **UI/UX**: Modern interface with status badges and unsaved changes indicators
 
-### Menu Page Refactoring & Design Optimization (December 2024)
+### Menu Page Refactoring & Design Optimization (December 2024 - October 2025)
 
 - **Component Separation**: Refactored into separate tab components (CategoryTab, MenuItemTab, ExtraTab)
 - **Dialog Architecture**: Separated dialogs by feature (CategoryDialogs, MenuItemDialogs, ExtraDialogs)
@@ -122,6 +131,20 @@ src/
 - **Responsive Design**: Esthetic container sizing with max-width constraints
 - **TanStack Query Fix**: Fixed cache invalidation for real-time updates
 - **UI Optimization**: Centered layouts with proper spacing and typography
+
+### Staff Order System Implementation (December 2024)
+
+- **Complete Order Management**: Full order workflow from table selection to payment processing
+- **Drag-and-Drop Interface**: @dnd-kit integration for table layout management with localStorage persistence
+- **Order Dialog System**: Modal-based order creation with tabbed interface (Menu Selection + Order Summary)
+- **Cart Management**: Add, remove, update quantities with extras selection and real-time calculations
+- **API Integration**: Complete order CRUD operations with proper data relationships and transaction handling
+- **Table Status Tracking**: Real-time table status (available, occupied, has-orders) with visual indicators
+- **Responsive Design**: Mobile-optimized components with proper spacing and layout
+- **Bulk Operations**: "Mark All as Paid" functionality for efficient payment processing
+- **Data Relationships**: Complete API includes for menuItem, extras, and order relationships
+- **Transaction Handling**: Database transactions for order creation and payment processing
+- **Local Storage**: Table position persistence across sessions for improved UX
 
 ## Performance Considerations
 

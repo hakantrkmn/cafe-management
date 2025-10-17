@@ -143,6 +143,7 @@ model Order {
   staffId     String    @db.ObjectId
   totalAmount Float
   isPaid      Boolean   @default(false)
+  products    String[]  @default([]) // Masa bazlı analiz için tüketilen ürün ID'leri
   createdAt   DateTime  @default(now())
   paidAt      DateTime?
   updatedAt   DateTime  @updatedAt

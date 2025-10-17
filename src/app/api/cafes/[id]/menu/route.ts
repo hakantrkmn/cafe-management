@@ -48,9 +48,11 @@ export async function GET(
     ]);
 
     return NextResponse.json({
-      categories,
-      menuItems,
-      extras,
+      data: {
+        categories,
+        menuItems,
+        extras,
+      },
     });
   } catch (error) {
     console.error("Get menu error:", error);

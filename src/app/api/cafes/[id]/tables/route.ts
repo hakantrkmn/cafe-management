@@ -62,7 +62,7 @@ export async function GET(
       isOccupied: table.orders.length > 0,
     }));
 
-    return NextResponse.json({ tables: tablesWithStatus }, { status: 200 });
+    return NextResponse.json({ data: tablesWithStatus }, { status: 200 });
   } catch (error) {
     console.error("Get tables error:", error);
     return NextResponse.json({ message: "Sunucu hatası" }, { status: 500 });

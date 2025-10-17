@@ -170,4 +170,108 @@
   .menu-action-button-danger {
     @apply text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20;
   }
+
+  /* Order system styles */
+  .table-layout-grid {
+    @apply relative w-full h-96 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden;
+  }
+  .table-card {
+    @apply absolute w-20 h-20 cursor-pointer transition-all duration-200;
+  }
+  .table-card-draggable {
+    @apply cursor-move hover:shadow-lg;
+  }
+  .table-card-clickable {
+    @apply hover:shadow-md;
+  }
+  .order-dialog {
+    @apply max-w-6xl max-h-[90vh] overflow-hidden;
+  }
+  .menu-selection-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3;
+  }
+  .order-summary {
+    @apply w-96 overflow-y-auto max-h-[70vh] pl-2 border-l;
+  }
+  .menu-selection {
+    @apply flex-1 overflow-y-auto max-h-[70vh] pr-2;
+  }
+
+  /* Orders Page Responsive Styles */
+  .table-card-mobile {
+    @apply p-4 cursor-pointer transition-all duration-200 hover:shadow-md;
+  }
+
+  .orders-grid-responsive {
+    @apply grid gap-3 sm:gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    .orders-grid-responsive {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 640px) and (max-width: 1024px) {
+    .orders-grid-responsive {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .orders-grid-responsive {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .orders-grid-responsive {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .order-dialog-mobile {
+    @apply w-[95vw] max-w-7xl;
+  }
+
+  @media (max-width: 640px) {
+    .order-dialog-mobile {
+      @apply w-[95vw] h-[90vh] max-w-none;
+    }
+  }
+
+  /* Table status colors */
+  .table-status-available {
+    @apply bg-green-50 border-green-200 text-green-800;
+  }
+
+  .table-status-occupied {
+    @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+  }
+
+  .table-status-has-orders {
+    @apply bg-blue-50 border-blue-200 text-blue-800;
+  }
+
+  /* Mobile table card styles */
+  .mobile-table-card {
+    @apply flex items-center justify-between p-4 rounded-lg border transition-all duration-200;
+  }
+
+  .mobile-table-card:hover {
+    @apply shadow-md;
+  }
+
+  .mobile-table-card.available {
+    @apply bg-white border-green-200 hover:border-green-300;
+  }
+
+  .mobile-table-card.occupied {
+    @apply bg-yellow-50 border-yellow-200 hover:border-yellow-300;
+  }
+
+  .mobile-table-card.has-orders {
+    @apply bg-blue-50 border-blue-200 hover:border-blue-300;
+  }
 }
