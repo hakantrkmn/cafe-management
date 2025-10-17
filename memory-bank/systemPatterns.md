@@ -40,18 +40,33 @@ app/
 - **Composition over Inheritance**: Flexible component composition
 - **Props Interface**: Strongly typed component props
 - **Custom Hooks**: Business logic separation
+- **Page Hooks**: Page-specific logic encapsulation
+- **shadcn/ui Components**: Consistent, accessible UI primitives
+- **Role-based Rendering**: Conditional component display based on user roles
+- **Modular Components**: Small, focused, reusable components
+- **Form Components**: Dedicated form components with validation
+- **Feature Components**: Domain-specific components (StaffList, TableCard, etc.)
 
 ### 3. State Management Pattern
 
 ```typescript
-// Global state structure
+// Server state with TanStack Query
 interface AppState {
-  auth: AuthState;
-  orders: OrdersState;
-  menu: MenuState;
-  inventory: InventoryState;
-  staff: StaffState;
-  ui: UIState;
+  auth: AuthState; // NextAuth.js session
+  orders: OrdersState; // TanStack Query cache
+  menu: MenuState; // TanStack Query cache
+  inventory: InventoryState; // TanStack Query cache
+  staff: StaffState; // TanStack Query cache
+  ui: UIState; // Local component state
+}
+
+// Auth state structure
+interface AuthState {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  isManager: boolean;
+  isStaff: boolean;
 }
 ```
 
@@ -60,7 +75,9 @@ interface AppState {
 - **RESTful endpoints** with consistent naming
 - **Type-safe API calls** with TypeScript
 - **Error handling** with standardized responses
-- **Authentication** via middleware
+- **Authentication** via NextAuth.js middleware
+- **TanStack Query integration** for caching and synchronization
+- **MongoDB with Prisma** for type-safe database operations
 
 ## Data Flow Patterns
 
@@ -86,24 +103,40 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 
 ### 1. Layout Components
 
-- **RootLayout**: Global app structure
-- **DashboardLayout**: Main application layout
+- **RootLayout**: Global app structure with providers
+- **DashboardLayout**: Main application layout with header and navigation
+- **AuthLayout**: Authentication pages layout
 - **PageLayout**: Individual page layouts
 - **ModalLayout**: Overlay components
 
 ### 2. Form Components
 
-- **FormField**: Reusable form input
+- **FormField**: Reusable form input with shadcn/ui components
 - **FormSection**: Grouped form fields
-- **FormValidation**: Real-time validation
-- **FormSubmission**: Loading and error states
+- **FormValidation**: Real-time validation with Zod schemas
+- **FormSubmission**: Loading and error states with TanStack Query
+- **SignInForm**: Authentication form with validation
+- **SignUpForm**: Registration form with role selection
+- **CafeForm**: Cafe creation and update form ✅
+- **InviteStaffForm**: Staff invitation form ✅
+- **TableForm**: Table creation and update form ✅
+- **MenuForm**: Menu item creation and update form (planned)
+- **OrderForm**: Order creation and modification form (planned)
 
 ### 3. Data Display Components
 
 - **DataTable**: Sortable, filterable tables
-- **Card**: Information display cards
-- **Chart**: Data visualization
-- **StatusIndicator**: Real-time status display
+- **Card**: Information display cards with shadcn/ui
+- **DashboardCards**: Role-based navigation cards ✅
+- **UserInfo**: User profile display component ✅
+- **StaffList**: Staff management list component ✅
+- **TableList**: Table management list component ✅
+- **TableCard**: Individual table display component ✅
+- **TableDialogs**: Modal dialogs for table operations ✅
+- **MenuList**: Menu item display and management (planned)
+- **OrderList**: Order tracking and management (planned)
+- **Chart**: Data visualization (future)
+- **StatusIndicator**: Real-time status display (future)
 
 ## Integration Patterns
 
@@ -129,9 +162,11 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 
 ### 1. Authentication
 
-- **JWT tokens** for session management
-- **Role-based access control** (RBAC)
-- **Route protection** middleware
+- **NextAuth.js** with JWT strategy for session management
+- **Role-based access control** (RBAC) with Manager/Staff roles
+- **Route protection** with automatic redirects
+- **bcryptjs** for password hashing
+- **Credentials provider** for email/password authentication
 
 ### 2. Data Validation
 
@@ -164,3 +199,39 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 - **Connection pooling** for WebSockets
 - **Debounced updates** for frequent changes
 - **Selective updates** based on user context
+
+## Page Hooks Pattern
+
+### 1. Page-Specific Custom Hooks
+
+```typescript
+// Page hooks encapsulate all page logic
+export function useFeaturePage() {
+  const { isAuthenticated, isLoading, isManager } = useAuth();
+  const { data, isLoading: dataLoading } = useFeatureData();
+  const mutation = useFeatureMutation();
+
+  const handleAction = async (data) => {
+    await mutation.mutateAsync(data);
+  };
+
+  return {
+    data,
+    isLoading: isLoading || dataLoading,
+    isAuthenticated,
+    isManager,
+    handleAction,
+  };
+}
+```
+
+### 2. Benefits
+
+- **Separation of Concerns**: UI logic separated from business logic
+- **Reusability**: Page logic can be reused across components
+- **Testability**: Hooks can be tested independently
+- **Maintainability**: Changes to business logic centralized
+- **Consistency**: Uniform patterns across all pages
+- **Manager Features**: Complete implementation with modern UI components
+- **API Integration**: RESTful endpoints with proper error handling and authentication
+- **Component Modularity**: Small, focused, reusable components with clear separation of concerns

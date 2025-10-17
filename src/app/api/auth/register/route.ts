@@ -33,6 +33,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If user is STAFF, check if they are in allowedStaff list
+    let cafeId: string | undefined = undefined;
+    if (role === "STAFF") {
+      const allowedStaff = await prisma.allowedStaff.findFirst({
+        where: { email },
+        include: { cafe: true },
+      });
+
+      if (!allowedStaff) {
+        return NextResponse.json(
+          { message: "Bu email adresi çalışan olarak davet edilmemiş" },
+          { status: 400 }
+        );
+      }
+
+      cafeId = allowedStaff.cafeId;
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -43,8 +61,22 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         role: role as "MANAGER" | "STAFF",
+        cafeId,
       },
     });
+
+    // If user is STAFF, update the allowedStaff record with userId
+    if (role === "STAFF" && cafeId) {
+      await prisma.allowedStaff.updateMany({
+        where: {
+          email,
+          cafeId,
+        },
+        data: {
+          userId: user.id,
+        },
+      });
+    }
 
     // Remove password from response
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

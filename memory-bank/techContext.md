@@ -7,16 +7,18 @@
 - **Framework**: Next.js 15.5.6 (App Router)
 - **Language**: TypeScript 5
 - **Styling**: Tailwind CSS 4
-- **UI Components**: To be determined (likely shadcn/ui)
-- **State Management**: React Context + useReducer (or Zustand)
+- **UI Components**: shadcn/ui with Radix UI primitives
+- **State Management**: TanStack Query for server state
 - **Forms**: React Hook Form + Zod validation
+- **Icons**: Lucide React
 
 ### Backend
 
 - **Runtime**: Node.js (Next.js API routes)
 - **Database**: MongoDB with Prisma ORM
-- **Authentication**: NextAuth.js or Auth0
-- **Real-time**: WebSockets or Server-Sent Events
+- **Authentication**: NextAuth.js with credentials provider
+- **Password Hashing**: bcryptjs
+- **Real-time**: To be determined (WebSockets vs Server-Sent Events)
 - **File Storage**: Local or cloud storage for images
 
 ### Development Tools
@@ -57,26 +59,51 @@ src/
 - **Next.js**: 15.5.6 (latest stable)
 - **TypeScript**: ^5 (latest)
 - **Tailwind CSS**: ^4 (latest)
+- **Prisma**: ^6.17.1 (database ORM)
+- **NextAuth.js**: ^4.24.11 (authentication)
+- **TanStack Query**: ^5.90.5 (server state management)
+- **React Hook Form**: ^7.65.0 (form handling)
+- **Zod**: ^4.1.12 (validation)
+- **shadcn/ui**: Radix UI components with Tailwind
+- **bcryptjs**: ^3.0.2 (password hashing)
+- **Sonner**: ^2.0.7 (toast notifications)
+- **Lucide React**: ^0.546.0 (icons)
 
 ## Technical Decisions Made
 
-1. **Next.js App Router**: Modern routing with server components
-2. **TypeScript**: Type safety throughout the application
-3. **Tailwind CSS**: Utility-first styling approach
-4. **Turbopack**: Fast development builds
-5. **ESLint**: Code quality and consistency
-
-## Technical Decisions Made
-
-1. **Database**: MongoDB with Prisma ORM ✅
-2. **Authentication**: NextAuth.js with credentials provider ✅
+1. **Next.js App Router**: Modern routing with server components ✅
+2. **TypeScript**: Type safety throughout the application ✅
+3. **Tailwind CSS**: Utility-first styling approach ✅
+4. **Turbopack**: Fast development builds ✅
+5. **ESLint**: Code quality and consistency ✅
+6. **Database**: MongoDB with Prisma ORM ✅
+7. **Authentication**: NextAuth.js with credentials provider ✅
+8. **UI Library**: shadcn/ui with Radix UI primitives ✅
+9. **State Management**: TanStack Query for server state ✅
+10. **Forms**: React Hook Form + Zod validation ✅
+11. **Password Hashing**: bcryptjs ✅
+12. **Localization**: Turkish language support ✅
+13. **Component Architecture**: Modular, reusable components ✅
+14. **API Design**: RESTful endpoints with proper error handling ✅
+15. **Next.js 15 Compatibility**: Params await pattern for dynamic routes ✅
 
 ## Technical Decisions Pending
 
-3. **UI Library**: shadcn/ui vs Chakra UI vs custom
-4. **State Management**: Context vs Zustand vs Redux Toolkit
-5. **Real-time**: WebSockets vs Server-Sent Events vs polling
-6. **Deployment**: Vercel vs other platforms
+1. **Real-time**: WebSockets vs Server-Sent Events vs polling
+2. **Payment Processing**: Stripe vs local payment handling
+3. **File Storage**: Local vs cloud storage for images
+4. **Deployment**: Vercel vs other platforms
+
+## Recently Completed Technical Work
+
+### Manager Features Implementation (December 2024)
+
+- **API Routes**: Complete CRUD operations for cafe, staff, and table management
+- **Component Refactoring**: Modular architecture with reusable form components
+- **Page Hooks**: Custom hooks for each dashboard page encapsulating business logic
+- **Next.js 15 Compatibility**: Updated all dynamic route handlers for params await pattern
+- **State Management**: TanStack Query integration for all manager features
+- **UI Components**: Modern shadcn/ui components with Turkish localization
 
 ## Performance Considerations
 
