@@ -120,7 +120,9 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 - **CafeForm**: Cafe creation and update form ✅
 - **InviteStaffForm**: Staff invitation form ✅
 - **TableForm**: Table creation and update form ✅
-- **MenuForm**: Menu item creation and update form (planned)
+- **MenuForm**: Menu item creation and update form ✅
+- **CategoryForm**: Category creation and update form ✅
+- **ExtraForm**: Extra creation and update form ✅
 - **OrderForm**: Order creation and modification form (planned)
 
 ### 3. Data Display Components
@@ -133,7 +135,15 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 - **TableList**: Table management list component ✅
 - **TableCard**: Individual table display component ✅
 - **TableDialogs**: Modal dialogs for table operations ✅
-- **MenuList**: Menu item display and management (planned)
+- **MenuList**: Menu item display and management ✅
+- **CategoryTabs**: Category management with tab interface ✅
+- **ExtrasList**: Extra management list component ✅
+- **MenuItemCard**: Individual menu item display ✅
+- **MenuDialogs**: Modal dialogs for menu operations ✅ (Refactored into separate dialog components)
+- **CategoryDialogs**: Category-specific dialogs (add/edit/delete) ✅
+- **MenuItemDialogs**: Menu item-specific dialogs (add/edit/delete) ✅
+- **ExtraDialogs**: Extra-specific dialogs (add/edit/delete) ✅
+- **SaveButton**: Batch save functionality ✅
 - **OrderList**: Order tracking and management (planned)
 - **Chart**: Data visualization (future)
 - **StatusIndicator**: Real-time status display (future)
@@ -233,5 +243,12 @@ export function useFeaturePage() {
 - **Maintainability**: Changes to business logic centralized
 - **Consistency**: Uniform patterns across all pages
 - **Manager Features**: Complete implementation with modern UI components
+- **Menu Management**: Tab-based architecture with separate save operations
+- **Local State Management**: Batch save functionality with status tracking
 - **API Integration**: RESTful endpoints with proper error handling and authentication
 - **Component Modularity**: Small, focused, reusable components with clear separation of concerns
+- **Tab Component Architecture**: Separate components for each tab (CategoryTab, MenuItemTab, ExtraTab)
+- **Dialog Component Separation**: Feature-specific dialog components for better maintainability
+- **CSS Architecture**: Component classes in globals.css for maintainable styling
+- **Responsive Design**: Esthetic container sizing with max-width constraints
+- **TanStack Query Optimization**: Fixed cache invalidation for real-time updates

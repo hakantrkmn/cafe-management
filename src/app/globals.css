@@ -120,3 +120,54 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Menu page layout utilities */
+  .menu-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .menu-tabs-container {
+    @apply max-w-6xl mx-auto;
+  }
+
+  .menu-content-container {
+    @apply max-w-5xl mx-auto;
+  }
+
+  /* Category tabs styling */
+  .category-tabs-list {
+    @apply w-full h-auto p-2 bg-muted/30 rounded-lg border;
+  }
+
+  .category-tabs-wrapper {
+    @apply flex flex-wrap gap-2 w-full;
+  }
+
+  .category-tab-trigger {
+    @apply flex items-center justify-between gap-2 px-4 py-2.5 min-w-0 flex-1 sm:flex-none sm:min-w-[180px] sm:max-w-[250px] rounded-md transition-all duration-200;
+  }
+
+  /* Grid layouts */
+  .menu-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+
+  .menu-grid-compact {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3;
+  }
+
+  /* Card styling */
+  .menu-card {
+    @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  /* Button styling */
+  .menu-action-button {
+    @apply h-8 w-8 p-0 flex items-center justify-center rounded-md hover:bg-muted cursor-pointer transition-colors duration-200;
+  }
+
+  .menu-action-button-danger {
+    @apply text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20;
+  }
+}
