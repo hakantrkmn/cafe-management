@@ -71,6 +71,7 @@ export function OrderDialog({
     null
   );
   const [extraDialogOpen, setExtraDialogOpen] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const handleItemSelect = (menuItem: MenuItem) => {
     setSelectedMenuItem(menuItem);
@@ -82,15 +83,31 @@ export function OrderDialog({
     quantity: number,
     selectedExtras: ExtraWithQuantity[]
   ) => {
+    console.log("OrderDialog - handleAddToCart called");
+    setIsAddingToCart(true);
     onAddToCart(menuItem, quantity, selectedExtras);
     setSelectedMenuItem(null);
     setExtraDialogOpen(false);
+    // Flag'i kısa bir süre sonra sıfırla
+    setTimeout(() => setIsAddingToCart(false), 100);
+    console.log("OrderDialog - handleAddToCart completed");
   };
 
-  const handleClose = () => {
-    onOpenChange(false);
-    setSelectedMenuItem(null);
-    setExtraDialogOpen(false);
+  const handleClose = (open: boolean) => {
+    console.log(
+      "OrderDialog - handleClose called with open:",
+      open,
+      "isAddingToCart:",
+      isAddingToCart
+    );
+    if (!open && !isAddingToCart) {
+      console.log("OrderDialog - closing dialog");
+      onOpenChange(false);
+      setSelectedMenuItem(null);
+      setExtraDialogOpen(false);
+    } else if (!open && isAddingToCart) {
+      console.log("OrderDialog - ignoring close request during add to cart");
+    }
   };
 
   if (!selectedTableId) return null;

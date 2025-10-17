@@ -88,8 +88,7 @@ export function useOrdersPage() {
       }
 
       cartManagement.clearCart();
-      setOrderDialogOpen(false);
-      setSelectedTableId(null);
+      // Dialog'u kapatmıyoruz - kullanıcı aynı masaya daha fazla ürün ekleyebilir
     } catch (error) {
       console.error("Error saving order:", error);
     }
@@ -107,8 +106,7 @@ export function useOrdersPage() {
         );
 
         cartManagement.clearCart();
-        setOrderDialogOpen(false);
-        setSelectedTableId(null);
+        // Dialog'u kapatmıyoruz - kullanıcı aynı masaya daha fazla ürün ekleyebilir
       } catch (error) {
         console.error("Error adding to existing order:", error);
       }

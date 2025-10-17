@@ -104,6 +104,14 @@
 25. **Automatic Order Merging**: Automatically adds to existing unpaid orders ✅
 26. **Products Array Duplicate Support**: Removed duplicate prevention - same products can be added multiple times ✅
 27. **TypeScript Type Safety Improvements**: Fixed 'any' types and type mismatches across components ✅
+28. **Individual Product Payment System**: Implemented separate payment tracking for each product within an order ✅
+29. **Prisma Schema Update**: Changed products field from String[] to Json[] for structured data ✅
+30. **OrderProduct Interface**: Created type-safe interface for individual product payment tracking ✅
+31. **markProductAsPaid Function**: Added function to mark individual products as paid ✅
+32. **UI Payment Buttons**: Each product displays separate "Öde" button for individual payment ✅
+33. **API Route Enhancement**: Updated order update API to handle individual product payments ✅
+34. **Visual Payment Feedback**: Paid products show green background and "Ödendi" badge ✅
+35. **Automatic Order Completion**: Order marked as paid when all individual products are paid ✅
 
 ### Immediate Next Steps
 
@@ -127,7 +135,7 @@
 8. **Form Management**: React Hook Form + Zod validation ✅
 9. **Drag and Drop**: @dnd-kit for table layout management ✅
 10. **Local Storage**: Table position persistence with localStorage ✅
-11. **Order System**: Complete order workflow with cart management ✅
+11. **Order System**: Complete order workflow with cart management and individual product payment ✅
 
 ## Key Patterns and Preferences
 

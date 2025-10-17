@@ -90,11 +90,13 @@ export function ExtraSelectionDialog({
       })
     );
 
+    console.log("ExtraSelectionDialog - handleAddToCart called");
     onAddToCart(menuItem, quantity, extrasWithQuantity);
 
     // Reset form
     setQuantity(1);
     setSelectedExtras([]);
+    console.log("ExtraSelectionDialog - closing dialog");
     onOpenChange(false);
   };
 

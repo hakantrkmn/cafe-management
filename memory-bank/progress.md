@@ -73,6 +73,11 @@
 - [x] **Products Array Analytics**: Table-based product consumption tracking
 - [x] **Smart Order Merging**: Automatic order consolidation to prevent duplicates
 - [x] **Duplicate Product Support**: Same products can be added multiple times
+- [x] **Individual Product Payment**: Separate payment tracking for each product within an order
+- [x] **Prisma Schema Enhancement**: Products field updated to Json[] for structured payment data
+- [x] **OrderProduct Interface**: Type-safe interface for individual product payment tracking
+- [x] **markProductAsPaid Function**: Individual product payment processing
+- [x] **UI Payment Enhancement**: Separate payment buttons for each product with visual feedback
 
 ### Phase 2: Core Features
 
@@ -112,8 +117,8 @@
 - **Menu Management**: 100% complete (Categories, Menu Items, Extras with tab-based UI)
 - **Menu Page Architecture**: 100% complete (Refactored into separate tab components)
 - **UI/UX Design**: 100% complete (Responsive layout with esthetic container sizing)
-- **Order System**: 100% complete (Complete order workflow with drag-and-drop table layout)
-- **Order Management**: 100% complete (Cart management, payment processing, table status tracking)
+- **Order System**: 100% complete (Complete order workflow with drag-and-drop table layout and individual product payment)
+- **Order Management**: 100% complete (Cart management, individual product payment processing, table status tracking)
 - **API Routes**: 100% complete (Manager features + Menu management + Order APIs)
 - **Core Business Logic**: 100% complete
 - **Testing**: 0% complete
@@ -150,9 +155,10 @@
 - **Component Architecture**: Modular, reusable components
 - **API Design**: RESTful endpoints with proper error handling
 - **Page Hooks Pattern**: Custom hooks for page logic encapsulation
-- **Order System**: Complete order workflow with cart management
+- **Order System**: Complete order workflow with cart management and individual product payment
 - **Drag and Drop**: @dnd-kit for table layout management
 - **Transaction Handling**: Database transactions for data consistency
+- **Individual Product Payment**: Separate payment tracking for each product within an order
 
 ### Pending Decisions
 

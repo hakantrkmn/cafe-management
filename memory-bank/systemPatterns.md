@@ -11,13 +11,43 @@ The system follows a modern full-stack architecture with Next.js App Router, emp
 
 ## Core System Patterns
 
-### 0. Products Array Analytics Pattern
+### 0. Individual Product Payment Pattern
+
+**Purpose**: Enable individual product payment tracking within a single order
+
+**Implementation**:
+
+- Each Order has a `products: Json[]` field containing `OrderProduct` objects
+- Each product has: `{id: string, isPaid: boolean, price: number}`
+- Products array populated during order creation with individual entries
+- Individual products can be marked as paid separately
+- Order is marked as paid only when all products are paid
+
+**Key Components**:
+
+- Order creation: Products array populated with individual product entries
+- Individual payment: `markProductAsPaid` function updates specific product
+- Bulk payment: All products marked as paid simultaneously
+- Order completion: Order `isPaid` becomes true when all products are paid
+- UI display: Each product shown separately with individual payment buttons
+
+**Data Structure**:
+
+```typescript
+interface OrderProduct {
+  id: string; // menuItemId (foreign key to MenuItem)
+  isPaid: boolean;
+  price: number;
+}
+```
+
+### 1. Products Array Analytics Pattern
 
 **Purpose**: Track product consumption per table for analytics and reporting
 
 **Implementation**:
 
-- Each Order has a `products: string[]` field
+- Each Order has a `products: Json[]` field with individual payment tracking
 - Products array populated when orders are paid
 - Duplicate products allowed for accurate quantity tracking
 - Table-level analytics by aggregating paid orders
@@ -168,9 +198,11 @@ Schedule Creation → Shift Assignment → Time Tracking → Performance Analyti
 - **TableLayoutEditor**: Drag-and-drop table positioning with localStorage persistence ✅
 - **OrderDialog**: Modal-based order creation with tabbed interface ✅
 - **MenuSelection**: Category-based menu browsing with responsive grid ✅
-- **OrderSummary**: Cart management with payment processing ✅
+- **OrderSummary**: Cart management with individual product payment processing ✅
 - **ExtraSelectionDialog**: Extras selection with quantity management ✅
 - **useOrdersPage**: Complete order page logic with cart management and table operations ✅
+- **Individual Product Payment**: Each product can be paid separately within an order ✅
+- **markProductAsPaid**: Function to mark individual products as paid ✅
 - **Chart**: Data visualization (future)
 - **StatusIndicator**: Real-time status display (future)
 
