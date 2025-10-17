@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  MANAGER
+  STAFF
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole
+  cafeId    String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cafe         Cafe?         @relation(fields: [cafeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  managedCafe  Cafe?         @relation("CafeManager")
+  orders       Order[]
+  allowedStaff AllowedStaff[]
+
+  @@map("users")
+}
+
+model Cafe {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  address   String?
+  phone     String?
+  managerId String   @unique @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  manager     User         @relation("CafeManager", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  staff       User[]
+  allowedStaff AllowedStaff[]
+  categories  Category[]
+  menuItems   MenuItem[]
+  extras      Extra[]
+  tables      Table[]
+  orders      Order[]
+
+  @@map("cafes")
+}
+
+model AllowedStaff {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId  String @db.ObjectId
+  email   String
+  userId  String? @db.ObjectId
+  createdAt DateTime @default(now())
+
+  // Relations
+  cafe Cafe  @relation(fields: [cafeId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
+
+  @@unique([cafeId, email])
+  @@map("allowedStaffs")
+}
+
+model Category {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId  String @db.ObjectId
+  name    String
+  order   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cafe      Cafe       @relation(fields: [cafeId], references: [id])
+  menuItems MenuItem[]
+
+  @@map("categories")
+}
+
+model MenuItem {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId      String   @db.ObjectId
+  categoryId  String   @db.ObjectId
+  name        String
+  price       Float
+  description String?
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  cafe         Cafe            @relation(fields: [cafeId], references: [id])
+  category     Category        @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+
+  @@map("menuItems")
+}
+
+model Extra {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId      String   @db.ObjectId
+  name        String
+  price       Float
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  cafe           Cafe              @relation(fields: [cafeId], references: [id])
+  orderItemExtras OrderItemExtra[]
+
+  @@map("extras")
+}
+
+model Table {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId     String   @db.ObjectId
+  name       String
+  isOccupied Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  cafe   Cafe    @relation(fields: [cafeId], references: [id])
+  orders Order[]
+
+  @@map("tables")
+}
+
+model Order {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId      String    @db.ObjectId
+  tableId     String    @db.ObjectId
+  staffId     String    @db.ObjectId
+  totalAmount Float
+  isPaid      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  cafe       Cafe         @relation(fields: [cafeId], references: [id])
+  table      Table        @relation(fields: [tableId], references: [id])
+  staff      User         @relation(fields: [staffId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId        String   @db.ObjectId
+  menuItemId     String   @db.ObjectId
+  menuItemName   String
+  menuItemPrice  Float
+  quantity       Int
+  subtotal       Float
+  createdAt      DateTime @default(now())
+
+  // Relations
+  order         Order           @relation(fields: [orderId], references: [id])
+  menuItem      MenuItem        @relation(fields: [menuItemId], references: [id])
+  orderItemExtras OrderItemExtra[]
+
+  @@map("orderItems")
+}
+
+model OrderItemExtra {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderItemId  String  @db.ObjectId
+  extraId      String  @db.ObjectId
+  extraName    String
+  extraPrice   Float
+  quantity     Int
+
+  // Relations
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  extra     Extra     @relation(fields: [extraId], references: [id])
+
+  @@map("orderItemExtras")
+}
