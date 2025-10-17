@@ -1,7 +1,7 @@
 "use client";
 
 import { useMenu } from "@/queries/menu";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSaveExtra } from "../queries/extra";
 
@@ -20,6 +20,15 @@ interface ExtraWithChanges {
 export function useExtraPage(cafeId: string) {
   // Local state
   const [localExtras, setLocalExtras] = useState<ExtraWithChanges[]>([]);
+
+  // Track initialization to prevent infinite loops
+  const initializedRef = useRef(false);
+
+  // Reset initialization when cafeId changes
+  useEffect(() => {
+    initializedRef.current = false;
+    setLocalExtras([]);
+  }, [cafeId]);
 
   // Dialog states
   const [extraDialogOpen, setExtraDialogOpen] = useState(false);
@@ -44,15 +53,11 @@ export function useExtraPage(cafeId: string) {
 
   // Initialize local state when data is fetched
   useEffect(() => {
-    if (menuData) {
-      // Only update if we don't have local changes
-      const hasLocalChanges = localExtras.some((extra) => extra._status);
-
-      if (!hasLocalChanges) {
-        setLocalExtras(menuData.extras || []);
-      }
+    if (menuData && !initializedRef.current) {
+      setLocalExtras(menuData.extras || []);
+      initializedRef.current = true;
     }
-  }, [menuData, localExtras]);
+  }, [menuData]);
 
   // Check if there are unsaved changes
   const hasChanges = useMemo(() => {

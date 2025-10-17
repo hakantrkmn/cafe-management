@@ -1,6 +1,5 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,8 +20,8 @@ import { Input } from "@/components/ui/input";
 import { useLogin } from "@/queries/auth";
 import { SignInFormData } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const signInSchema = z.object({
@@ -35,7 +34,6 @@ interface SignInFormProps {
 }
 
 export function SignInForm({ onSuccess }: SignInFormProps) {
-  const [error, setError] = useState<string>("");
   const loginMutation = useLogin();
 
   const form = useForm<SignInFormData>({
@@ -47,12 +45,12 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
   });
 
   const onSubmit = async (data: SignInFormData) => {
-    setError("");
     try {
       await loginMutation.mutateAsync(data);
+      toast.success("Giriş başarılı! Yönlendiriliyorsunuz...");
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Giriş başarısız");
+      toast.error(err instanceof Error ? err.message : "Giriş başarısız");
     }
   };
 
@@ -103,11 +101,6 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
                 </FormItem>
               )}
             />
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
             <Button
               type="submit"
               className="w-full"

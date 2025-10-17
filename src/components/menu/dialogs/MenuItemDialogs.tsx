@@ -82,54 +82,60 @@ export function MenuItemDialogs({
     <>
       {/* Menu Item Dialog */}
       <Dialog open={menuItemDialogOpen} onOpenChange={onMenuItemDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-2 sm:space-y-3">
+            <DialogTitle className="text-lg sm:text-xl">
               {menuItemDialogMode === "add"
                 ? "Yeni Menü Öğesi"
                 : "Menü Öğesi Düzenle"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-sm">
               {menuItemDialogMode === "add"
                 ? "Yeni bir menü öğesi oluşturun"
                 : "Menü öğesi bilgilerini güncelleyin"}
             </DialogDescription>
           </DialogHeader>
-          <MenuItemForm
-            initialData={
-              selectedMenuItem
-                ? {
-                    categoryId: selectedMenuItem.categoryId,
-                    name: selectedMenuItem.name,
-                    price: selectedMenuItem.price,
-                    description: selectedMenuItem.description,
-                    isAvailable: selectedMenuItem.isAvailable,
-                  }
-                : undefined
-            }
-            categories={categories.filter((cat) => cat._status !== "deleted")}
-            onSubmit={onMenuItemSubmit}
-            submitText={
-              menuItemDialogMode === "add" ? "Menü Öğesi Ekle" : "Güncelle"
-            }
-          />
+          <div className="py-2">
+            <MenuItemForm
+              initialData={
+                selectedMenuItem
+                  ? {
+                      categoryId: selectedMenuItem.categoryId,
+                      name: selectedMenuItem.name,
+                      price: selectedMenuItem.price,
+                      description: selectedMenuItem.description,
+                      isAvailable: selectedMenuItem.isAvailable,
+                    }
+                  : undefined
+              }
+              categories={categories.filter((cat) => cat._status !== "deleted")}
+              onSubmit={onMenuItemSubmit}
+              submitText={
+                menuItemDialogMode === "add" ? "Menü Öğesi Ekle" : "Güncelle"
+              }
+            />
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={onDeleteDialogClose}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{deleteDialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="sm:max-w-[425px] w-[95vw]">
+          <AlertDialogHeader className="space-y-2">
+            <AlertDialogTitle className="text-lg sm:text-xl">
+              {deleteDialogTitle}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               {deleteDialogDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>İptal</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="w-full sm:w-auto mt-0 sm:mt-0">
+              İptal
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={onDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
             >
               Sil
             </AlertDialogAction>

@@ -5,35 +5,33 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Trash2 } from "lucide-react";
 
-interface MenuItem {
+interface Extra {
   id: string;
   name: string;
   price: number;
-  description?: string;
   isAvailable: boolean;
-  categoryId: string;
   cafeId: string;
   createdAt: Date;
   updatedAt: Date;
   _status?: "new" | "modified" | "deleted";
 }
 
-interface MenuItemCardProps {
-  item: MenuItem;
-  onEdit: (item: MenuItem) => void;
-  onDelete: (itemId: string) => void;
+interface ExtraCardProps {
+  extra: Extra;
+  onEdit: (extra: Extra) => void;
+  onDelete: (extraId: string) => void;
 }
 
-export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
+export function ExtraCard({ extra, onEdit, onDelete }: ExtraCardProps) {
   const getStatusBadge = () => {
-    if (item._status === "new") {
+    if (extra._status === "new") {
       return (
         <Badge variant="default" className="bg-green-500">
           Yeni
         </Badge>
       );
     }
-    if (item._status === "modified") {
+    if (extra._status === "modified") {
       return (
         <Badge variant="default" className="bg-blue-500">
           Değiştirildi
@@ -44,7 +42,7 @@ export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
   };
 
   const getAvailabilityBadge = () => {
-    return item.isAvailable ? (
+    return extra.isAvailable ? (
       <Badge variant="outline" className="text-green-600 border-green-600">
         Müsait
       </Badge>
@@ -59,9 +57,7 @@ export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
     <Card className="h-full">
       <CardHeader className="pb-2 sm:pb-3">
         <div className="flex items-start justify-between">
-          <CardTitle className="text-base sm:text-lg leading-tight">
-            {item.name}
-          </CardTitle>
+          <CardTitle className="text-sm sm:text-base">{extra.name}</CardTitle>
           <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
             {getStatusBadge()}
             {getAvailabilityBadge()}
@@ -71,22 +67,16 @@ export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
       <CardContent className="pt-0">
         <div className="space-y-2 sm:space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xl sm:text-2xl font-bold text-primary">
-              {item.price.toFixed(2)} ₺
+            <span className="text-lg sm:text-xl font-bold text-primary">
+              {extra.price.toFixed(2)} ₺
             </span>
           </div>
 
-          {item.description && (
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-              {item.description}
-            </p>
-          )}
-
-          <div className="flex gap-1 sm:gap-2 pt-2">
+          <div className="flex gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onEdit(item)}
+              onClick={() => onEdit(extra)}
               className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
             >
               <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -96,7 +86,7 @@ export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onDelete(item.id)}
+              onClick={() => onDelete(extra.id)}
               className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-9 px-2 sm:px-3"
             >
               <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />

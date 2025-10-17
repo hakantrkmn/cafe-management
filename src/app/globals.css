@@ -122,6 +122,301 @@
 }
 
 @layer components {
+  /* Dashboard Header Styles */
+  .dashboard-header {
+    @apply border-b bg-card;
+  }
+
+  .dashboard-header-content {
+    @apply flex h-16 items-center justify-between px-4 sm:px-6;
+  }
+
+  .dashboard-header-left {
+    @apply flex items-center gap-4 sm:gap-6;
+  }
+
+  .dashboard-title {
+    @apply text-lg sm:text-xl font-semibold;
+  }
+
+  .dashboard-cafe-badge {
+    @apply hidden sm:inline-flex;
+  }
+
+  .dashboard-nav {
+    @apply hidden md:flex items-center gap-6 ml-4 lg:ml-8;
+  }
+
+  .dashboard-nav-link {
+    @apply flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors;
+  }
+
+  .dashboard-header-right {
+    @apply flex items-center gap-2 sm:gap-4;
+  }
+
+  .dashboard-role-badge {
+    @apply hidden sm:inline-flex;
+  }
+
+  .dashboard-user-menu {
+    @apply w-48 sm:w-56;
+  }
+
+  .dashboard-user-info {
+    @apply flex items-start gap-3 p-2 rounded-md bg-muted/30;
+  }
+
+  .dashboard-user-avatar {
+    @apply h-10 w-10 rounded-full ring-2 ring-background;
+  }
+
+  .dashboard-user-details {
+    @apply flex-1 min-w-0;
+  }
+
+  .dashboard-user-cafe {
+    @apply text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full inline-block mb-1;
+  }
+
+  .dashboard-user-name {
+    @apply text-sm font-semibold text-foreground truncate;
+  }
+
+  .dashboard-user-email {
+    @apply text-xs text-muted-foreground truncate;
+  }
+
+  .dashboard-menu-item {
+    @apply flex items-center gap-2 px-2 py-2 text-sm hover:bg-muted/50 transition-colors rounded-sm cursor-pointer;
+  }
+
+  /* Dashboard Cards Styles */
+  .dashboard-card {
+    @apply relative bg-gradient-to-br from-background via-background to-muted/10 border border-primary/10 rounded-xl overflow-hidden transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5;
+  }
+
+  .dashboard-card-header {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 p-5;
+  }
+
+  .dashboard-card-title-section {
+    @apply flex items-start gap-3 flex-1;
+  }
+
+  .dashboard-card-icon {
+    @apply h-6 w-6 text-primary flex-shrink-0 mt-0.5 transition-transform duration-300;
+  }
+
+  .dashboard-card:hover .dashboard-card-icon {
+    @apply scale-110;
+  }
+
+  .dashboard-card-title {
+    @apply text-sm font-bold text-foreground;
+  }
+
+  .dashboard-card-body {
+    @apply px-5 pb-5 space-y-3;
+  }
+
+  .dashboard-card-description {
+    @apply text-sm text-muted-foreground leading-relaxed;
+  }
+
+  .dashboard-card-button {
+    @apply w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-300;
+  }
+
+  .dashboard-card-button-default {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md;
+  }
+
+  .dashboard-card-button-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 hover:shadow-md;
+  }
+
+  .dashboard-card-button-outline {
+    @apply bg-muted/50 text-foreground border border-muted-foreground/30 hover:bg-muted hover:border-muted-foreground/50;
+  }
+
+  /* User Info Card Styles */
+  .user-info-card {
+    @apply bg-gradient-to-br from-primary/5 via-background to-muted/5 border border-primary/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  .user-info-card-header {
+    @apply flex items-center gap-4 p-6 border-b border-primary/10;
+  }
+
+  .user-info-avatar {
+    @apply h-14 w-14 rounded-full ring-3 ring-primary/30 shadow-lg flex-shrink-0;
+  }
+
+  .user-info-header-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .user-info-name {
+    @apply text-lg font-semibold text-foreground truncate;
+  }
+
+  .user-info-role {
+    @apply text-sm text-muted-foreground mt-1;
+  }
+
+  .user-info-content {
+    @apply p-6 space-y-4;
+  }
+
+  .user-info-field {
+    @apply flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors duration-200;
+  }
+
+  .user-info-field-icon {
+    @apply h-5 w-5 text-primary flex-shrink-0 mt-0.5;
+  }
+
+  .user-info-field-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .user-info-field-label {
+    @apply text-xs font-medium text-muted-foreground uppercase tracking-wider;
+  }
+
+  .user-info-field-value {
+    @apply text-sm font-medium text-foreground mt-1 truncate;
+  }
+
+  .user-info-status {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border;
+  }
+
+  .user-info-status-active {
+    @apply bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800;
+  }
+
+  .user-info-status-pending {
+    @apply bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800;
+  }
+
+  /* Page Layout Styles */
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6;
+  }
+
+  .page-header {
+    @apply space-y-2;
+  }
+
+  .page-title {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  .page-description {
+    @apply text-muted-foreground;
+  }
+
+  /* Order Dialog Styles */
+  .order-dialog-container {
+    @apply max-w-6xl mx-auto;
+  }
+
+  /* Mobile Order Dialog Container */
+  @media (max-width: 768px) {
+    .order-dialog-container {
+      @apply max-w-full mx-0 px-0;
+    }
+  }
+
+  .order-dialog-tabs-list {
+    @apply max-w-md mx-auto mb-4 sm:mb-6 px-2;
+  }
+
+  /* Mobile Order Dialog Tabs */
+  @media (max-width: 768px) {
+    .order-dialog-tabs-list {
+      @apply max-w-full px-4 mb-3;
+    }
+  }
+
+  /* Menu Selection Header */
+  .menu-selection-header {
+    @apply mb-6 flex flex-col gap-4;
+  }
+
+  /* Menu Selection Container */
+  .menu-selection-container {
+    @apply w-full;
+  }
+
+  /* Menu Item Card Styles */
+  .menu-item-card {
+    @apply p-3 border border-border/50 rounded-lg hover:border-primary/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-card hover:bg-gradient-to-br hover:from-primary/5 hover:to-background min-h-[140px] sm:min-h-[160px] w-full max-w-xs sm:max-w-64 flex flex-col items-center;
+  }
+
+  .menu-item-header {
+    @apply text-center space-y-2 mb-3;
+  }
+
+  .menu-item-name {
+    @apply font-semibold text-base sm:text-lg leading-tight text-center;
+  }
+
+  .menu-item-price {
+    @apply font-bold text-primary text-lg sm:text-xl;
+  }
+
+  .menu-item-description {
+    @apply text-xs sm:text-sm text-muted-foreground line-clamp-2 flex-1 text-center px-2;
+  }
+
+  .menu-item-footer {
+    @apply mt-auto pt-4 flex justify-center;
+  }
+
+  .menu-item-add-button {
+    @apply h-9 sm:h-10 px-4 sm:px-6 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200;
+  }
+
+  /* Orders Table List Styles */
+  .orders-table-list {
+    @apply grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .orders-table-item {
+    @apply p-4 sm:p-5 border border-border/50 rounded-lg hover:border-primary/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-card;
+  }
+
+  .orders-table-item:hover {
+    @apply bg-gradient-to-br from-primary/5 to-background;
+  }
+
+  .orders-table-item-header {
+    @apply flex items-center justify-between mb-3;
+  }
+
+  .orders-table-item-icon {
+    @apply h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0;
+  }
+
+  .orders-table-item-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .orders-table-item-name {
+    @apply text-sm font-semibold text-foreground truncate;
+  }
+
+  .orders-table-item-orders {
+    @apply flex gap-4 mt-3 pt-3 border-t border-border/30;
+  }
+
+  .orders-table-item-stat {
+    @apply flex flex-col gap-1 flex-1;
+  }
+
   /* Menu page layout utilities */
   .menu-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
@@ -187,11 +482,25 @@
   .order-dialog {
     @apply max-w-6xl max-h-[90vh] overflow-hidden;
   }
+
+  /* Mobile Order Dialog */
+  @media (max-width: 768px) {
+    .order-dialog {
+      @apply max-w-full max-h-[95vh] rounded-none;
+    }
+  }
   .menu-selection-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3;
+    @apply grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 justify-items-center;
   }
   .order-summary {
     @apply w-96 overflow-y-auto max-h-[70vh] pl-2 border-l;
+  }
+
+  /* Mobile Order Summary */
+  @media (max-width: 768px) {
+    .order-summary {
+      @apply w-full max-h-none h-auto pl-0 border-l-0 border-t pt-4;
+    }
   }
   .menu-selection {
     @apply flex-1 overflow-y-auto max-h-[70vh] pr-2;

@@ -35,11 +35,11 @@ export function MenuItemList({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Menü Öğeleri</h3>
-        <Button onClick={onAddItem} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Yeni Öğe
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 className="text-base sm:text-lg font-semibold">Menü Öğeleri</h3>
+        <Button onClick={onAddItem} size="sm" className="w-full sm:w-auto">
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+          <span className="text-sm">Yeni Öğe</span>
         </Button>
       </div>
 
@@ -51,7 +51,7 @@ export function MenuItemList({
           </p>
         </div>
       ) : (
-        <div className="menu-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {visibleItems.map((item) => (
             <MenuItemCard
               key={item.id}

@@ -56,22 +56,27 @@ export function TableDialogs({
     <>
       {/* Create Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Yeni Masa</DialogTitle>
-            <DialogDescription>Yeni bir masa ekleyin</DialogDescription>
+        <DialogContent className="sm:max-w-[425px] w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-2 sm:space-y-3">
+            <DialogTitle className="text-lg sm:text-xl">Yeni Masa</DialogTitle>
+            <DialogDescription className="text-sm">
+              Yeni bir masa ekleyin
+            </DialogDescription>
           </DialogHeader>
-          <TableForm
-            onSubmit={onSubmitCreate}
-            isLoading={isLoading}
-            submitText="Oluştur"
-          />
-          <DialogFooter>
+          <div className="py-2">
+            <TableForm
+              onSubmit={onSubmitCreate}
+              isLoading={isLoading}
+              submitText="Oluştur"
+            />
+          </div>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsCreateDialogOpen(false)}
               disabled={isLoading}
+              className="w-full sm:w-auto mt-0 sm:mt-0"
             >
               İptal
             </Button>
@@ -81,23 +86,30 @@ export function TableDialogs({
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Masa Düzenle</DialogTitle>
-            <DialogDescription>Masa bilgilerini güncelleyin</DialogDescription>
+        <DialogContent className="sm:max-w-[425px] w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-2 sm:space-y-3">
+            <DialogTitle className="text-lg sm:text-xl">
+              Masa Düzenle
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              Masa bilgilerini güncelleyin
+            </DialogDescription>
           </DialogHeader>
-          <TableForm
-            initialData={editingTable || undefined}
-            onSubmit={onSubmitEdit}
-            isLoading={isLoading}
-            submitText="Güncelle"
-          />
-          <DialogFooter>
+          <div className="py-2">
+            <TableForm
+              initialData={editingTable || undefined}
+              onSubmit={onSubmitEdit}
+              isLoading={isLoading}
+              submitText="Güncelle"
+            />
+          </div>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
               disabled={isLoading}
+              className="w-full sm:w-auto mt-0 sm:mt-0"
             >
               İptal
             </Button>
@@ -110,24 +122,32 @@ export function TableDialogs({
         open={!!tableToDelete}
         onOpenChange={() => setTableToDelete(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Masayı Sil</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="sm:max-w-[425px] w-[95vw]">
+          <AlertDialogHeader className="space-y-2">
+            <AlertDialogTitle className="text-lg sm:text-xl">
+              Masayı Sil
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               {tableToDelete?.name} masasını silmek istediğinizden emin misiniz?
               {tableToDelete?.isOccupied && (
-                <span className="block mt-2 text-destructive">
+                <span className="block mt-2 text-destructive text-sm">
                   Bu masada ödenmemiş siparişler var. Önce siparişleri
                   tamamlayın.
                 </span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>İptal</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel
+              disabled={isLoading}
+              className="w-full sm:w-auto mt-0 sm:mt-0"
+            >
+              İptal
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={onDeleteTable}
               disabled={isLoading || tableToDelete?.isOccupied}
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
             >
               {isLoading ? "Siliniyor..." : "Sil"}
             </AlertDialogAction>

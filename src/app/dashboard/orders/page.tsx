@@ -50,7 +50,7 @@ export default function OrdersPage() {
   if (!cafeId) {
     return (
       <DashboardLayout>
-        <div className="p-6">
+        <div className="page-container">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Cafe Bulunamadı</h1>
             <p className="text-muted-foreground">
@@ -70,12 +70,10 @@ export default function OrdersPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Sipariş Yönetimi
-          </h1>
-          <p className="text-muted-foreground">
+      <div className="page-container">
+        <div className="page-header">
+          <h1 className="page-title">Sipariş Yönetimi</h1>
+          <p className="page-description">
             Masaları düzenleyin ve siparişleri yönetin
           </p>
         </div>
@@ -83,14 +81,8 @@ export default function OrdersPage() {
         {/* Table Layout Editor */}
         <TableLayoutEditor
           tables={tables}
-          getTablePosition={tableManagement.getTablePosition}
-          updateTablePosition={tableManagement.updateTablePosition}
           getTableStatus={tableManagement.getTableStatus}
           onTableClick={tableManagement.handleTableClick}
-          editMode={tableManagement.editMode}
-          onEditModeToggle={() =>
-            tableManagement.setEditMode(!tableManagement.editMode)
-          }
           orders={orderOperations.orders}
         />
 

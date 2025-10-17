@@ -21,8 +21,8 @@ export function useOrdersPage() {
   );
   const { data: menuData, isLoading: menuLoading } = useMenu(cafeId || "");
 
-  const tables = tablesData?.data || [];
-  const menu = menuData?.data || { categories: [], menuItems: [], extras: [] };
+  const tables = tablesData || [];
+  const menu = menuData || { categories: [], menuItems: [], extras: [] };
 
   // Initialize specialized hooks
   const orderOperations = useOrderOperations({ cafeId });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMenu } from "@/queries/menu";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSaveCategory } from "../queries/category";
 
@@ -22,6 +22,16 @@ export function useCategoryPage(cafeId: string) {
     []
   );
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+
+  // Track initialization to prevent infinite loops
+  const initializedRef = useRef(false);
+
+  // Reset initialization when cafeId changes
+  useEffect(() => {
+    initializedRef.current = false;
+    setLocalCategories([]);
+    setActiveCategoryId(null);
+  }, [cafeId]);
 
   // Dialog states
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
@@ -45,28 +55,24 @@ export function useCategoryPage(cafeId: string) {
 
   // Initialize local state when data is fetched
   useEffect(() => {
-    if (menuData) {
-      // Only update if we don't have local changes
-      const hasLocalChanges = localCategories.some((cat) => cat._status);
+    if (menuData && !initializedRef.current) {
+      setLocalCategories(menuData.categories || []);
+      initializedRef.current = true;
 
-      if (!hasLocalChanges) {
-        setLocalCategories(menuData.categories || []);
-
-        // Set first category as active if none is selected
-        if (!activeCategoryId && menuData.categories?.length > 0) {
-          const firstCategory = menuData.categories
-            .filter((cat: CategoryWithChanges) => cat._status !== "deleted")
-            .sort(
-              (a: CategoryWithChanges, b: CategoryWithChanges) =>
-                a.order - b.order
-            )[0];
-          if (firstCategory) {
-            setActiveCategoryId(firstCategory.id);
-          }
+      // Set first category as active if none is selected
+      if (!activeCategoryId && menuData.categories?.length > 0) {
+        const firstCategory = menuData.categories
+          .filter((cat: CategoryWithChanges) => cat._status !== "deleted")
+          .sort(
+            (a: CategoryWithChanges, b: CategoryWithChanges) =>
+              a.order - b.order
+          )[0];
+        if (firstCategory) {
+          setActiveCategoryId(firstCategory.id);
         }
       }
     }
-  }, [menuData, activeCategoryId, localCategories]);
+  }, [menuData, activeCategoryId]);
 
   // Check if there are unsaved changes
   const hasChanges = useMemo(() => {

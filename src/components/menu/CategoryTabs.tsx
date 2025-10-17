@@ -1,9 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { CategoryCard } from "@/components/menu/CategoryCard";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
 interface Category {
   id: string;
@@ -37,32 +36,18 @@ export function CategoryTabs({
     .filter((cat) => cat._status !== "deleted")
     .sort((a, b) => a.order - b.order);
 
-  const getStatusBadge = (category: Category) => {
-    if (category._status === "new") {
-      return (
-        <Badge variant="default" className="bg-green-500 text-xs">
-          Yeni
-        </Badge>
-      );
-    }
-    if (category._status === "modified") {
-      return (
-        <Badge variant="default" className="bg-blue-500 text-xs">
-          Değiştirildi
-        </Badge>
-      );
-    }
-    return null;
-  };
-
   if (visibleCategories.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Kategoriler</h3>
-          <Button onClick={onAddCategory} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Yeni Kategori
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 className="text-base sm:text-lg font-semibold">Kategoriler</h3>
+          <Button
+            onClick={onAddCategory}
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="text-sm">Yeni Kategori</span>
           </Button>
         </div>
         <div className="text-center py-8 text-muted-foreground">
@@ -77,54 +62,26 @@ export function CategoryTabs({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Kategoriler</h3>
-        <Button onClick={onAddCategory} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Yeni Kategori
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 className="text-base sm:text-lg font-semibold">Kategoriler</h3>
+        <Button onClick={onAddCategory} size="sm" className="w-full sm:w-auto">
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+          <span className="text-sm">Yeni Kategori</span>
         </Button>
       </div>
 
-      <Tabs value={activeCategoryId || ""} onValueChange={onCategorySelect}>
-        <TabsList className="category-tabs-list">
-          <div className="category-tabs-wrapper">
-            {visibleCategories.map((category) => (
-              <TabsTrigger
-                key={category.id}
-                value={category.id}
-                className="category-tab-trigger"
-              >
-                <span className="truncate text-sm font-medium">
-                  {category.name}
-                </span>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  {getStatusBadge(category)}
-                  <div className="flex gap-1">
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEditCategory(category);
-                      }}
-                      className="menu-action-button"
-                    >
-                      <Edit className="h-3 w-3" />
-                    </div>
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteCategory(category.id);
-                      }}
-                      className="menu-action-button menu-action-button-danger"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </div>
-                  </div>
-                </div>
-              </TabsTrigger>
-            ))}
-          </div>
-        </TabsList>
-      </Tabs>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {visibleCategories.map((category) => (
+          <CategoryCard
+            key={category.id}
+            category={category}
+            isActive={activeCategoryId === category.id}
+            onSelect={() => onCategorySelect(category.id)}
+            onEdit={onEditCategory}
+            onDelete={onDeleteCategory}
+          />
+        ))}
+      </div>
     </div>
   );
 }

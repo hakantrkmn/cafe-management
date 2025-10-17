@@ -1,3 +1,4 @@
+import { getAuthErrorMessage } from "@/lib/auth";
 import { AuthUser, LoginRequest, RegisterRequest } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -12,7 +13,7 @@ const authApi = {
     });
 
     if (result?.error) {
-      throw new Error(result.error);
+      throw new Error(getAuthErrorMessage(result.error));
     }
 
     return result;

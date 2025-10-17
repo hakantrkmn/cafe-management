@@ -5,6 +5,23 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 const prisma = new PrismaClient();
 
+// Error message mapping for user-friendly feedback
+export const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  EMAIL_VE_SIFRE_GEREKLI: "Email ve şifre alanları zorunludur",
+  KULLANICI_BULUNAMADI: "Bu email adresi ile kayıtlı kullanıcı bulunamadı",
+  YANLIS_SIFRE: "Şifre yanlış. Lütfen tekrar deneyin",
+  CAFE_ERISIMI_YOK:
+    "Bu cafe için erişim izniniz bulunmuyor. Lütfen yöneticinizle iletişime geçin",
+  GIRIS_HATASI:
+    "Giriş sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin",
+  CredentialsSignin: "Giriş bilgileri yanlış. Email ve şifrenizi kontrol edin",
+};
+
+// Function to get user-friendly error message
+export function getAuthErrorMessage(error: string): string {
+  return AUTH_ERROR_MESSAGES[error] || "Giriş başarısız. Lütfen tekrar deneyin";
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -15,7 +32,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("EMAIL_VE_SIFRE_GEREKLI");
         }
 
         try {
@@ -30,7 +47,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user) {
-            return null;
+            throw new Error("KULLANICI_BULUNAMADI");
           }
 
           const isPasswordValid = await bcrypt.compare(
@@ -39,7 +56,7 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!isPasswordValid) {
-            return null;
+            throw new Error("YANLIS_SIFRE");
           }
 
           // If user is STAFF and doesn't have cafeId, get it from AllowedStaff
@@ -52,16 +69,18 @@ export const authOptions: NextAuthOptions = {
               include: { cafe: true },
             });
 
-            if (allowedStaff) {
-              finalCafeId = allowedStaff.cafeId;
-              finalCafe = allowedStaff.cafe;
-
-              // Update user's cafeId in database
-              await prisma.user.update({
-                where: { id: user.id },
-                data: { cafeId: allowedStaff.cafeId },
-              });
+            if (!allowedStaff) {
+              throw new Error("CAFE_ERISIMI_YOK");
             }
+
+            finalCafeId = allowedStaff.cafeId;
+            finalCafe = allowedStaff.cafe;
+
+            // Update user's cafeId in database
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { cafeId: allowedStaff.cafeId },
+            });
           }
 
           return {
@@ -75,7 +94,7 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error("Auth error:", error);
-          return null;
+          throw new Error("GIRIS_HATASI");
         }
       },
     }),

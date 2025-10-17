@@ -50,7 +50,7 @@ export function OrderSummary({
       {/* Existing Orders */}
       {existingOrders.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <h4 className="font-medium text-sm text-muted-foreground">
               Mevcut Siparişler
             </h4>
@@ -58,7 +58,7 @@ export function OrderSummary({
               size="sm"
               onClick={onMarkAllAsPaid}
               disabled={isSaving}
-              className="bg-green-600 hover:bg-green-700 text-xs"
+              className="bg-green-600 hover:bg-green-700 text-xs w-full sm:w-auto"
             >
               <CreditCard className="h-3 w-3 mr-1" />
               Tümünün Ödemesini Al
@@ -67,27 +67,39 @@ export function OrderSummary({
           {existingOrders.map((order) => (
             <Card key={order.id} className="p-3">
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex-1">
                     <p className="font-medium">{formatOrderId(order.id)}</p>
                     <p className="text-sm font-medium">
                       {formatPrice(order.totalAmount)}
                     </p>
+                    {/* Ürün Özeti */}
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {(() => {
+                        const productSummary = order.products.reduce(
+                          (acc, product) => {
+                            const menuItem = order.orderItems.find(
+                              (item) => item.menuItemId === product.id
+                            )?.menuItem;
+                            const name = menuItem?.name || "Bilinmeyen Ürün";
+                            acc[name] = (acc[name] || 0) + 1;
+                            return acc;
+                          },
+                          {} as Record<string, number>
+                        );
+
+                        return Object.entries(productSummary)
+                          .map(([name, count]) => `${count} adet ${name}`)
+                          .join(", ");
+                      })()}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onAddToExistingOrder(order.id)}
-                      disabled={isSaving || cartItems.length === 0}
-                    >
-                      Ekle
-                    </Button>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button
                       size="sm"
                       onClick={() => onMarkAsPaid(order.id)}
                       disabled={isSaving}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
                     >
                       <CreditCard className="h-4 w-4 mr-1" />
                       Ödeme Al
@@ -113,23 +125,23 @@ export function OrderSummary({
                               : "bg-gray-50 border-gray-200"
                           }`}
                         >
-                          <div className="flex justify-between items-start">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                 <p className="font-medium">
                                   {menuItem?.name || "Bilinmeyen Ürün"}
                                 </p>
                                 {product.isPaid && (
                                   <Badge
                                     variant="secondary"
-                                    className="text-xs bg-green-100 text-green-800"
+                                    className="text-xs bg-green-100 text-green-800 w-fit"
                                   >
                                     Ödendi
                                   </Badge>
                                 )}
                               </div>
                             </div>
-                            <div className="text-right ml-2">
+                            <div className="flex flex-col sm:items-end gap-1">
                               <p className="font-medium">
                                 {formatPrice(product.price)}
                               </p>
@@ -140,7 +152,7 @@ export function OrderSummary({
                                     onMarkProductAsPaid(order.id, index)
                                   }
                                   disabled={isSaving}
-                                  className="mt-1 bg-green-600 hover:bg-green-700 text-xs"
+                                  className="bg-green-600 hover:bg-green-700 text-xs w-full sm:w-auto"
                                 >
                                   <CreditCard className="h-3 w-3 mr-1" />
                                   Öde
@@ -177,7 +189,7 @@ export function OrderSummary({
           <div className="space-y-2">
             {cartItems.map((item) => (
               <Card key={item.id} className="p-3">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex-1">
                     <h5 className="font-medium">{item.menuItemName}</h5>
                     {item.extras.length > 0 && (
@@ -186,7 +198,7 @@ export function OrderSummary({
                           <Badge
                             key={`${item.id}-extra-${extra.extraId}-${index}`}
                             variant="secondary"
-                            className="mr-1 mb-1"
+                            className="mr-1 mb-1 text-xs"
                           >
                             {extra.extraName} x{extra.quantity}
                           </Badge>
@@ -198,7 +210,7 @@ export function OrderSummary({
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-2">
                     <div className="flex items-center gap-1">
                       <Button
                         size="sm"
@@ -210,7 +222,7 @@ export function OrderSummary({
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="w-8 text-center text-sm">
+                      <span className="w-8 text-center text-sm font-medium">
                         {item.quantity}
                       </span>
                       <Button
@@ -225,7 +237,7 @@ export function OrderSummary({
                       </Button>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-right min-w-0">
                       <p className="font-medium">
                         {formatPrice(item.subtotal)}
                       </p>
@@ -236,7 +248,7 @@ export function OrderSummary({
                       variant="outline"
                       onClick={() => onRemoveItem(item.id)}
                       disabled={isSaving}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 shrink-0"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -253,7 +265,7 @@ export function OrderSummary({
         <>
           <Separator />
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <span className="text-lg font-semibold">Toplam:</span>
               <span className="text-lg font-bold">
                 {formatPrice(cartTotal)}

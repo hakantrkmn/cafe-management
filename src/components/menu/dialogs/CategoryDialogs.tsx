@@ -61,47 +61,56 @@ export function CategoryDialogs({
     <>
       {/* Category Dialog */}
       <Dialog open={categoryDialogOpen} onOpenChange={onCategoryDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="sm:max-w-[425px] w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-2 sm:space-y-3">
+            <DialogTitle className="text-lg sm:text-xl">
               {categoryDialogMode === "add"
                 ? "Yeni Kategori"
                 : "Kategori Düzenle"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-sm">
               {categoryDialogMode === "add"
                 ? "Yeni bir kategori oluşturun"
                 : "Kategori bilgilerini güncelleyin"}
             </DialogDescription>
           </DialogHeader>
-          <CategoryForm
-            initialData={
-              selectedCategory
-                ? { name: selectedCategory.name, order: selectedCategory.order }
-                : undefined
-            }
-            onSubmit={onCategorySubmit}
-            submitText={
-              categoryDialogMode === "add" ? "Kategori Ekle" : "Güncelle"
-            }
-          />
+          <div className="py-2">
+            <CategoryForm
+              initialData={
+                selectedCategory
+                  ? {
+                      name: selectedCategory.name,
+                      order: selectedCategory.order,
+                    }
+                  : undefined
+              }
+              onSubmit={onCategorySubmit}
+              submitText={
+                categoryDialogMode === "add" ? "Kategori Ekle" : "Güncelle"
+              }
+            />
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={onDeleteDialogClose}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{deleteDialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="sm:max-w-[425px] w-[95vw]">
+          <AlertDialogHeader className="space-y-2">
+            <AlertDialogTitle className="text-lg sm:text-xl">
+              {deleteDialogTitle}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               {deleteDialogDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>İptal</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="w-full sm:w-auto mt-0 sm:mt-0">
+              İptal
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={onDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
             >
               Sil
             </AlertDialogAction>

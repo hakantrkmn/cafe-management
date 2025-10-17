@@ -267,5 +267,10 @@ export const QueryKeys = {
   table: (id: string) => ["tables", id] as const,
   orders: (cafeId: string) => ["orders", cafeId] as const,
   order: (id: string) => ["orders", id] as const,
+  reports: (
+    cafeId: string,
+    dateRange: { from?: Date; to?: Date },
+    timeRange: { start: string; end: string }
+  ) => ["reports", cafeId, dateRange, timeRange] as const,
   allowedStaff: (cafeId: string) => ["allowedStaff", cafeId] as const,
 } as const;

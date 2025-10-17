@@ -1,121 +1,109 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/queries/auth";
-import { Building, Calendar, Mail, User } from "lucide-react";
+import { AlertCircle, Building, CheckCircle, Mail } from "lucide-react";
 
 export function UserInfo() {
   const { user, isManager } = useAuth();
 
   if (!user) return null;
 
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const hasActiveCafe = user.cafe || user.managedCafe;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          Kullanıcı Bilgileri
-        </CardTitle>
-        <CardDescription>Hesap bilgileriniz ve kafe durumunuz</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Ad Soyad</span>
-            </div>
-            <p className="text-sm text-muted-foreground ml-6">{user.name}</p>
+    <div className="user-info-card">
+      {/* Card Header with Avatar and Name */}
+      <div className="user-info-card-header">
+        <Avatar className="user-info-avatar">
+          <AvatarImage src="" alt={user.name} />
+          <AvatarFallback className="text-sm font-bold">
+            {getInitials(user.name)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="user-info-header-content">
+          <div className="user-info-name">{user.name}</div>
+          <div className="user-info-role">
+            {isManager ? "Kafe Yöneticisi" : "Kafe Çalışanı"}
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Email</span>
-            </div>
-            <p className="text-sm text-muted-foreground ml-6">{user.email}</p>
+      {/* Card Content */}
+      <div className="user-info-content">
+        {/* Email Field */}
+        <div className="user-info-field">
+          <Mail className="user-info-field-icon" />
+          <div className="user-info-field-content">
+            <div className="user-info-field-label">Email Adresi</div>
+            <div className="user-info-field-value">{user.email}</div>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="font-medium">Rol</span>
-            </div>
-            <div className="ml-6">
-              <Badge variant={isManager ? "default" : "outline"}>
-                {isManager ? "Yönetici" : "Çalışan"}
-              </Badge>
-            </div>
-          </div>
-
-          {user.cafe && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Building className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Kafe</span>
+        {/* Cafe Field */}
+        {user.cafe && (
+          <div className="user-info-field">
+            <Building className="user-info-field-icon" />
+            <div className="user-info-field-content">
+              <div className="user-info-field-label">
+                {isManager ? "Yönettiğiniz Kafe" : "Çalıştığınız Kafe"}
               </div>
-              <p className="text-sm text-muted-foreground ml-6">
-                {user.cafe.name}
-              </p>
+              <div className="user-info-field-value">{user.cafe.name}</div>
             </div>
+          </div>
+        )}
+
+        {/* Managed Cafe Field (only for managers) */}
+        {isManager && user.managedCafe && (
+          <div className="user-info-field">
+            <Building className="user-info-field-icon" />
+            <div className="user-info-field-content">
+              <div className="user-info-field-label">Kafe Adı</div>
+              <div className="user-info-field-value">
+                {user.managedCafe.name}
+              </div>
+              {user.managedCafe.address && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  {user.managedCafe.address}
+                </div>
+              )}
+              {user.managedCafe.phone && (
+                <div className="text-xs text-muted-foreground">
+                  {user.managedCafe.phone}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Account Status */}
+        <div className="flex items-center gap-2 pt-2">
+          {hasActiveCafe ? (
+            <>
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <span className="user-info-status user-info-status-active">
+                Aktif Kafe Bağlantısı
+              </span>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <span className="user-info-status user-info-status-pending">
+                Kafe Bağlantısı Bekleniyor
+              </span>
+            </>
           )}
         </div>
-
-        <Separator />
-
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Hesap Durumu</span>
-          </div>
-          <div className="ml-6">
-            {user.cafe ? (
-              <Badge variant="default" className="bg-green-100 text-green-800">
-                Aktif Kafe Bağlantısı
-              </Badge>
-            ) : (
-              <Badge
-                variant="outline"
-                className="bg-yellow-100 text-yellow-800"
-              >
-                Kafe Bağlantısı Bekleniyor
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        {isManager && user.managedCafe && (
-          <>
-            <Separator />
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Building className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Yönettiğiniz Kafe</span>
-              </div>
-              <div className="ml-6 space-y-1">
-                <p className="text-sm font-medium">{user.managedCafe.name}</p>
-                {user.managedCafe.address && (
-                  <p className="text-xs text-muted-foreground">
-                    {user.managedCafe.address}
-                  </p>
-                )}
-                {user.managedCafe.phone && (
-                  <p className="text-xs text-muted-foreground">
-                    {user.managedCafe.phone}
-                  </p>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

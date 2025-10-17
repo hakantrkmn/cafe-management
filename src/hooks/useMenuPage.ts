@@ -1,7 +1,7 @@
 "use client";
 
 import { useMenu, useSaveMenu } from "@/queries/menu";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "./useAuth";
 
@@ -58,6 +58,9 @@ export function useMenuPage() {
   const [localExtras, setLocalExtras] = useState<ExtraWithChanges[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
 
+  // Track initialization to prevent infinite loops
+  const initializedRef = useRef(false);
+
   // Dialog states
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [categoryDialogMode, setCategoryDialogMode] = useState<
@@ -91,6 +94,15 @@ export function useMenuPage() {
 
   const cafeId = user?.cafeId || user?.managedCafe?.id;
 
+  // Reset initialization when cafeId changes
+  useEffect(() => {
+    initializedRef.current = false;
+    setLocalCategories([]);
+    setLocalMenuItems([]);
+    setLocalExtras([]);
+    setActiveCategoryId(null);
+  }, [cafeId]);
+
   const {
     data: menuData,
     isLoading: menuLoading,
@@ -98,18 +110,14 @@ export function useMenuPage() {
   } = useMenu(cafeId || "");
   const saveMenuMutation = useSaveMenu();
 
-  // Initialize local state when data is fetched (only if local state is empty)
+  // Initialize local state when data is fetched
   useEffect(() => {
-    if (
-      menuData &&
-      localCategories.length === 0 &&
-      localMenuItems.length === 0 &&
-      localExtras.length === 0
-    ) {
+    if (menuData && !initializedRef.current) {
       console.log("Initializing local state with fetched data");
       setLocalCategories(menuData.categories || []);
       setLocalMenuItems(menuData.menuItems || []);
       setLocalExtras(menuData.extras || []);
+      initializedRef.current = true;
 
       // Set first category as active if none is selected
       if (!activeCategoryId && menuData.categories?.length > 0) {
@@ -124,13 +132,7 @@ export function useMenuPage() {
         }
       }
     }
-  }, [
-    menuData,
-    activeCategoryId,
-    localCategories.length,
-    localMenuItems.length,
-    localExtras.length,
-  ]);
+  }, [menuData, activeCategoryId]);
 
   // Check if there are unsaved changes
   const hasChanges = useMemo(() => {

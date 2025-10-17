@@ -125,7 +125,7 @@ export function OrderDialog({
 
           <div className="h-[calc(90vh-70px)]">
             <Tabs defaultValue="menu" className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-2 mb-2 sm:mb-4 mx-2 sm:mx-0">
+              <TabsList className="order-dialog-tabs-list grid grid-cols-2">
                 <TabsTrigger value="menu" className="text-xs sm:text-sm">
                   Ürün Ekleme
                 </TabsTrigger>
@@ -136,31 +136,34 @@ export function OrderDialog({
 
               <TabsContent value="menu" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto p-3 sm:p-6 bg-white">
-                  <MenuSelection
-                    categories={categories}
-                    menuItems={menuItems}
-                    extras={extras}
-                    onItemSelect={handleItemSelect}
-                  />
+                  <div className="order-dialog-container">
+                    <MenuSelection
+                      categories={categories}
+                      menuItems={menuItems}
+                      onItemSelect={handleItemSelect}
+                    />
+                  </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="orders" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto bg-slate-50 p-3 sm:p-6">
-                  <OrderSummary
-                    cartItems={cartItems}
-                    cartTotal={cartTotal}
-                    existingOrders={existingOrders}
-                    onUpdateQuantity={onUpdateQuantity}
-                    onRemoveItem={onRemoveItem}
-                    onSaveOrder={onSaveOrder}
-                    onAddToExistingOrder={onAddToExistingOrder}
-                    onMarkAsPaid={onMarkAsPaid}
-                    onMarkAllAsPaid={onMarkAllAsPaid}
-                    onMarkProductAsPaid={onMarkProductAsPaid}
-                    isSaving={isSaving}
-                    selectedTableName={selectedTableName}
-                  />
+                  <div className="order-dialog-container">
+                    <OrderSummary
+                      cartItems={cartItems}
+                      cartTotal={cartTotal}
+                      existingOrders={existingOrders}
+                      onUpdateQuantity={onUpdateQuantity}
+                      onRemoveItem={onRemoveItem}
+                      onSaveOrder={onSaveOrder}
+                      onAddToExistingOrder={onAddToExistingOrder}
+                      onMarkAsPaid={onMarkAsPaid}
+                      onMarkAllAsPaid={onMarkAllAsPaid}
+                      onMarkProductAsPaid={onMarkProductAsPaid}
+                      isSaving={isSaving}
+                      selectedTableName={selectedTableName}
+                    />
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>

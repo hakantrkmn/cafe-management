@@ -9,7 +9,8 @@ const menuApi = {
       const errorData = await response.json();
       throw new Error(errorData.message || "Menü verileri alınamadı");
     }
-    return response.json();
+    const result = await response.json();
+    return result.data;
   },
 
   saveMenu: async ({

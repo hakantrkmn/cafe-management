@@ -43,13 +43,6 @@ export default function DashboardPage() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <UserInfo />
-
-          <div className="space-y-6">
-            {/* Quick Stats or Recent Activity can go here */}
-            <div className="text-center text-muted-foreground py-8">
-              <p>Hızlı istatistikler ve son aktiviteler burada görünecek</p>
-            </div>
-          </div>
         </div>
       </div>
     </DashboardLayout>

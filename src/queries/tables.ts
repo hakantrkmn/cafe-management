@@ -9,7 +9,8 @@ const tablesApi = {
       const errorData = await response.json();
       throw new Error(errorData.message || "Masa listesi alınamadı");
     }
-    return response.json();
+    const result = await response.json();
+    return result.data;
   },
 
   createTable: async ({

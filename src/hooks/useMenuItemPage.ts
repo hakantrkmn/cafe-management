@@ -1,7 +1,7 @@
 "use client";
 
 import { useMenu } from "@/queries/menu";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSaveMenuItem } from "../queries/menuItem";
 
@@ -39,6 +39,16 @@ export function useMenuItemPage(cafeId: string) {
     []
   );
 
+  // Track initialization to prevent infinite loops
+  const initializedRef = useRef(false);
+
+  // Reset initialization when cafeId changes
+  useEffect(() => {
+    initializedRef.current = false;
+    setLocalMenuItems([]);
+    setLocalCategories([]);
+  }, [cafeId]);
+
   // Dialog states
   const [menuItemDialogOpen, setMenuItemDialogOpen] = useState(false);
   const [menuItemDialogMode, setMenuItemDialogMode] = useState<
@@ -57,16 +67,12 @@ export function useMenuItemPage(cafeId: string) {
 
   // Initialize local state when data is fetched
   useEffect(() => {
-    if (menuData) {
-      // Only update if we don't have local changes
-      const hasLocalChanges = localMenuItems.some((item) => item._status);
-
-      if (!hasLocalChanges) {
-        setLocalMenuItems(menuData.menuItems || []);
-        setLocalCategories(menuData.categories || []);
-      }
+    if (menuData && !initializedRef.current) {
+      setLocalMenuItems(menuData.menuItems || []);
+      setLocalCategories(menuData.categories || []);
+      initializedRef.current = true;
     }
-  }, [menuData, localMenuItems]);
+  }, [menuData]);
 
   // Check if there are unsaved changes
   const hasChanges = useMemo(() => {

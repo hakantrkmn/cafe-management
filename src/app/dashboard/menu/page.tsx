@@ -36,44 +36,59 @@ export default function MenuPage() {
 
   return (
     <DashboardLayout>
-      <div className="menu-container space-y-8">
+      <div className="menu-container space-y-6 sm:space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Menü Yönetimi</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Menü Yönetimi</h1>
         </div>
 
         <div className="menu-tabs-container">
           <Tabs defaultValue="categories" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-auto max-w-md mx-auto">
+            <TabsList className="grid w-full grid-cols-3 h-auto max-w-sm sm:max-w-md mx-auto">
               <TabsTrigger
                 value="categories"
-                className="py-3 text-sm font-medium"
+                className="py-2 sm:py-3 text-xs sm:text-sm font-medium"
               >
-                Kategoriler
+                <span className="hidden sm:inline">Kategoriler</span>
+                <span className="sm:hidden">Kategoriler</span>
               </TabsTrigger>
               <TabsTrigger
                 value="menu-items"
-                className="py-3 text-sm font-medium"
+                className="py-2 sm:py-3 text-xs sm:text-sm font-medium"
               >
-                Menü Öğeleri
+                <span className="hidden sm:inline">Menü Öğeleri</span>
+                <span className="sm:hidden">Menü Öğeleri</span>
               </TabsTrigger>
-              <TabsTrigger value="extras" className="py-3 text-sm font-medium">
-                Ekstralar
+              <TabsTrigger
+                value="extras"
+                className="py-2 sm:py-3 text-xs sm:text-sm font-medium"
+              >
+                <span className="hidden sm:inline">Ekstralar</span>
+                <span className="sm:hidden">Ekstra</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="categories" className="space-y-6 mt-8">
+            <TabsContent
+              value="categories"
+              className="space-y-4 sm:space-y-6 mt-6 sm:mt-8"
+            >
               <div className="menu-content-container">
                 <CategoryTab cafeId={cafeId} />
               </div>
             </TabsContent>
 
-            <TabsContent value="menu-items" className="space-y-6 mt-8">
+            <TabsContent
+              value="menu-items"
+              className="space-y-4 sm:space-y-6 mt-6 sm:mt-8"
+            >
               <div className="menu-content-container">
                 <MenuItemTab cafeId={cafeId} />
               </div>
             </TabsContent>
 
-            <TabsContent value="extras" className="space-y-6 mt-8">
+            <TabsContent
+              value="extras"
+              className="space-y-4 sm:space-y-6 mt-6 sm:mt-8"
+            >
               <div className="menu-content-container">
                 <ExtraTab cafeId={cafeId} />
               </div>

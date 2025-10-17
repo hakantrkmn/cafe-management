@@ -51,18 +51,24 @@ export function CategoryForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-3 sm:space-y-4"
+      >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kategori Adı *</FormLabel>
+              <FormLabel className="text-sm sm:text-base">
+                Kategori Adı *
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder="Kategori adını girin"
                   {...field}
                   disabled={isLoading}
+                  className="h-9 sm:h-10"
                 />
               </FormControl>
               <FormMessage />
@@ -75,7 +81,7 @@ export function CategoryForm({
           name="order"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Sıralama</FormLabel>
+              <FormLabel className="text-sm sm:text-base">Sıralama</FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -83,6 +89,7 @@ export function CategoryForm({
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                   disabled={isLoading}
+                  className="h-9 sm:h-10"
                 />
               </FormControl>
               <FormMessage />
@@ -90,7 +97,11 @@ export function CategoryForm({
           )}
         />
 
-        <Button type="submit" disabled={isLoading} className="w-full">
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-10 sm:h-11 mt-4 sm:mt-6"
+        >
           {isLoading ? "Kaydediliyor..." : submitText}
         </Button>
       </form>

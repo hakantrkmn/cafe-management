@@ -1,20 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useAuth } from "@/queries/auth";
 import {
   BarChart3,
   Clock,
   Menu,
   Settings,
-  ShoppingCart,
   Users,
   Utensils,
 } from "lucide-react";
@@ -25,7 +17,7 @@ interface DashboardCardProps {
   icon: React.ReactNode;
   buttonText: string;
   onClick: () => void;
-  variant?: "default" | "secondary" | "destructive" | "outline";
+  variant?: "default" | "secondary" | "outline";
 }
 
 function DashboardCard({
@@ -36,19 +28,31 @@ function DashboardCard({
   onClick,
   variant = "default",
 }: DashboardCardProps) {
+  const buttonVariantClass = {
+    default: "dashboard-card-button dashboard-card-button-default",
+    secondary: "dashboard-card-button dashboard-card-button-secondary",
+    outline: "dashboard-card-button dashboard-card-button-outline",
+  }[variant];
+
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className="text-muted-foreground">{icon}</div>
-      </CardHeader>
-      <CardContent>
-        <CardDescription className="mb-4">{description}</CardDescription>
-        <Button onClick={onClick} variant={variant} className="w-full">
+    <div className="dashboard-card">
+      <div className="dashboard-card-header">
+        <div className="dashboard-card-title-section">
+          <div className="dashboard-card-icon">{icon}</div>
+          <h3 className="dashboard-card-title">{title}</h3>
+        </div>
+      </div>
+      <div className="dashboard-card-body">
+        <p className="dashboard-card-description">{description}</p>
+        <Button
+          onClick={onClick}
+          variant="ghost"
+          className={buttonVariantClass}
+        >
           {buttonText}
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -65,8 +69,8 @@ export function DashboardCards() {
         <>
           <DashboardCard
             title="Kafe Ayarları"
-            description="Kafe bilgilerini düzenleyin ve genel ayarları yapın"
-            icon={<Settings className="h-4 w-4" />}
+            description="Kafe bilgilerini düzenleyin ve genel ayatları yapın"
+            icon={<Settings className="h-6 w-6" />}
             buttonText="Ayarlar"
             onClick={() => handleNavigation("/dashboard/settings")}
             variant="outline"
@@ -75,7 +79,7 @@ export function DashboardCards() {
           <DashboardCard
             title="Menü Yönetimi"
             description="Kategoriler ve menü ürünlerini yönetin"
-            icon={<Menu className="h-4 w-4" />}
+            icon={<Menu className="h-6 w-6" />}
             buttonText="Menü"
             onClick={() => handleNavigation("/dashboard/menu")}
             variant="default"
@@ -84,7 +88,7 @@ export function DashboardCards() {
           <DashboardCard
             title="Çalışan Yönetimi"
             description="Çalışanları davet edin ve yönetin"
-            icon={<Users className="h-4 w-4" />}
+            icon={<Users className="h-6 w-6" />}
             buttonText="Çalışanlar"
             onClick={() => handleNavigation("/dashboard/staff")}
             variant="secondary"
@@ -93,7 +97,7 @@ export function DashboardCards() {
           <DashboardCard
             title="Masa Yönetimi"
             description="Masaları ekleyin ve düzenleyin"
-            icon={<Utensils className="h-4 w-4" />}
+            icon={<Utensils className="h-6 w-6" />}
             buttonText="Masalar"
             onClick={() => handleNavigation("/dashboard/tables")}
             variant="outline"
@@ -102,7 +106,7 @@ export function DashboardCards() {
           <DashboardCard
             title="Raporlar"
             description="Satış raporları ve analizleri görüntüleyin"
-            icon={<BarChart3 className="h-4 w-4" />}
+            icon={<BarChart3 className="h-6 w-6" />}
             buttonText="Raporlar"
             onClick={() => handleNavigation("/dashboard/reports")}
             variant="secondary"
@@ -111,25 +115,14 @@ export function DashboardCards() {
       )}
 
       {(isManager || isStaff) && (
-        <>
-          <DashboardCard
-            title="Sipariş Alma"
-            description="Yeni siparişler alın ve müşteri hizmeti verin"
-            icon={<ShoppingCart className="h-4 w-4" />}
-            buttonText="Sipariş Al"
-            onClick={() => handleNavigation("/dashboard/orders/new")}
-            variant="default"
-          />
-
-          <DashboardCard
-            title="Aktif Siparişler"
-            description="Bekleyen ve hazırlanan siparişleri görüntüleyin"
-            icon={<Clock className="h-4 w-4" />}
-            buttonText="Siparişler"
-            onClick={() => handleNavigation("/dashboard/orders")}
-            variant="secondary"
-          />
-        </>
+        <DashboardCard
+          title="Aktif Siparişler"
+          description="Bekleyen ve hazırlanan siparişleri görüntüleyin"
+          icon={<Clock className="h-6 w-6" />}
+          buttonText="Siparişler"
+          onClick={() => handleNavigation("/dashboard/orders")}
+          variant="secondary"
+        />
       )}
     </div>
   );

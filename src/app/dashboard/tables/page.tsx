@@ -82,11 +82,13 @@ export default function TablesPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Masa Yönetimi</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+              Masa Yönetimi
+            </h2>
+            <p className="text-muted-foreground text-sm sm:text-base">
               Masaları ekleyin, düzenleyin ve yönetin
             </p>
           </div>
@@ -96,29 +98,37 @@ export default function TablesPage() {
             onOpenChange={dialogStates.setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Masa Ekle
+              <Button className="w-full sm:w-auto">
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="text-sm sm:text-base">Masa Ekle</span>
               </Button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Yeni Masa</DialogTitle>
-                <DialogDescription>Yeni bir masa ekleyin</DialogDescription>
+            <DialogContent className="sm:max-w-[425px] w-[95vw] max-h-[90vh] overflow-y-auto">
+              <DialogHeader className="space-y-2 sm:space-y-3">
+                <DialogTitle className="text-lg sm:text-xl">
+                  Yeni Masa
+                </DialogTitle>
+                <DialogDescription className="text-sm">
+                  Yeni bir masa ekleyin
+                </DialogDescription>
               </DialogHeader>
-              <TableForm
-                onSubmit={handlers.onSubmitCreate}
-                isLoading={isLoading}
-                submitText="Oluştur"
-              />
+              <div className="py-2">
+                <TableForm
+                  onSubmit={handlers.onSubmitCreate}
+                  isLoading={isLoading}
+                  submitText="Oluştur"
+                />
+              </div>
             </DialogContent>
           </Dialog>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Masalar</CardTitle>
-            <CardDescription>Kafenizdeki masaların listesi</CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Masalar</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
+              Kafenizdeki masaların listesi
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <TableList

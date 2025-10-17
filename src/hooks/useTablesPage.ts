@@ -104,7 +104,7 @@ export function useTablesPage() {
     deleteTableMutation.isPending;
 
   return {
-    tables: tablesData?.tables || [],
+    tables: tablesData || [],
     isLoading,
     isAuthenticated,
     isManager,

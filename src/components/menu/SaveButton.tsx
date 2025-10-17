@@ -12,21 +12,28 @@ interface SaveButtonProps {
 
 export function SaveButton({ hasChanges, isLoading, onSave }: SaveButtonProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
       {hasChanges && (
-        <Badge variant="outline" className="text-orange-600 border-orange-600">
+        <Badge
+          variant="outline"
+          className="text-orange-600 border-orange-600 text-xs"
+        >
           <AlertCircle className="h-3 w-3 mr-1" />
-          Kaydedilmemiş değişiklikler
+          <span className="hidden sm:inline">Kaydedilmemiş değişiklikler</span>
+          <span className="sm:hidden">Kaydedilmemiş</span>
         </Badge>
       )}
 
       <Button
         onClick={onSave}
         disabled={!hasChanges || isLoading}
-        className="min-w-[140px]"
+        className="min-w-[120px] sm:min-w-[140px] w-full sm:w-auto"
+        size="sm"
       >
-        <Save className="h-4 w-4 mr-2" />
-        {isLoading ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
+        <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+        <span className="text-xs sm:text-sm">
+          {isLoading ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
+        </span>
       </Button>
     </div>
   );

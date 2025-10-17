@@ -26,7 +26,7 @@ import * as z from "zod";
 const menuItemSchema = z.object({
   categoryId: z.string().min(1, "Kategori seçimi zorunludur"),
   name: z.string().min(1, "Menü öğesi adı zorunludur"),
-  price: z.number().min(0, "Fiyat 0'dan büyük olmalıdır"),
+  price: z.number().min(0, "Fiyat 0 veya daha büyük olmalıdır"),
   description: z.string().optional(),
   isAvailable: z.boolean(),
 });
@@ -76,20 +76,23 @@ export function MenuItemForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-3 sm:space-y-4"
+      >
         <FormField
           control={form.control}
           name="categoryId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kategori *</FormLabel>
+              <FormLabel className="text-sm sm:text-base">Kategori *</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
                 disabled={isLoading}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10">
                     <SelectValue placeholder="Kategori seçin" />
                   </SelectTrigger>
                 </FormControl>
@@ -111,12 +114,15 @@ export function MenuItemForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Menü Öğesi Adı *</FormLabel>
+              <FormLabel className="text-sm sm:text-base">
+                Menü Öğesi Adı *
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder="Menü öğesi adını girin"
                   {...field}
                   disabled={isLoading}
+                  className="h-9 sm:h-10"
                 />
               </FormControl>
               <FormMessage />
@@ -129,15 +135,26 @@ export function MenuItemForm({
           name="price"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Fiyat (₺) *</FormLabel>
+              <FormLabel className="text-sm sm:text-base">
+                Fiyat (₺) *
+              </FormLabel>
               <FormControl>
                 <Input
-                  type="number"
-                  step="0.01"
+                  type="text"
                   placeholder="0.00"
                   {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      field.onChange(0);
+                    } else {
+                      const numValue = parseFloat(value);
+                      field.onChange(isNaN(numValue) ? 0 : numValue);
+                    }
+                  }}
                   disabled={isLoading}
+                  className="h-9 sm:h-10"
                 />
               </FormControl>
               <FormMessage />
@@ -150,12 +167,13 @@ export function MenuItemForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Açıklama</FormLabel>
+              <FormLabel className="text-sm sm:text-base">Açıklama</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Menü öğesi açıklaması"
                   {...field}
                   disabled={isLoading}
+                  className="min-h-[80px] sm:min-h-[100px] resize-none"
                 />
               </FormControl>
               <FormMessage />
@@ -173,16 +191,21 @@ export function MenuItemForm({
                   checked={field.value}
                   onCheckedChange={field.onChange}
                   disabled={isLoading}
+                  className="mt-0.5"
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Müsait</FormLabel>
+                <FormLabel className="text-sm sm:text-base">Müsait</FormLabel>
               </div>
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={isLoading} className="w-full">
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-10 sm:h-11 mt-4 sm:mt-6"
+        >
           {isLoading ? "Kaydediliyor..." : submitText}
         </Button>
       </form>

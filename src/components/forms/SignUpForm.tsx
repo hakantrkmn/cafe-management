@@ -1,6 +1,5 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,8 +27,8 @@ import {
 import { useRegister } from "@/queries/auth";
 import { SignUpFormData } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const signUpSchema = z
@@ -50,7 +49,6 @@ interface SignUpFormProps {
 }
 
 export function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const [error, setError] = useState<string>("");
   const registerMutation = useRegister();
 
   const form = useForm<SignUpFormData>({
@@ -65,12 +63,12 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   });
 
   const onSubmit = async (data: SignUpFormData) => {
-    setError("");
     try {
       await registerMutation.mutateAsync(data);
+      toast.success("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...");
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kayıt başarısız");
+      toast.error(err instanceof Error ? err.message : "Kayıt başarısız");
     }
   };
 
@@ -175,11 +173,6 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
                 </FormItem>
               )}
             />
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
             <Button
               type="submit"
               className="w-full"
