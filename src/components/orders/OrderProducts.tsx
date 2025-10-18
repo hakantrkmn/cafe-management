@@ -46,18 +46,18 @@ export function OrderProducts({
         return (
           <Card
             key={`${order.id}-product-${index}`}
-            className={`transition-all duration-200 flex flex-col h-full ${
+            className={`order-product-card ${
               product.isPaid
-                ? "bg-green-50/50 border-green-200 shadow-sm"
-                : "bg-white border-gray-200 hover:shadow-sm"
+                ? "order-product-card-paid"
+                : "order-product-card-unpaid"
             }`}
           >
-            <div className="p-3 flex flex-col h-full">
+            <div className="order-product-header">
               {/* Header - Ürün Adı ve Durum */}
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1 mb-1">
-                    <h4 className="font-medium text-xs text-gray-900 truncate">
+              <div className="order-product-header-top">
+                <div className="order-product-header-left">
+                  <div className="order-product-header-right">
+                    <h4 className="order-product-name">
                       {menuItem?.name || "Bilinmeyen Ürün"}
                     </h4>
                     {product.isPaid && (
@@ -66,7 +66,7 @@ export function OrderProducts({
                   </div>
 
                   {/* Fiyat */}
-                  <div className="text-sm font-bold text-gray-900">
+                  <div className="order-product-price">
                     {formatPrice(product.price)}
                   </div>
                 </div>
@@ -74,8 +74,8 @@ export function OrderProducts({
 
               {/* Ekstralar */}
               {product.extras && product.extras.length > 0 && (
-                <div className="mb-3 flex-1">
-                  <div className="flex flex-wrap gap-1">
+                <div className="order-product-extras">
+                  <div className="order-product-extras-list">
                     {product.extras.map((extra, extraIndex) => {
                       const extraInfo = orderItem?.orderItemExtras.find(
                         (e) => e.extraId === extra.id
@@ -85,7 +85,7 @@ export function OrderProducts({
                         <Badge
                           key={extraIndex}
                           variant="outline"
-                          className="text-xs bg-gray-50 text-gray-600 border-gray-200 px-1 py-0"
+                          className="order-product-extra-badge"
                         >
                           {extraInfo?.extraName || "Ekstra"}
                         </Badge>
@@ -96,13 +96,13 @@ export function OrderProducts({
               )}
 
               {/* Butonlar - En alta sabitlenmiş */}
-              <div className="flex gap-1 mt-auto pt-2">
+              <div className="order-product-buttons">
                 {!product.isPaid && (
                   <Button
                     size="sm"
                     onClick={() => onMarkProductAsPaid(order.id, index)}
                     disabled={isSaving}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium h-7"
+                    className="order-pay-button"
                   >
                     <CreditCard className="h-3 w-3 mr-1" />
                     Öde
@@ -113,7 +113,7 @@ export function OrderProducts({
                   variant="outline"
                   onClick={() => onDeleteProduct(order.id, index)}
                   disabled={isSaving}
-                  className="px-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300 h-7"
+                  className="order-delete-button"
                 >
                   <X className="h-3 w-3" />
                   <span className="sr-only">Sil</span>

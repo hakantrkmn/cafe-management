@@ -21,12 +21,15 @@ import {
   Table,
   User,
   Users,
+  X,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export function DashboardHeader() {
   const { user, isManager } = useAuth();
   const logoutMutation = useLogout();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const getInitials = (name: string) => {
     return name
@@ -42,16 +45,18 @@ export function DashboardHeader() {
       <div className="dashboard-header-content">
         {/* Left Section: Title, Cafe Badge, Navigation */}
         <div className="dashboard-header-left">
-          <h1 className="dashboard-title">Cafe Yönetim Sistemi</h1>
+          <div className="dashboard-header-brand">
+            <h1 className="dashboard-title">Cafe Yönetim Sistemi</h1>
 
-          {/* Cafe Badge - Only for managers */}
-          {isManager && user?.cafe && (
-            <Badge variant="secondary" className="dashboard-cafe-badge">
-              {user.cafe.name}
-            </Badge>
-          )}
+            {/* Cafe Badge - Only for managers */}
+            {isManager && user?.cafe && (
+              <Badge variant="secondary" className="dashboard-cafe-badge">
+                {user.cafe.name}
+              </Badge>
+            )}
+          </div>
 
-          {/* Navigation Links */}
+          {/* Navigation Links - Desktop */}
           <nav className="dashboard-nav">
             <Link href="/dashboard" className="dashboard-nav-link">
               <Home className="h-4 w-4" />
@@ -89,6 +94,20 @@ export function DashboardHeader() {
             )}
           </nav>
         </div>
+
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="dashboard-mobile-menu-button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
+        </Button>
 
         {/* Right Section: Role Badge, User Menu */}
         <div className="dashboard-header-right">
@@ -154,7 +173,7 @@ export function DashboardHeader() {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                className="dashboard-menu-item text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                className="dashboard-menu-item dashboard-menu-item-danger"
                 onClick={() => logoutMutation.mutate()}
                 disabled={logoutMutation.isPending}
               >
@@ -169,6 +188,76 @@ export function DashboardHeader() {
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Mobile Navigation Menu */}
+      {mobileMenuOpen && (
+        <div className="dashboard-mobile-menu-overlay">
+          <nav className="dashboard-mobile-menu">
+            <Link
+              href="/dashboard"
+              className="dashboard-mobile-menu-link"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Home className="h-5 w-5" />
+              Ana Sayfa
+            </Link>
+
+            {isManager ? (
+              <>
+                <Link
+                  href="/dashboard/menu"
+                  className="dashboard-mobile-menu-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Menu className="h-5 w-5" />
+                  Menü Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/tables"
+                  className="dashboard-mobile-menu-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Table className="h-5 w-5" />
+                  Masa Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/reports"
+                  className="dashboard-mobile-menu-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <BarChart3 className="h-5 w-5" />
+                  Raporlar
+                </Link>
+                <Link
+                  href="/dashboard/staff"
+                  className="dashboard-mobile-menu-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Users className="h-5 w-5" />
+                  Personel Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  className="dashboard-mobile-menu-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Settings className="h-5 w-5" />
+                  Ayarlar
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/dashboard/orders"
+                className="dashboard-mobile-menu-link"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                Sipariş Yönetimi
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

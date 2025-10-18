@@ -1,0 +1,258 @@
+/* Order system styles */
+
+/* Order Dialog Styles */
+.order-dialog-container {
+  @apply max-w-6xl mx-auto;
+}
+
+.order-dialog-container-mobile {
+  @apply max-w-full mx-0 px-0;
+}
+
+.order-dialog-tabs-list {
+  @apply max-w-md mx-auto mb-4 sm:mb-6 px-2;
+}
+
+.order-dialog-tabs-list-mobile {
+  @apply max-w-full px-4 mb-3;
+}
+
+/* Menu Selection Header */
+.menu-selection-header {
+  @apply mb-6 flex flex-col gap-4;
+}
+
+.menu-selection-container {
+  @apply w-full;
+}
+
+/* Menu Item Card Styles */
+.menu-item-card {
+  @apply p-2 sm:p-3 border border-border/50 rounded-lg hover:border-primary/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-card hover:bg-gradient-to-br hover:from-primary/5 hover:to-background min-h-[120px] sm:min-h-[140px] md:min-h-[160px] w-full flex flex-col items-center;
+}
+
+.menu-item-header {
+  @apply text-center space-y-2 mb-3;
+}
+
+.menu-item-name {
+  @apply font-semibold text-sm sm:text-base md:text-lg leading-tight text-center;
+}
+
+.menu-item-price {
+  @apply font-bold text-primary text-base sm:text-lg md:text-xl;
+}
+
+.menu-item-description {
+  @apply text-xs sm:text-sm text-muted-foreground line-clamp-2 flex-1 text-center px-2;
+}
+
+.menu-item-footer {
+  @apply mt-auto pt-4 flex justify-center;
+}
+
+.menu-item-add-button {
+  @apply h-8 sm:h-9 md:h-10 px-3 sm:px-4 md:px-6 text-xs sm:text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200;
+}
+
+/* Orders Table List Styles */
+.orders-table-list {
+  @apply grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+}
+
+.orders-table-item {
+  @apply p-4 sm:p-5 border border-border/50 rounded-lg hover:border-primary/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-card;
+}
+
+.orders-table-item:hover {
+  @apply bg-gradient-to-br from-primary/5 to-background;
+}
+
+.orders-table-item-header {
+  @apply flex items-center justify-between mb-3;
+}
+
+.orders-table-item-icon {
+  @apply h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0;
+}
+
+.orders-table-item-content {
+  @apply flex-1 min-w-0;
+}
+
+.orders-table-item-name {
+  @apply text-sm font-semibold text-foreground truncate;
+}
+
+.orders-table-item-orders {
+  @apply flex gap-4 mt-3 pt-3 border-t border-border/30;
+}
+
+.orders-table-item-stat {
+  @apply flex flex-col gap-1 flex-1;
+}
+
+/* Order Product Card Styles */
+.order-product-card {
+  @apply transition-all duration-200 flex flex-col h-full;
+}
+
+.order-product-card-unpaid {
+  @apply bg-white border-gray-200 hover:shadow-sm;
+}
+
+.order-product-card-paid {
+  @apply bg-green-50/50 border-green-200 shadow-sm;
+}
+
+.order-product-header {
+  @apply p-3 flex flex-col h-full;
+}
+
+.order-product-header-top {
+  @apply flex items-start justify-between mb-2;
+}
+
+.order-product-header-left {
+  @apply flex-1 min-w-0;
+}
+
+.order-product-header-right {
+  @apply flex items-center gap-1 mb-1;
+}
+
+.order-product-name {
+  @apply font-medium text-xs text-gray-900 truncate;
+}
+
+.order-product-price {
+  @apply text-sm font-bold text-gray-900;
+}
+
+.order-product-extras {
+  @apply mb-3 flex-1;
+}
+
+.order-product-extras-list {
+  @apply flex flex-wrap gap-1;
+}
+
+.order-product-extra-badge {
+  @apply text-xs bg-gray-50 text-gray-600 border-gray-200 px-1 py-0;
+}
+
+.order-product-buttons {
+  @apply flex gap-1 mt-auto pt-2;
+}
+
+.order-pay-button {
+  @apply flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium h-7;
+}
+
+.order-delete-button {
+  @apply px-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300 h-7;
+}
+
+.order-mark-all-paid-button {
+  @apply bg-green-600 hover:bg-green-700 text-xs w-full sm:w-auto;
+}
+
+.order-cart-remove-button {
+  @apply text-red-600 hover:text-red-700 shrink-0;
+}
+
+/* Menu Selection Grid */
+.menu-selection-grid {
+  @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3;
+}
+
+/* Order Summary Styles */
+.order-summary {
+  @apply w-96 overflow-y-auto max-h-[70vh] pl-2 border-l;
+}
+
+.order-summary-mobile {
+  @apply w-full max-h-none h-auto pl-0 border-l-0 border-t pt-4;
+}
+
+.menu-selection {
+  @apply flex-1 overflow-y-auto max-h-[70vh] pr-2;
+}
+
+/* Orders Page Responsive Styles */
+.table-card-mobile {
+  @apply p-4 cursor-pointer transition-all duration-200 hover:shadow-md;
+}
+
+.orders-grid-responsive {
+  @apply grid gap-3 sm:gap-4;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .orders-grid-responsive {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .orders-grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .orders-grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .orders-grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.order-dialog-mobile {
+  @apply w-[95vw] max-w-7xl;
+}
+
+@media (max-width: 640px) {
+  .order-dialog-mobile {
+    @apply w-[95vw] h-[90vh] max-w-none;
+  }
+}
+
+/* Table status colors */
+.table-status-available {
+  @apply bg-green-50 border-green-200 text-green-800;
+}
+
+.table-status-occupied {
+  @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+}
+
+.table-status-has-orders {
+  @apply bg-blue-50 border-blue-200 text-blue-800;
+}
+
+/* Mobile table card styles */
+.mobile-table-card {
+  @apply flex items-center justify-between p-4 rounded-lg border transition-all duration-200;
+}
+
+.mobile-table-card:hover {
+  @apply shadow-md;
+}
+
+.mobile-table-card.available {
+  @apply bg-white border-green-200 hover:border-green-300;
+}
+
+.mobile-table-card.occupied {
+  @apply bg-yellow-50 border-yellow-200 hover:border-yellow-300;
+}
+
+.mobile-table-card.has-orders {
+  @apply bg-blue-50 border-blue-200 hover:border-blue-300;
+}

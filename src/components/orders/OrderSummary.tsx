@@ -58,7 +58,7 @@ export function OrderSummary({
               size="sm"
               onClick={onMarkAllAsPaid}
               disabled={isSaving}
-              className="bg-green-600 hover:bg-green-700 text-xs w-full sm:w-auto"
+              className="order-mark-all-paid-button"
             >
               <CreditCard className="h-3 w-3 mr-1" />
               Tümünün Ödemesini Al
@@ -182,7 +182,7 @@ export function OrderSummary({
                       variant="outline"
                       onClick={() => onRemoveItem(item.id)}
                       disabled={isSaving}
-                      className="text-red-600 hover:text-red-700 shrink-0"
+                      className="order-cart-remove-button"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

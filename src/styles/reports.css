@@ -1,0 +1,146 @@
+/* Reports and analytics styles */
+
+/* Reports Page Styles */
+.reports-container {
+  @apply space-y-6;
+}
+
+.reports-header {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4;
+}
+
+.reports-title {
+  @apply text-2xl font-bold;
+}
+
+.reports-description {
+  @apply text-muted-foreground;
+}
+
+.reports-filters {
+  @apply flex flex-col sm:flex-row gap-4;
+}
+
+.reports-content {
+  @apply space-y-6;
+}
+
+.reports-summary-grid {
+  @apply grid gap-4 md:grid-cols-2 lg:grid-cols-4;
+}
+
+.reports-summary-card {
+  @apply bg-card rounded-lg border p-6 shadow-sm;
+}
+
+.reports-summary-header {
+  @apply flex flex-row items-center justify-between space-y-0 pb-2;
+}
+
+.reports-summary-icon {
+  @apply p-2 rounded-full;
+}
+
+.reports-summary-title {
+  @apply text-sm font-medium;
+}
+
+.reports-summary-value {
+  @apply text-2xl font-bold;
+}
+
+.reports-summary-change {
+  @apply text-xs text-muted-foreground;
+}
+
+.reports-summary-change-positive {
+  @apply text-2xl font-bold text-green-600;
+}
+
+.reports-summary-change-negative {
+  @apply text-2xl font-bold text-red-600;
+}
+
+.reports-summary-change-info {
+  @apply text-lg font-bold text-blue-600;
+}
+
+.reports-payment-status-grid {
+  @apply grid grid-cols-1 sm:grid-cols-3 gap-4;
+}
+
+.reports-summary-card-header {
+  @apply pb-3;
+}
+
+.reports-summary-card-title {
+  @apply text-base flex items-center gap-2;
+}
+
+.reports-table-container {
+  @apply bg-card rounded-lg border shadow-sm;
+}
+
+.reports-table {
+  @apply w-full;
+}
+
+.reports-table-header {
+  @apply border-b;
+}
+
+.reports-table-header-cell {
+  @apply h-12 px-4 text-left align-middle font-medium text-muted-foreground;
+}
+
+.reports-table-body {
+  @apply divide-y;
+}
+
+.reports-table-row {
+  @apply hover:bg-muted/50 transition-colors;
+}
+
+.reports-table-cell {
+  @apply p-4 align-middle;
+}
+
+.reports-table-cell-product {
+  @apply font-medium;
+}
+
+.reports-table-cell-quantity {
+  @apply text-center font-medium;
+}
+
+.reports-table-cell-amount {
+  @apply text-right font-medium;
+}
+
+.reports-table-cell-date {
+  @apply text-muted-foreground;
+}
+
+.reports-table-empty {
+  @apply text-center py-8 text-muted-foreground;
+}
+
+.reports-table-empty-icon {
+  @apply h-12 w-12 mx-auto mb-4 opacity-50;
+}
+
+.reports-table-empty-text {
+  @apply text-center;
+}
+
+.reports-table-title {
+  @apply text-lg flex items-center gap-2;
+}
+
+.reports-table-row-header {
+  @apply flex items-center justify-between mb-3;
+}
+
+.reports-table-cell-amount {
+  @apply text-lg font-bold text-primary;
+}

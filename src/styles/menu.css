@@ -1,0 +1,227 @@
+/* Menu management styles */
+
+/* Menu page layout utilities */
+.menu-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.menu-tabs-container {
+  @apply max-w-6xl mx-auto;
+}
+
+.menu-content-container {
+  @apply max-w-5xl mx-auto;
+}
+
+/* Category tabs styling */
+.category-tabs-list {
+  @apply w-full h-auto p-2 bg-muted/30 rounded-lg border;
+}
+
+.category-tabs-wrapper {
+  @apply flex flex-wrap gap-2 w-full;
+}
+
+.category-tab-trigger {
+  @apply flex items-center justify-between gap-2 px-4 py-2.5 min-w-0 flex-1 sm:flex-none sm:min-w-[180px] sm:max-w-[250px] rounded-md transition-all duration-200;
+}
+
+/* Category Card Styles */
+.category-card {
+  @apply cursor-pointer transition-all duration-200 hover:shadow-md;
+}
+
+.category-card-inactive {
+  @apply hover:bg-muted/50;
+}
+
+.category-card-active {
+  @apply ring-2 ring-primary bg-primary/5;
+}
+
+.category-card-content {
+  @apply p-3 sm:p-4;
+}
+
+.category-card-header {
+  @apply flex items-center justify-between;
+}
+
+.category-card-left {
+  @apply flex-1 min-w-0;
+}
+
+.category-card-name {
+  @apply font-medium text-sm sm:text-base truncate;
+}
+
+.category-card-info {
+  @apply flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1;
+}
+
+.category-card-status-new {
+  @apply bg-green-500 text-xs;
+}
+
+.category-card-status-modified {
+  @apply bg-blue-500 text-xs;
+}
+
+.category-card-order {
+  @apply text-xs text-muted-foreground;
+}
+
+.category-card-actions {
+  @apply flex items-center gap-1 ml-2;
+}
+
+.category-card-action-button {
+  @apply h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-muted;
+}
+
+.category-card-edit-button {
+  @apply hover:bg-muted;
+}
+
+.category-card-delete-button {
+  @apply hover:bg-destructive/10 hover:text-destructive;
+}
+
+/* Category Tabs Styles */
+.category-tabs-list {
+  @apply w-full h-auto p-2 bg-muted/30 rounded-lg border;
+}
+
+.category-tabs-wrapper {
+  @apply flex flex-wrap gap-2 w-full;
+}
+
+.category-tab-trigger {
+  @apply flex items-center justify-between gap-2 px-4 py-2.5 min-w-0 flex-1 sm:flex-none sm:min-w-[180px] sm:max-w-[250px] rounded-md transition-all duration-200;
+}
+
+/* Menu Item Card Styles */
+.menu-item-list-card {
+  @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.menu-item-list-content {
+  @apply p-4 sm:p-6;
+}
+
+.menu-item-list-header {
+  @apply flex items-start justify-between mb-4;
+}
+
+.menu-item-list-info {
+  @apply flex-1 min-w-0;
+}
+
+.menu-item-list-name {
+  @apply font-semibold text-lg sm:text-xl text-foreground mb-1;
+}
+
+.menu-item-list-price {
+  @apply text-2xl sm:text-3xl font-bold text-primary;
+}
+
+.menu-item-list-description {
+  @apply text-sm text-muted-foreground mt-2 leading-relaxed;
+}
+
+.menu-item-list-category {
+  @apply text-xs text-muted-foreground mt-1;
+}
+
+.menu-item-list-actions {
+  @apply flex items-center gap-2 ml-4;
+}
+
+.menu-item-list-action-button {
+  @apply h-8 w-8 p-0 flex items-center justify-center rounded-md hover:bg-muted cursor-pointer transition-colors duration-200;
+}
+
+.menu-item-list-action-danger {
+  @apply text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20;
+}
+
+/* Menu Grid Layouts */
+.menu-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+.menu-grid-compact {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3;
+}
+
+/* Card styling */
+.menu-card {
+  @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+/* Button styling */
+.menu-action-button {
+  @apply h-8 w-8 p-0 flex items-center justify-center rounded-md hover:bg-muted cursor-pointer transition-colors duration-200;
+}
+
+.menu-action-button-danger {
+  @apply text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20;
+}
+
+/* Menu Item Card Styles */
+.menu-item-status-new {
+  @apply bg-green-500;
+}
+
+.menu-item-status-modified {
+  @apply bg-blue-500;
+}
+
+.menu-item-availability-available {
+  @apply text-green-600 border-green-600;
+}
+
+.menu-item-availability-unavailable {
+  @apply text-red-600 border-red-600;
+}
+
+.menu-item-actions {
+  @apply flex gap-1 sm:gap-2 pt-2;
+}
+
+.menu-item-edit-button {
+  @apply flex-1 text-xs sm:text-sm h-8 sm:h-9;
+}
+
+.menu-item-delete-button {
+  @apply text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-9 px-2 sm:px-3;
+}
+
+/* Extra Card Styles */
+.extra-status-new {
+  @apply bg-green-500;
+}
+
+.extra-status-modified {
+  @apply bg-blue-500;
+}
+
+.extra-availability-available {
+  @apply text-green-600 border-green-600;
+}
+
+.extra-availability-unavailable {
+  @apply text-red-600 border-red-600;
+}
+
+.extra-actions {
+  @apply flex gap-1 sm:gap-2;
+}
+
+.extra-edit-button {
+  @apply flex-1 text-xs sm:text-sm h-8 sm:h-9;
+}
+
+.extra-delete-button {
+  @apply text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-9 px-2 sm:px-3;
+}

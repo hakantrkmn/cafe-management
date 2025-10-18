@@ -44,11 +44,7 @@ export function useExtraPage(cafeId: string) {
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   // API hooks
-  const {
-    data: menuData,
-    isLoading: menuLoading,
-    error: menuError,
-  } = useMenu(cafeId);
+  const { data: menuData, isLoading: menuLoading } = useMenu(cafeId);
   const saveExtraMutation = useSaveExtra();
 
   // Initialize local state when data is fetched

@@ -60,14 +60,14 @@ export function ReportsSummary({ data }: ReportsSummaryProps) {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="reports-summary-grid">
         {summaryCards.map((card, index) => (
           <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+            <CardHeader className="reports-summary-header">
+              <CardTitle className="reports-summary-title">
                 {card.title}
               </CardTitle>
-              <div className={`p-2 rounded-full ${card.bgColor}`}>
+              <div className={`reports-summary-icon ${card.bgColor}`}>
                 <card.icon className={`h-4 w-4 ${card.color}`} />
               </div>
             </CardHeader>
@@ -82,51 +82,47 @@ export function ReportsSummary({ data }: ReportsSummaryProps) {
       </div>
 
       {/* Payment Status Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="reports-payment-status-grid">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
+          <CardHeader className="reports-summary-card-header">
+            <CardTitle className="reports-summary-card-title">
               <Users className="h-4 w-4 text-green-600" />
               Ödenmiş Siparişler
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {paidOrders}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Tamamlanmış ödemeler
-            </p>
+            <div className="reports-summary-change-positive">{paidOrders}</div>
+            <p className="reports-summary-change">Tamamlanmış ödemeler</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
+          <CardHeader className="reports-summary-card-header">
+            <CardTitle className="reports-summary-card-title">
               <Users className="h-4 w-4 text-red-600" />
               Ödenmemiş Siparişler
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="reports-summary-change-negative">
               {unpaidOrders}
             </div>
-            <p className="text-xs text-muted-foreground">Bekleyen ödemeler</p>
+            <p className="reports-summary-change">Bekleyen ödemeler</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
+          <CardHeader className="reports-summary-card-header">
+            <CardTitle className="reports-summary-card-title">
               <Package className="h-4 w-4 text-blue-600" />
               En Çok Satan Ürün
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold text-blue-600">
+            <div className="reports-summary-change-info">
               {topProducts.length > 0 ? topProducts[0].name : "Veri yok"}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="reports-summary-change">
               {topProducts.length > 0
                 ? `${topProducts[0].totalSold} adet satıldı`
                 : "Henüz satış yok"}

@@ -27,7 +27,6 @@ interface TableDialogsProps {
   isEditDialogOpen: boolean;
   setIsEditDialogOpen: (open: boolean) => void;
   editingTable: { id: string; name: string } | null;
-  setEditingTable: (table: { id: string; name: string } | null) => void;
   tableToDelete: { id: string; name: string; isOccupied: boolean } | null;
   setTableToDelete: (
     table: { id: string; name: string; isOccupied: boolean } | null
@@ -44,7 +43,6 @@ export function TableDialogs({
   isEditDialogOpen,
   setIsEditDialogOpen,
   editingTable,
-  setEditingTable,
   tableToDelete,
   setTableToDelete,
   onSubmitCreate,
@@ -147,7 +145,7 @@ export function TableDialogs({
             <AlertDialogAction
               onClick={onDeleteTable}
               disabled={isLoading || tableToDelete?.isOccupied}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
+              className="table-dialog-delete-button"
             >
               {isLoading ? "Siliniyor..." : "Sil"}
             </AlertDialogAction>

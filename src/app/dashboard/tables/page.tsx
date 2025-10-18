@@ -146,7 +146,6 @@ export default function TablesPage() {
           isEditDialogOpen={dialogStates.isEditDialogOpen}
           setIsEditDialogOpen={dialogStates.setIsEditDialogOpen}
           editingTable={dialogStates.editingTable}
-          setEditingTable={dialogStates.setEditingTable}
           tableToDelete={dialogStates.tableToDelete}
           setTableToDelete={dialogStates.setTableToDelete}
           onSubmitCreate={handlers.onSubmitCreate}

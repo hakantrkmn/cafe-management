@@ -45,14 +45,14 @@ export function ReportsTable({ data }: ReportsTableProps) {
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
+          <CardTitle className="reports-table-title">
             <Package className="h-5 w-5" />
             Sipariş Detayları
           </CardTitle>
         </CardHeader>
         <CardContent>
           {orders.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="reports-table-empty">
               <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Seçilen dönemde sipariş bulunamadı</p>
             </div>
@@ -62,7 +62,7 @@ export function ReportsTable({ data }: ReportsTableProps) {
                 <Card key={order.id} className="border-l-4 border-l-primary">
                   <CardContent className="p-4">
                     {/* Order Header */}
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="reports-table-row-header">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -88,7 +88,7 @@ export function ReportsTable({ data }: ReportsTableProps) {
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <div className="text-lg font-bold text-primary">
+                          <div className="reports-table-cell-amount">
                             {formatPrice(order.totalAmount)}
                           </div>
                           <div className="text-xs text-muted-foreground">

@@ -29,9 +29,11 @@ export function StaffList({
 }: StaffListProps) {
   if (allowedStaff.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-8">
-        <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
-        <p>Henüz davet edilen çalışan yok</p>
+      <div className="staff-invite-empty">
+        <Mail className="staff-invite-empty-icon" />
+        <p className="staff-invite-empty-text">
+          Henüz davet edilen çalışan yok
+        </p>
       </div>
     );
   }
@@ -39,22 +41,22 @@ export function StaffList({
   return (
     <div className="space-y-3">
       {allowedStaff.map((staff) => (
-        <div
-          key={staff.id}
-          className="flex items-center justify-between p-4 border rounded-lg"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-muted rounded-full">
-              <User className="h-4 w-4" />
+        <div key={staff.id} className="staff-list-item">
+          <div className="staff-list-item-left">
+            <div className="staff-list-avatar">
+              <User className="staff-list-avatar-icon" />
             </div>
-            <div>
-              <p className="font-medium">{staff.email}</p>
-              <div className="flex items-center space-x-2">
-                <Badge variant={staff.user ? "default" : "secondary"}>
+            <div className="staff-list-info">
+              <p className="staff-list-name">{staff.email}</p>
+              <div className="staff-list-status">
+                <Badge
+                  variant={staff.user ? "default" : "secondary"}
+                  className="staff-list-status-badge"
+                >
                   {staff.user ? "Kayıtlı" : "Beklemede"}
                 </Badge>
                 {staff.user && (
-                  <span className="text-sm text-muted-foreground">
+                  <span className="staff-list-status-registered">
                     {staff.user.name}
                   </span>
                 )}
@@ -62,31 +64,33 @@ export function StaffList({
             </div>
           </div>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isLoading}>
-                <X className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Daveti İptal Et</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {staff.email} adresine gönderilen daveti iptal etmek
-                  istediğinizden emin misiniz? Bu işlem geri alınamaz.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>İptal</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => onRemoveInvite(staff.email)}
-                  disabled={isLoading}
-                >
-                  Daveti İptal Et
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <div className="staff-list-actions">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" disabled={isLoading}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Daveti İptal Et</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {staff.email} adresine gönderilen daveti iptal etmek
+                    istediğinizden emin misiniz? Bu işlem geri alınamaz.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>İptal</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onRemoveInvite(staff.email)}
+                    disabled={isLoading}
+                  >
+                    Daveti İptal Et
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       ))}
     </div>

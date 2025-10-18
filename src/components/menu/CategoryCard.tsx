@@ -34,14 +34,14 @@ export function CategoryCard({
   const getStatusBadge = (category: Category) => {
     if (category._status === "new") {
       return (
-        <Badge variant="default" className="bg-green-500 text-xs">
+        <Badge variant="default" className="category-card-status-new">
           Yeni
         </Badge>
       );
     }
     if (category._status === "modified") {
       return (
-        <Badge variant="default" className="bg-blue-500 text-xs">
+        <Badge variant="default" className="category-card-status-modified">
           Değiştirildi
         </Badge>
       );
@@ -52,26 +52,24 @@ export function CategoryCard({
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-all duration-200 hover:shadow-md",
-        isActive ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
+        "category-card",
+        isActive ? "category-card-active" : "category-card-inactive"
       )}
       onClick={onSelect}
     >
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm sm:text-base truncate">
-              {category.name}
-            </h3>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+      <CardContent className="category-card-content">
+        <div className="category-card-header">
+          <div className="category-card-left">
+            <h3 className="category-card-name">{category.name}</h3>
+            <div className="category-card-info">
               {getStatusBadge(category)}
-              <span className="text-xs text-muted-foreground">
+              <span className="category-card-order">
                 Sıra: {category.order}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 ml-2">
+          <div className="category-card-actions">
             <Button
               variant="ghost"
               size="sm"
@@ -79,7 +77,7 @@ export function CategoryCard({
                 e.stopPropagation();
                 onEdit(category);
               }}
-              className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-muted"
+              className="category-card-action-button category-card-edit-button"
             >
               <Edit className="h-3 w-3" />
             </Button>
@@ -90,7 +88,7 @@ export function CategoryCard({
                 e.stopPropagation();
                 onDelete(category.id);
               }}
-              className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+              className="category-card-action-button category-card-delete-button"
             >
               <Trash2 className="h-3 w-3" />
             </Button>

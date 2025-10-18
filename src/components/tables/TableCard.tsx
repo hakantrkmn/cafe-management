@@ -32,20 +32,20 @@ export function TableCard({
           </div>
           <Badge
             variant={table.isOccupied ? "destructive" : "secondary"}
-            className="text-xs"
+            className="table-card-status"
           >
             {table.isOccupied ? "Dolu" : "Boş"}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex gap-2">
+        <div className="table-card-actions">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(table)}
             disabled={isLoading}
-            className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
+            className="table-card-edit-button"
           >
             <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Düzenle</span>
@@ -55,7 +55,7 @@ export function TableCard({
             size="sm"
             onClick={() => onDelete(table)}
             disabled={isLoading}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-9 px-2 sm:px-3"
+            className="table-card-delete-button"
           >
             <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline ml-2">Sil</span>

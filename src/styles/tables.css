@@ -1,0 +1,97 @@
+/* Table management styles */
+
+/* Table layout grid */
+.table-layout-grid {
+  @apply relative w-full h-96 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden;
+}
+
+.table-card {
+  @apply absolute w-20 h-20 cursor-pointer transition-all duration-200;
+}
+
+.table-card-draggable {
+  @apply cursor-move hover:shadow-lg;
+}
+
+.table-card-clickable {
+  @apply hover:shadow-md;
+}
+
+/* Table Card Styles */
+.table-card-header {
+  @apply pb-3;
+}
+
+.table-card-header-content {
+  @apply flex items-center justify-between;
+}
+
+.table-card-header-left {
+  @apply flex items-center space-x-2;
+}
+
+.table-card-icon {
+  @apply h-5 w-5 text-muted-foreground;
+}
+
+.table-card-name {
+  @apply font-medium text-base;
+}
+
+.table-card-status {
+  @apply text-xs;
+}
+
+.table-card-status-occupied {
+  @apply bg-red-100 text-red-800;
+}
+
+.table-card-status-available {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.table-card-content {
+  @apply pt-0;
+}
+
+.table-card-actions {
+  @apply flex gap-2;
+}
+
+.table-card-edit-button {
+  @apply flex-1 text-xs sm:text-sm h-8 sm:h-9;
+}
+
+.table-card-delete-button {
+  @apply text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-9 px-2 sm:px-3;
+}
+
+.table-dialog-delete-button {
+  @apply w-full sm:w-auto bg-red-600 hover:bg-red-700;
+}
+
+/* Table Dialog Styles */
+.table-dialog {
+  @apply max-w-md mx-auto;
+}
+
+/* Table Card Styles */
+.table-card-status {
+  @apply text-xs;
+}
+
+.table-card-actions {
+  @apply flex gap-2;
+}
+
+.table-card-edit-button {
+  @apply flex-1 text-xs sm:text-sm h-8 sm:h-9;
+}
+
+.table-card-delete-button {
+  @apply text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-9 px-2 sm:px-3;
+}
+
+.table-dialog-delete-button {
+  @apply w-full sm:w-auto bg-red-600 hover:bg-red-700;
+}

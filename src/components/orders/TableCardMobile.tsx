@@ -62,16 +62,13 @@ export function TableCardMobile({
 
   return (
     <Card
-      className={`
-        p-4 cursor-pointer transition-all duration-200 hover:shadow-md
-        ${
-          status === "available"
-            ? "bg-white border-green-200 hover:border-green-300"
-            : status === "occupied"
-            ? "bg-yellow-50 border-yellow-200 hover:border-yellow-300"
-            : "bg-blue-50 border-blue-200 hover:border-blue-300"
-        }
-      `}
+      className={`mobile-table-card ${
+        status === "available"
+          ? "mobile-table-card.available"
+          : status === "occupied"
+          ? "mobile-table-card.occupied"
+          : "mobile-table-card.has-orders"
+      }`}
       onClick={() => onClick(table.id)}
     >
       <div className="flex items-center justify-between">

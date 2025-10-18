@@ -26,14 +26,14 @@ export function ExtraCard({ extra, onEdit, onDelete }: ExtraCardProps) {
   const getStatusBadge = () => {
     if (extra._status === "new") {
       return (
-        <Badge variant="default" className="bg-green-500">
+        <Badge variant="default" className="extra-status-new">
           Yeni
         </Badge>
       );
     }
     if (extra._status === "modified") {
       return (
-        <Badge variant="default" className="bg-blue-500">
+        <Badge variant="default" className="extra-status-modified">
           Değiştirildi
         </Badge>
       );
@@ -43,11 +43,11 @@ export function ExtraCard({ extra, onEdit, onDelete }: ExtraCardProps) {
 
   const getAvailabilityBadge = () => {
     return extra.isAvailable ? (
-      <Badge variant="outline" className="text-green-600 border-green-600">
+      <Badge variant="outline" className="extra-availability-available">
         Müsait
       </Badge>
     ) : (
-      <Badge variant="outline" className="text-red-600 border-red-600">
+      <Badge variant="outline" className="extra-availability-unavailable">
         Müsait Değil
       </Badge>
     );
@@ -72,12 +72,12 @@ export function ExtraCard({ extra, onEdit, onDelete }: ExtraCardProps) {
             </span>
           </div>
 
-          <div className="flex gap-1 sm:gap-2">
+          <div className="extra-actions">
             <Button
               variant="outline"
               size="sm"
               onClick={() => onEdit(extra)}
-              className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
+              className="extra-edit-button"
             >
               <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Düzenle</span>
@@ -87,7 +87,7 @@ export function ExtraCard({ extra, onEdit, onDelete }: ExtraCardProps) {
               variant="outline"
               size="sm"
               onClick={() => onDelete(extra.id)}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-9 px-2 sm:px-3"
+              className="extra-delete-button"
             >
               <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline ml-2">Sil</span>

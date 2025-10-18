@@ -1,0 +1,59 @@
+/* Staff management styles */
+
+/* Staff List Item Styles */
+.staff-list-item {
+  @apply flex items-center justify-between p-4 border rounded-lg;
+}
+
+.staff-list-item-left {
+  @apply flex items-center space-x-3;
+}
+
+.staff-list-avatar {
+  @apply p-2 bg-muted rounded-full;
+}
+
+.staff-list-avatar-icon {
+  @apply h-4 w-4;
+}
+
+.staff-list-info {
+  @apply flex-1;
+}
+
+.staff-list-name {
+  @apply font-medium;
+}
+
+.staff-list-status {
+  @apply flex items-center space-x-2;
+}
+
+.staff-list-status-badge {
+  @apply text-sm text-muted-foreground mt-1;
+}
+
+.staff-list-status-registered {
+  @apply text-sm text-muted-foreground mt-1;
+}
+
+.staff-list-status-pending {
+  @apply text-sm text-muted-foreground mt-1;
+}
+
+.staff-list-actions {
+  @apply ml-3;
+}
+
+/* Staff Invite Styles */
+.staff-invite-empty {
+  @apply text-center text-muted-foreground py-8;
+}
+
+.staff-invite-empty-icon {
+  @apply h-12 w-12 mx-auto mb-4 opacity-50;
+}
+
+.staff-invite-empty-text {
+  @apply text-center;
+}

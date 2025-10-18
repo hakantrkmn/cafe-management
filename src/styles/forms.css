@@ -1,0 +1,193 @@
+/* Form component styles */
+
+/* Form Container Styles */
+.form-container {
+  @apply space-y-6;
+}
+
+.form-header {
+  @apply space-y-2;
+}
+
+.form-title {
+  @apply text-2xl font-bold;
+}
+
+.form-description {
+  @apply text-muted-foreground;
+}
+
+.form-content {
+  @apply space-y-6;
+}
+
+.form-section {
+  @apply space-y-4;
+}
+
+.form-section-header {
+  @apply space-y-1;
+}
+
+.form-section-title {
+  @apply text-lg font-semibold;
+}
+
+.form-section-description {
+  @apply text-sm text-muted-foreground;
+}
+
+.form-section-content {
+  @apply space-y-4;
+}
+
+/* Form Field Styles */
+.form-field {
+  @apply space-y-2;
+}
+
+.form-field-label {
+  @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
+}
+
+.form-field-description {
+  @apply text-sm text-muted-foreground;
+}
+
+.form-field-error {
+  @apply text-sm text-destructive;
+}
+
+/* Form Input Styles */
+.form-input {
+  @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.form-textarea {
+  @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.form-select {
+  @apply flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1;
+}
+
+/* Form Button Styles */
+.form-button {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+}
+
+.form-button-default {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+.form-button-destructive {
+  @apply bg-destructive text-white hover:bg-destructive/90;
+}
+
+.form-button-outline {
+  @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+}
+
+.form-button-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+}
+
+.form-button-ghost {
+  @apply hover:bg-accent hover:text-accent-foreground;
+}
+
+.form-button-link {
+  @apply text-primary underline-offset-4 hover:underline;
+}
+
+.form-button-sm {
+  @apply h-9 px-3;
+}
+
+.form-button-md {
+  @apply h-10 px-4 py-2;
+}
+
+.form-button-lg {
+  @apply h-11 px-8;
+}
+
+/* Form Actions */
+.form-actions {
+  @apply flex items-center justify-end gap-4 pt-6;
+}
+
+.form-actions-left {
+  @apply flex-1;
+}
+
+.form-actions-right {
+  @apply flex items-center gap-2;
+}
+
+/* Form Dialog Styles */
+.form-dialog {
+  @apply max-w-md mx-auto;
+}
+
+.form-dialog-header {
+  @apply space-y-2;
+}
+
+.form-dialog-title {
+  @apply text-lg font-semibold;
+}
+
+.form-dialog-description {
+  @apply text-sm text-muted-foreground;
+}
+
+.form-dialog-content {
+  @apply space-y-4;
+}
+
+.form-dialog-footer {
+  @apply flex items-center justify-end gap-2 pt-4;
+}
+
+/* Form Grid Styles */
+.form-grid {
+  @apply grid gap-4;
+}
+
+.form-grid-1 {
+  @apply grid-cols-1;
+}
+
+.form-grid-2 {
+  @apply grid-cols-1 md:grid-cols-2;
+}
+
+.form-grid-3 {
+  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+.form-grid-4 {
+  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+
+/* Form Status Styles */
+.form-status {
+  @apply flex items-center gap-2 text-sm;
+}
+
+.form-status-success {
+  @apply text-green-600;
+}
+
+.form-status-error {
+  @apply text-red-600;
+}
+
+.form-status-warning {
+  @apply text-yellow-600;
+}
+
+.form-status-info {
+  @apply text-blue-600;
+}
