@@ -95,7 +95,13 @@ export interface AllowedStaffWithRelations extends AllowedStaff {
 export interface OrderProduct {
   id: string; // menuItemId (foreign key to MenuItem)
   isPaid: boolean;
-  price: number;
+  price: number; // Ana ürün + ekstraların toplam fiyatı
+  extras?: OrderProductExtra[]; // Bu ürüne ait ekstralar (optional)
+}
+
+export interface OrderProductExtra {
+  id: string; // extraId
+  price: number; // ekstra fiyatı
 }
 
 // API Request/Response types
@@ -158,6 +164,7 @@ export interface UpdateOrderRequest {
   isPaid?: boolean;
   orderItems?: CreateOrderItemRequest[];
   products?: OrderProduct[];
+  totalAmount?: number;
   paidAt?: Date | null;
 }
 

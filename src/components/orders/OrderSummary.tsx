@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatOrderId, formatPrice } from "@/lib/formatters";
-import { OrderCartItem, OrderProduct, OrderWithRelations } from "@/types";
+import { OrderCartItem, OrderWithRelations } from "@/types";
 import { CreditCard, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { OrderProducts } from "./OrderProducts";
 
 interface OrderSummaryProps {
   cartItems: OrderCartItem[];
@@ -15,10 +16,10 @@ interface OrderSummaryProps {
   onUpdateQuantity: (itemId: string, quantity: number) => void;
   onRemoveItem: (itemId: string) => void;
   onSaveOrder: () => void;
-  onAddToExistingOrder: (orderId: string) => void;
-  onMarkAsPaid: (orderId: string) => void;
+  onAddToExistingOrder?: (orderId: string) => void;
   onMarkAllAsPaid: () => void;
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
+  onDeleteProduct: (orderId: string, productIndex: number) => void;
   isSaving: boolean;
   selectedTableName?: string;
 }
@@ -30,10 +31,9 @@ export function OrderSummary({
   onUpdateQuantity,
   onRemoveItem,
   onSaveOrder,
-  onAddToExistingOrder,
-  onMarkAsPaid,
   onMarkAllAsPaid,
   onMarkProductAsPaid,
+  onDeleteProduct,
   isSaving,
   selectedTableName,
 }: OrderSummaryProps) {
@@ -94,81 +94,15 @@ export function OrderSummary({
                       })()}
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <Button
-                      size="sm"
-                      onClick={() => onMarkAsPaid(order.id)}
-                      disabled={isSaving}
-                      className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
-                    >
-                      <CreditCard className="h-4 w-4 mr-1" />
-                      Ödeme Al
-                    </Button>
-                  </div>
                 </div>
 
                 {/* Products List - Her ürün ayrı ayrı gösterilir */}
-                <div className="space-y-2">
-                  {order.products && order.products.length > 0 ? (
-                    order.products.map((product: OrderProduct, index) => {
-                      // Bu ürün için menu item bilgisini bul
-                      const menuItem = order.orderItems.find(
-                        (item) => item.menuItemId === product.id
-                      )?.menuItem;
-
-                      return (
-                        <div
-                          key={`${order.id}-product-${index}`}
-                          className={`text-sm p-2 rounded border ${
-                            product.isPaid
-                              ? "bg-green-50 border-green-200"
-                              : "bg-gray-50 border-gray-200"
-                          }`}
-                        >
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                            <div className="flex-1">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                                <p className="font-medium">
-                                  {menuItem?.name || "Bilinmeyen Ürün"}
-                                </p>
-                                {product.isPaid && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs bg-green-100 text-green-800 w-fit"
-                                  >
-                                    Ödendi
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex flex-col sm:items-end gap-1">
-                              <p className="font-medium">
-                                {formatPrice(product.price)}
-                              </p>
-                              {!product.isPaid && (
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    onMarkProductAsPaid(order.id, index)
-                                  }
-                                  disabled={isSaving}
-                                  className="bg-green-600 hover:bg-green-700 text-xs w-full sm:w-auto"
-                                >
-                                  <CreditCard className="h-3 w-3 mr-1" />
-                                  Öde
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-sm text-muted-foreground p-2">
-                      Henüz ürün eklenmemiş
-                    </div>
-                  )}
-                </div>
+                <OrderProducts
+                  order={order}
+                  onMarkProductAsPaid={onMarkProductAsPaid}
+                  onDeleteProduct={onDeleteProduct}
+                  isSaving={isSaving}
+                />
               </div>
             </Card>
           ))}

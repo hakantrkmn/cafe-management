@@ -160,12 +160,35 @@ export async function PATCH(
               where: { id: item.menuItemId },
             });
 
+            // Ekstra fiyatlarını hesapla
+            let extrasTotal = 0;
+            const extras: { id: string; price: number }[] = [];
+
+            if (item.extras && item.extras.length > 0) {
+              for (const extra of item.extras) {
+                const extraItem = await tx.extra.findUnique({
+                  where: { id: extra.extraId },
+                });
+
+                if (extraItem) {
+                  const extraTotalPrice = extraItem.price * extra.quantity;
+                  extrasTotal += extraTotalPrice;
+
+                  extras.push({
+                    id: extra.extraId,
+                    price: extraTotalPrice,
+                  });
+                }
+              }
+            }
+
             return Array(item.quantity)
               .fill(null)
               .map(() => ({
                 id: item.menuItemId,
                 isPaid: false,
-                price: menuItem.price,
+                price: menuItem.price + extrasTotal, // Ana ürün + ekstralar
+                extras: extras.length > 0 ? extras : undefined, // Optional extras
               }));
           }
         );

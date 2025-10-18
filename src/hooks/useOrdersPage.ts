@@ -114,29 +114,6 @@ export function useOrdersPage() {
     [cartManagement, orderOperations]
   );
 
-  const markOrderAsPaid = useCallback(
-    async (orderId: string) => {
-      try {
-        // Önce mevcut siparişin ürünlerini al
-        const order = orderOperations.orders.find((o) => o.id === orderId);
-        if (!order) return;
-
-        // Bu siparişin ürünlerini al ve OrderProduct formatına çevir
-        const orderProducts = order.orderItems.map((item) => ({
-          id: item.menuItemId,
-          isPaid: true,
-          price: item.menuItemPrice,
-        }));
-
-        // Siparişi ödendi olarak işaretle ve products array'ini güncelle
-        await orderOperations.markOrderAsPaid(orderId, orderProducts);
-      } catch (error) {
-        console.error("Error marking order as paid:", error);
-      }
-    },
-    [orderOperations]
-  );
-
   const markAllAsPaid = useCallback(async () => {
     if (!selectedTableId) return;
 
@@ -199,8 +176,8 @@ export function useOrdersPage() {
     getTableOrders,
     saveOrder,
     addToExistingOrder,
-    markOrderAsPaid,
     markProductAsPaid: orderOperations.markProductAsPaid,
+    deleteProduct: orderOperations.deleteProduct,
     markAllAsPaid,
     closeOrderDialog,
   };

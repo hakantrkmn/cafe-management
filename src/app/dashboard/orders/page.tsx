@@ -24,7 +24,8 @@ export default function OrdersPage() {
     getTableOrders,
     saveOrder,
     addToExistingOrder,
-    markOrderAsPaid,
+    markProductAsPaid,
+    deleteProduct,
     markAllAsPaid,
     closeOrderDialog,
   } = useOrdersPage();
@@ -103,9 +104,9 @@ export default function OrdersPage() {
           onRemoveItem={cartManagement.removeFromCart}
           onSaveOrder={saveOrder}
           onAddToExistingOrder={addToExistingOrder}
-          onMarkAsPaid={markOrderAsPaid}
           onMarkAllAsPaid={markAllAsPaid}
-          onMarkProductAsPaid={orderOperations.markProductAsPaid}
+          onMarkProductAsPaid={markProductAsPaid}
+          onDeleteProduct={deleteProduct}
           isSaving={orderOperations.isSaving}
         />
       </div>

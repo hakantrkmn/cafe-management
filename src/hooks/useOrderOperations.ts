@@ -23,6 +23,7 @@ interface UseOrderOperationsReturn {
     products?: OrderProduct[]
   ) => Promise<void>;
   markProductAsPaid: (orderId: string, productIndex: number) => Promise<void>;
+  deleteProduct: (orderId: string, productIndex: number) => Promise<void>;
   markAllAsPaid: (tableId: string) => Promise<void>;
   updateOrderProducts: (
     orderId: string,
@@ -187,6 +188,64 @@ export function useOrderOperations({
     [cafeId, orders, updateOrderMutation]
   );
 
+  // Delete individual product from order
+  const deleteProduct = useCallback(
+    async (orderId: string, productIndex: number): Promise<void> => {
+      if (!cafeId) return;
+
+      try {
+        // Mevcut siparişi bul
+        const order = orders.find((o: OrderWithRelations) => o.id === orderId);
+        if (!order || !order.products) return;
+
+        // Products array'inden belirtilen index'teki ürünü sil
+        const updatedProducts = [...order.products];
+        updatedProducts.splice(productIndex, 1);
+
+        // Eğer hiç ürün kalmadıysa siparişi sil
+        if (updatedProducts.length === 0) {
+          // Siparişi tamamen sil - bu durumda API'de ayrı bir endpoint gerekebilir
+          // Şimdilik products array'ini boş bırakıyoruz
+          await updateOrderMutation.mutateAsync({
+            cafeId,
+            orderId,
+            data: {
+              products: [],
+              isPaid: false,
+              paidAt: null,
+            } as UpdateOrderRequest,
+          });
+        } else {
+          // Kalan ürünlerin toplam fiyatını hesapla
+          const remainingTotal = updatedProducts.reduce(
+            (sum, product) => sum + product.price,
+            0
+          );
+
+          // Tüm ürünler ödendi mi kontrol et
+          const allProductsPaid = updatedProducts.every(
+            (product: OrderProduct) => product.isPaid
+          );
+
+          await updateOrderMutation.mutateAsync({
+            cafeId,
+            orderId,
+            data: {
+              products: updatedProducts,
+              totalAmount: remainingTotal,
+              isPaid: allProductsPaid,
+              paidAt: allProductsPaid ? new Date() : null,
+            } as UpdateOrderRequest,
+          });
+        }
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        throw error;
+      }
+    },
+    [cafeId, orders, updateOrderMutation]
+  );
+
   // Mark all orders as paid
   const markAllAsPaid = useCallback(
     async (tableId: string): Promise<void> => {
@@ -278,6 +337,7 @@ export function useOrderOperations({
     addToExistingOrder,
     markOrderAsPaid,
     markProductAsPaid,
+    deleteProduct,
     markAllAsPaid,
     updateOrderProducts,
     getTableProducts,
