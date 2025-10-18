@@ -603,7 +603,7 @@
   /* Mobile responsive adjustments for Gamze love message */
   @media (max-width: 768px) {
     .gamze-love-message {
-      @apply mx-20 px-4 py-4;
+      @apply mx-4 px-4 py-4;
       animation: love-appear-mobile 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)
         forwards;
       min-height: 160px;
