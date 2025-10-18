@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { usePopularProductsStore } from "@/store/popularProductsStore";
-import { Category, MenuItem } from "@/types";
+import { Category, MenuItemSize, MenuItemWithRelations } from "@/types";
 import { ChevronDown, Coffee, Search, Star } from "lucide-react";
 import { useState } from "react";
 
 interface MenuSelectionProps {
   categories: Category[];
-  menuItems: MenuItem[];
-  onItemSelect: (menuItem: MenuItem) => void;
+  menuItems: MenuItemWithRelations[];
+  onItemSelect: (menuItem: MenuItemWithRelations, size?: MenuItemSize) => void;
 }
 
 export function MenuSelection({

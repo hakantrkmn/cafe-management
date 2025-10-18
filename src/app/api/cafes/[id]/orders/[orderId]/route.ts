@@ -124,6 +124,7 @@ export async function PATCH(
       for (const orderItem of body.orderItems) {
         const menuItem = await prisma.menuItem.findUnique({
           where: { id: orderItem.menuItemId },
+          include: { prices: true },
         });
 
         if (!menuItem) {
@@ -133,7 +134,23 @@ export async function PATCH(
           );
         }
 
-        let itemTotal = menuItem.price * orderItem.quantity;
+        // Get the correct price based on size
+        let itemPrice = menuItem.price;
+        if (menuItem.hasSizes && orderItem.size && menuItem.prices) {
+          const sizePrice = menuItem.prices.find(
+            (p) => p.size === orderItem.size
+          );
+          if (sizePrice) {
+            itemPrice = sizePrice.price;
+          }
+        } else if (menuItem.hasSizes && !orderItem.size) {
+          return NextResponse.json(
+            { message: `Size is required for menu item: ${menuItem.name}` },
+            { status: 400 }
+          );
+        }
+
+        let itemTotal = itemPrice * orderItem.quantity;
 
         // Add extras
         if (orderItem.extras) {
@@ -158,6 +175,7 @@ export async function PATCH(
           async (item: CreateOrderItemRequest) => {
             const menuItem = await tx.menuItem.findUniqueOrThrow({
               where: { id: item.menuItemId },
+              include: { prices: true },
             });
 
             // Ekstra fiyatlarını hesapla
@@ -182,12 +200,24 @@ export async function PATCH(
               }
             }
 
+            // Get the correct price based on size
+            let itemPrice = menuItem.price;
+            if (menuItem.hasSizes && item.size && menuItem.prices) {
+              const sizePrice = menuItem.prices.find(
+                (p) => p.size === item.size
+              );
+              if (sizePrice) {
+                itemPrice = sizePrice.price;
+              }
+            }
+
             return Array(item.quantity)
               .fill(null)
               .map(() => ({
                 id: item.menuItemId,
                 isPaid: false,
-                price: menuItem.price + extrasTotal, // Ana ürün + ekstralar
+                price: itemPrice + extrasTotal, // Ana ürün + ekstralar
+                size: item.size, // Include size in products array
                 extras: extras.length > 0 ? extras : undefined, // Optional extras
               }));
           }
@@ -212,16 +242,41 @@ export async function PATCH(
         for (const orderItem of body.orderItems) {
           const menuItem = await tx.menuItem.findUniqueOrThrow({
             where: { id: orderItem.menuItemId },
+            include: { prices: true },
           });
+
+          // Get the correct price based on size
+          let itemPrice = menuItem.price;
+          if (menuItem.hasSizes && orderItem.size && menuItem.prices) {
+            const sizePrice = menuItem.prices.find(
+              (p) => p.size === orderItem.size
+            );
+            if (sizePrice) {
+              itemPrice = sizePrice.price;
+            }
+          }
+
+          // Create menu item name with size if applicable
+          let menuItemName = menuItem.name;
+          if (orderItem.size) {
+            const sizeLabel =
+              orderItem.size === "SMALL"
+                ? "Küçük"
+                : orderItem.size === "MEDIUM"
+                ? "Orta"
+                : "Büyük";
+            menuItemName = `${menuItem.name} (${sizeLabel})`;
+          }
 
           const orderItemRecord = await tx.orderItem.create({
             data: {
               orderId: orderId,
               menuItemId: orderItem.menuItemId,
-              menuItemName: menuItem.name,
-              menuItemPrice: menuItem.price,
+              menuItemName: menuItemName,
+              menuItemPrice: itemPrice,
               quantity: orderItem.quantity,
-              subtotal: menuItem.price * orderItem.quantity,
+              subtotal: itemPrice * orderItem.quantity,
+              size: orderItem.size,
             },
           });
 

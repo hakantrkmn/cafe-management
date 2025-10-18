@@ -8,7 +8,11 @@ import { toast } from "sonner";
 
 export function useSettingsPage() {
   const { isAuthenticated, isLoading: authLoading, isManager } = useAuth();
-  const { data: cafeData, isLoading: cafeLoading } = useCafe();
+  const {
+    data: cafeData,
+    isLoading: cafeLoading,
+    refetch: refetchCafe,
+  } = useCafe();
   const createCafeMutation = useCreateCafe();
   const updateCafeMutation = useUpdateCafe();
   const router = useRouter();
@@ -34,6 +38,8 @@ export function useSettingsPage() {
     } else {
       // Create new cafe
       await createCafeMutation.mutateAsync(data);
+      // Cafe oluşturulduktan sonra veriyi hemen güncelle
+      await refetchCafe();
       toast.success("Kafe başarıyla oluşturuldu");
     }
   };

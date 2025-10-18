@@ -35,6 +35,12 @@ interface MenuItem {
   price: number;
   description?: string;
   isAvailable: boolean;
+  hasSizes?: boolean;
+  sizes?: {
+    SMALL: number;
+    MEDIUM: number;
+    LARGE: number;
+  };
   categoryId: string;
   cafeId: string;
   createdAt: Date;
@@ -55,6 +61,12 @@ interface MenuItemDialogsProps {
     price: number;
     description?: string;
     isAvailable: boolean;
+    hasSizes?: boolean;
+    sizes?: {
+      SMALL: number;
+      MEDIUM: number;
+      LARGE: number;
+    };
   }) => void;
 
   // Delete Dialog
@@ -105,6 +117,8 @@ export function MenuItemDialogs({
                       price: selectedMenuItem.price,
                       description: selectedMenuItem.description,
                       isAvailable: selectedMenuItem.isAvailable,
+                      hasSizes: selectedMenuItem.hasSizes,
+                      sizes: selectedMenuItem.sizes,
                     }
                   : undefined
               }

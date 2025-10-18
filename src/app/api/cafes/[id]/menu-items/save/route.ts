@@ -11,6 +11,12 @@ interface SaveMenuItemsRequest {
     price: number;
     description?: string;
     isAvailable: boolean;
+    hasSizes: boolean;
+    sizes?: {
+      SMALL: number;
+      MEDIUM: number;
+      LARGE: number;
+    };
     categoryId: string;
     cafeId: string;
     createdAt: Date;
@@ -74,6 +80,7 @@ export async function POST(
             price: item.price,
             description: item.description,
             isAvailable: item.isAvailable,
+            hasSizes: item.hasSizes,
             categoryId: item.categoryId,
             cafeId: id,
           }));
@@ -81,7 +88,48 @@ export async function POST(
         const createdMenuItems =
           createData.length > 0
             ? await Promise.all(
-                createData.map((data) => tx.menuItem.create({ data }))
+                createData.map(async (data) => {
+                  const menuItem = await tx.menuItem.create({ data });
+
+                  // Create size prices if hasSizes is true
+                  if (
+                    data.hasSizes &&
+                    body.menuItems.find(
+                      (item) =>
+                        item._status === "new" && item.name === data.name
+                    )?.sizes
+                  ) {
+                    const sizes = body.menuItems.find(
+                      (item) =>
+                        item._status === "new" && item.name === data.name
+                    )!.sizes!;
+                    await Promise.all([
+                      tx.menuItemPrice.create({
+                        data: {
+                          menuItemId: menuItem.id,
+                          size: "SMALL",
+                          price: sizes.SMALL,
+                        },
+                      }),
+                      tx.menuItemPrice.create({
+                        data: {
+                          menuItemId: menuItem.id,
+                          size: "MEDIUM",
+                          price: sizes.MEDIUM,
+                        },
+                      }),
+                      tx.menuItemPrice.create({
+                        data: {
+                          menuItemId: menuItem.id,
+                          size: "LARGE",
+                          price: sizes.LARGE,
+                        },
+                      }),
+                    ]);
+                  }
+
+                  return menuItem;
+                })
               )
             : [];
 
@@ -92,18 +140,58 @@ export async function POST(
 
         if (validUpdates.length > 0) {
           await Promise.all(
-            validUpdates.map((item) =>
-              tx.menuItem.update({
+            validUpdates.map(async (item) => {
+              // Update menu item
+              await tx.menuItem.update({
                 where: { id: item.id },
                 data: {
                   name: item.name,
                   price: item.price,
                   description: item.description,
                   isAvailable: item.isAvailable,
+                  hasSizes: item.hasSizes,
                   categoryId: item.categoryId,
                 },
-              })
-            )
+              });
+
+              // Handle size prices
+              if (item.hasSizes && item.sizes) {
+                // Delete existing size prices
+                await tx.menuItemPrice.deleteMany({
+                  where: { menuItemId: item.id },
+                });
+
+                // Create new size prices
+                await Promise.all([
+                  tx.menuItemPrice.create({
+                    data: {
+                      menuItemId: item.id,
+                      size: "SMALL",
+                      price: item.sizes.SMALL,
+                    },
+                  }),
+                  tx.menuItemPrice.create({
+                    data: {
+                      menuItemId: item.id,
+                      size: "MEDIUM",
+                      price: item.sizes.MEDIUM,
+                    },
+                  }),
+                  tx.menuItemPrice.create({
+                    data: {
+                      menuItemId: item.id,
+                      size: "LARGE",
+                      price: item.sizes.LARGE,
+                    },
+                  }),
+                ]);
+              } else {
+                // If hasSizes is false, delete any existing size prices
+                await tx.menuItemPrice.deleteMany({
+                  where: { menuItemId: item.id },
+                });
+              }
+            })
           );
         }
 

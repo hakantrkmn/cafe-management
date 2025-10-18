@@ -59,6 +59,13 @@ export function OrderProducts({
                   <div className="order-product-header-right">
                     <h4 className="order-product-name">
                       {menuItem?.name || "Bilinmeyen Ürün"}
+                      {product.size && (
+                        <span className="ml-1 text-xs font-normal text-muted-foreground">
+                          ({product.size === "SMALL" && "Küçük"}
+                          {product.size === "MEDIUM" && "Orta"}
+                          {product.size === "LARGE" && "Büyük"})
+                        </span>
+                      )}
                     </h4>
                     {product.isPaid && (
                       <CheckCircle className="h-3 w-3 text-green-600 shrink-0" />

@@ -15,6 +15,12 @@ enum UserRole {
   STAFF
 }
 
+enum MenuItemSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
@@ -91,9 +97,10 @@ model MenuItem {
   cafeId      String   @db.ObjectId
   categoryId  String   @db.ObjectId
   name        String
-  price       Float
+  price       Float    // Keep for backward compatibility (items without sizes)
   description String?
   isAvailable Boolean  @default(true)
+  hasSizes    Boolean  @default(false) // Whether this item has different sizes
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -101,8 +108,21 @@ model MenuItem {
   cafe         Cafe            @relation(fields: [cafeId], references: [id])
   category     Category        @relation(fields: [categoryId], references: [id])
   orderItems   OrderItem[]
+  prices       MenuItemPrice[] // Size-specific prices
 
   @@map("menuItems")
+}
+
+model MenuItemPrice {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  menuItemId String       @db.ObjectId
+  size       MenuItemSize
+  price      Float
+
+  menuItem   MenuItem     @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([menuItemId, size])
+  @@map("menuItemPrices")
 }
 
 model Extra {
@@ -158,14 +178,15 @@ model Order {
 }
 
 model OrderItem {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  orderId        String   @db.ObjectId
-  menuItemId     String   @db.ObjectId
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  orderId        String        @db.ObjectId
+  menuItemId     String        @db.ObjectId
   menuItemName   String
   menuItemPrice  Float
   quantity       Int
   subtotal       Float
-  createdAt      DateTime @default(now())
+  size           MenuItemSize? // Optional size for items with sizes
+  createdAt      DateTime      @default(now())
 
   // Relations
   order         Order           @relation(fields: [orderId], references: [id])

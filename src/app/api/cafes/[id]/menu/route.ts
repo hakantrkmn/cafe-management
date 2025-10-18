@@ -38,7 +38,10 @@ export async function GET(
       }),
       prisma.menuItem.findMany({
         where: { cafeId: id },
-        include: { category: true },
+        include: {
+          category: true,
+          prices: true,
+        },
         orderBy: { createdAt: "asc" },
       }),
       prisma.extra.findMany({
@@ -47,10 +50,32 @@ export async function GET(
       }),
     ]);
 
+    // Transform menuItems to include sizes object from prices array
+    const transformedMenuItems = menuItems.map((item) => {
+      if (item.hasSizes && item.prices && item.prices.length > 0) {
+        const sizes = {
+          SMALL: 0,
+          MEDIUM: 0,
+          LARGE: 0,
+        };
+
+        item.prices.forEach((price) => {
+          sizes[price.size] = price.price;
+        });
+
+        return {
+          ...item,
+          sizes,
+        };
+      }
+
+      return item;
+    });
+
     return NextResponse.json({
       data: {
         categories,
-        menuItems,
+        menuItems: transformedMenuItems,
         extras,
       },
     });

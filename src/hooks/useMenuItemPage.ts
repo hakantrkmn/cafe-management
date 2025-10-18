@@ -22,6 +22,12 @@ interface MenuItemWithChanges {
   price: number;
   description?: string;
   isAvailable: boolean;
+  hasSizes?: boolean;
+  sizes?: {
+    SMALL: number;
+    MEDIUM: number;
+    LARGE: number;
+  };
   categoryId: string;
   cafeId: string;
   createdAt: Date;
@@ -119,6 +125,12 @@ export function useMenuItemPage(cafeId: string) {
     price: number;
     description?: string;
     isAvailable: boolean;
+    hasSizes?: boolean;
+    sizes?: {
+      SMALL: number;
+      MEDIUM: number;
+      LARGE: number;
+    };
   }) => {
     if (menuItemDialogMode === "add") {
       const newItem: MenuItemWithChanges = {

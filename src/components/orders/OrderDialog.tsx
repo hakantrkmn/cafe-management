@@ -12,7 +12,8 @@ import {
   Category,
   Extra,
   ExtraWithQuantity,
-  MenuItem,
+  MenuItemSize,
+  MenuItemWithRelations,
   OrderCartItem,
   OrderWithRelations,
 } from "@/types";
@@ -27,15 +28,16 @@ interface OrderDialogProps {
   selectedTableId: string | null;
   selectedTableName?: string;
   categories: Category[];
-  menuItems: MenuItem[];
+  menuItems: MenuItemWithRelations[];
   extras: Extra[];
   cartItems: OrderCartItem[];
   cartTotal: number;
   existingOrders: OrderWithRelations[];
   onAddToCart: (
-    menuItem: MenuItem,
+    menuItem: MenuItemWithRelations,
     quantity: number,
-    extras: ExtraWithQuantity[]
+    extras: ExtraWithQuantity[],
+    size?: MenuItemSize
   ) => void;
   onUpdateQuantity: (itemId: string, quantity: number) => void;
   onRemoveItem: (itemId: string) => void;
@@ -68,8 +70,10 @@ export function OrderDialog({
   onDeleteProduct,
   isSaving,
 }: OrderDialogProps) {
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
-    null
+  const [selectedMenuItem, setSelectedMenuItem] =
+    useState<MenuItemWithRelations | null>(null);
+  const [selectedSize, setSelectedSize] = useState<MenuItemSize | undefined>(
+    undefined
   );
   const [extraDialogOpen, setExtraDialogOpen] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -77,20 +81,25 @@ export function OrderDialog({
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
 
-  const handleItemSelect = (menuItem: MenuItem) => {
+  const handleItemSelect = (
+    menuItem: MenuItemWithRelations,
+    size?: MenuItemSize
+  ) => {
     setSelectedMenuItem(menuItem);
+    setSelectedSize(size);
     setExtraDialogOpen(true);
   };
 
   const handleAddToCart = (
-    menuItem: MenuItem,
+    menuItem: MenuItemWithRelations,
     quantity: number,
     selectedExtras: ExtraWithQuantity[]
   ) => {
     console.log("OrderDialog - handleAddToCart called");
     setIsAddingToCart(true);
-    onAddToCart(menuItem, quantity, selectedExtras);
+    onAddToCart(menuItem, quantity, selectedExtras, selectedSize);
     setSelectedMenuItem(null);
+    setSelectedSize(undefined);
     setExtraDialogOpen(false);
     // Flag'i kısa bir süre sonra sıfırla
     setTimeout(() => setIsAddingToCart(false), 100);
@@ -108,6 +117,7 @@ export function OrderDialog({
       console.log("OrderDialog - closing dialog");
       onOpenChange(false);
       setSelectedMenuItem(null);
+      setSelectedSize(undefined);
       setExtraDialogOpen(false);
     } else if (!open && isAddingToCart) {
       console.log("OrderDialog - ignoring close request during add to cart");
@@ -215,6 +225,7 @@ export function OrderDialog({
         open={extraDialogOpen}
         onOpenChange={setExtraDialogOpen}
         menuItem={selectedMenuItem}
+        selectedSize={selectedSize}
         availableExtras={extras}
         onAddToCart={handleAddToCart}
       />

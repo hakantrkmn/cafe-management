@@ -1,15 +1,21 @@
 "use client";
 
-import { ExtraWithQuantity, MenuItem, OrderCartItem } from "@/types";
+import {
+  ExtraWithQuantity,
+  MenuItemSize,
+  MenuItemWithRelations,
+  OrderCartItem,
+} from "@/types";
 import { useCallback, useState } from "react";
 
 interface UseCartManagementReturn {
   cartItems: OrderCartItem[];
   cartTotal: number;
   addToCart: (
-    menuItem: MenuItem,
+    menuItem: MenuItemWithRelations,
     quantity: number,
-    extras: ExtraWithQuantity[]
+    extras: ExtraWithQuantity[],
+    size?: MenuItemSize
   ) => void;
   removeFromCart: (itemId: string) => void;
   updateCartItemQuantity: (itemId: string, quantity: number) => void;
@@ -22,16 +28,27 @@ export function useCartManagement(): UseCartManagementReturn {
   // Add item to cart
   const addToCart = useCallback(
     (
-      menuItem: MenuItem,
+      menuItem: MenuItemWithRelations,
       quantity: number,
-      extras: ExtraWithQuantity[] = []
+      extras: ExtraWithQuantity[] = [],
+      size?: MenuItemSize
     ) => {
+      // Get the correct price based on size
+      let itemPrice = menuItem.price;
+      if (menuItem.hasSizes && size && menuItem.prices) {
+        const sizePrice = menuItem.prices.find((p) => p.size === size);
+        if (sizePrice) {
+          itemPrice = sizePrice.price;
+        }
+      }
+
       const cartItem: OrderCartItem = {
         id: `${Date.now()}-${Math.random()}`,
         menuItemId: menuItem.id,
         menuItemName: menuItem.name,
-        menuItemPrice: menuItem.price,
+        menuItemPrice: itemPrice,
         quantity,
+        size,
         extras: extras.map((extra) => ({
           extraId: extra.id,
           extraName: extra.name,
@@ -39,12 +56,8 @@ export function useCartManagement(): UseCartManagementReturn {
           quantity: extra.quantity,
         })),
         subtotal:
-          (menuItem.price +
-            extras.reduce(
-              (sum, extra) => sum + extra.price * extra.quantity,
-              0
-            )) *
-          quantity,
+          itemPrice * quantity +
+          extras.reduce((sum, extra) => sum + extra.price * extra.quantity, 0),
       };
 
       setCartItems((prev) => [...prev, cartItem]);
@@ -76,7 +89,7 @@ export function useCartManagement(): UseCartManagementReturn {
             return {
               ...item,
               quantity,
-              subtotal: (basePrice + extrasTotal) * quantity,
+              subtotal: basePrice * quantity + extrasTotal,
             };
           }
           return item;

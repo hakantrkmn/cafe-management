@@ -68,7 +68,10 @@ export function useCreateCafe() {
   return useMutation({
     mutationFn: cafeApi.createCafe,
     onSuccess: () => {
+      // Kafe oluşturulduğunda hem cafe hem de auth cache'ini güncelle
       queryClient.invalidateQueries({ queryKey: QueryKeys.cafes });
+      // Auth cache'ini de invalidate et çünkü session bilgileri değişmiş olabilir
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     onError: (error) => {
       console.error("Create cafe error:", error);

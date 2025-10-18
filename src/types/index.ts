@@ -4,6 +4,8 @@ import {
   Category,
   Extra,
   MenuItem,
+  MenuItemPrice,
+  MenuItemSize,
   Order,
   OrderItem,
   OrderItemExtra,
@@ -19,6 +21,8 @@ export type {
   Category,
   Extra,
   MenuItem,
+  MenuItemPrice,
+  MenuItemSize,
   Order,
   OrderItem,
   OrderItemExtra,
@@ -55,6 +59,7 @@ export interface MenuItemWithRelations extends MenuItem {
   cafe: Cafe;
   category: Category;
   orderItems: OrderItem[];
+  prices: MenuItemPrice[];
 }
 
 export interface ExtraWithRelations extends Extra {
@@ -96,6 +101,7 @@ export interface OrderProduct {
   id: string; // menuItemId (foreign key to MenuItem)
   isPaid: boolean;
   price: number; // Ana ürün + ekstraların toplam fiyatı
+  size?: MenuItemSize; // Size for items with sizes
   extras?: OrderProductExtra[]; // Bu ürüne ait ekstralar (optional)
 }
 
@@ -133,6 +139,12 @@ export interface CreateMenuItemRequest {
   name: string;
   price: number;
   description?: string;
+  hasSizes?: boolean;
+  sizes?: {
+    SMALL: number;
+    MEDIUM: number;
+    LARGE: number;
+  };
 }
 
 export interface CreateExtraRequest {
@@ -152,6 +164,7 @@ export interface CreateOrderRequest {
 export interface CreateOrderItemRequest {
   menuItemId: string;
   quantity: number;
+  size?: MenuItemSize;
   extras?: CreateOrderItemExtraRequest[];
 }
 
@@ -175,6 +188,7 @@ export interface OrderCartItem {
   menuItemName: string;
   menuItemPrice: number;
   quantity: number;
+  size?: MenuItemSize; // Selected size for items with sizes
   extras: OrderCartExtra[];
   subtotal: number;
 }

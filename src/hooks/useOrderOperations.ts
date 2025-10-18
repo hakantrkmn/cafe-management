@@ -70,6 +70,7 @@ export function useOrderOperations({
         orderItems: cartItems.map((item) => ({
           menuItemId: item.menuItemId,
           quantity: item.quantity,
+          size: item.size,
           extras: item.extras.map((extra) => ({
             extraId: extra.extraId,
             quantity: extra.quantity,
@@ -100,6 +101,7 @@ export function useOrderOperations({
         orderItems: cartItems.map((item) => ({
           menuItemId: item.menuItemId,
           quantity: item.quantity,
+          size: item.size,
           extras: item.extras.map((extra) => ({
             extraId: extra.extraId,
             quantity: extra.quantity,

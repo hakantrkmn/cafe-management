@@ -13,17 +13,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/formatters";
-import { Extra, ExtraWithQuantity, MenuItem } from "@/types";
+import {
+  Extra,
+  ExtraWithQuantity,
+  MenuItemSize,
+  MenuItemWithRelations,
+} from "@/types";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 
 interface ExtraSelectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  menuItem: MenuItem | null;
+  menuItem: MenuItemWithRelations | null;
+  selectedSize?: MenuItemSize;
   availableExtras: Extra[];
   onAddToCart: (
-    menuItem: MenuItem,
+    menuItem: MenuItemWithRelations,
     quantity: number,
     selectedExtras: ExtraWithQuantity[]
   ) => void;
@@ -38,6 +44,7 @@ export function ExtraSelectionDialog({
   open,
   onOpenChange,
   menuItem,
+  selectedSize,
   availableExtras,
   onAddToCart,
 }: ExtraSelectionDialogProps) {
@@ -70,9 +77,18 @@ export function ExtraSelectionDialog({
   const calculateTotal = (): number => {
     if (!menuItem) return 0;
 
-    let total = menuItem.price * quantity;
+    // Get the correct price based on size
+    let itemPrice = menuItem.price;
+    if (menuItem.hasSizes && selectedSize && menuItem.prices) {
+      const sizePrice = menuItem.prices.find((p) => p.size === selectedSize);
+      if (sizePrice) {
+        itemPrice = sizePrice.price;
+      }
+    }
+
+    let total = itemPrice * quantity;
     selectedExtras.forEach((se) => {
-      total += se.extra.price * se.quantity * quantity;
+      total += se.extra.price * se.quantity;
     });
 
     return total;
@@ -112,7 +128,16 @@ export function ExtraSelectionDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{menuItem.name}</DialogTitle>
+          <DialogTitle>
+            {menuItem.name}
+            {selectedSize && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({selectedSize === "SMALL" && "Küçük"}
+                {selectedSize === "MEDIUM" && "Orta"}
+                {selectedSize === "LARGE" && "Büyük"})
+              </span>
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -127,7 +152,21 @@ export function ExtraSelectionDialog({
                   </p>
                 )}
               </div>
-              <Badge variant="secondary">{formatPrice(menuItem.price)}</Badge>
+              <Badge variant="secondary">
+                {(() => {
+                  // Get the correct price based on size
+                  let itemPrice = menuItem.price;
+                  if (menuItem.hasSizes && selectedSize && menuItem.prices) {
+                    const sizePrice = menuItem.prices.find(
+                      (p) => p.size === selectedSize
+                    );
+                    if (sizePrice) {
+                      itemPrice = sizePrice.price;
+                    }
+                  }
+                  return formatPrice(itemPrice);
+                })()}
+              </Badge>
             </div>
           </Card>
 

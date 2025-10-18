@@ -11,6 +11,12 @@ interface MenuItem {
   price: number;
   description?: string;
   isAvailable: boolean;
+  hasSizes?: boolean;
+  sizes?: {
+    SMALL: number;
+    MEDIUM: number;
+    LARGE: number;
+  };
   categoryId: string;
   cafeId: string;
   createdAt: Date;
@@ -71,9 +77,15 @@ export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
       <CardContent className="pt-0">
         <div className="space-y-2 sm:space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xl sm:text-2xl font-bold text-primary">
-              {item.price.toFixed(2)} ₺
-            </span>
+            {item.hasSizes ? (
+              <span className="text-sm sm:text-base font-medium text-muted-foreground">
+                Boyları var
+              </span>
+            ) : (
+              <span className="text-xl sm:text-2xl font-bold text-primary">
+                {item.price.toFixed(2)} ₺
+              </span>
+            )}
           </div>
 
           {item.description && (
