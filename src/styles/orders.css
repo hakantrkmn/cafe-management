@@ -98,11 +98,11 @@
 }
 
 .order-product-card-unpaid {
-  @apply bg-white border-gray-200 hover:shadow-sm;
+  @apply bg-card border-border/50 hover:shadow-sm;
 }
 
 .order-product-card-paid {
-  @apply bg-green-50/50 border-green-200 shadow-sm;
+  @apply bg-green-50/40 border-green-200/50 shadow-sm;
 }
 
 .order-product-header {
@@ -122,11 +122,11 @@
 }
 
 .order-product-name {
-  @apply font-medium text-xs text-gray-900 truncate;
+  @apply font-medium text-xs text-foreground truncate;
 }
 
 .order-product-price {
-  @apply text-sm font-bold text-gray-900;
+  @apply text-sm font-bold text-foreground;
 }
 
 .order-product-extras {
@@ -138,7 +138,7 @@
 }
 
 .order-product-extra-badge {
-  @apply text-xs bg-gray-50 text-gray-600 border-gray-200 px-1 py-0;
+  @apply text-xs bg-muted/60 text-muted-foreground border-border/30 px-1 py-0;
 }
 
 .order-product-buttons {
@@ -223,20 +223,20 @@
   }
 }
 
-/* Table status colors */
+/* Table status colors - Soft pastel tones */
 .table-status-available {
-  @apply bg-green-50 border-green-200 text-green-800;
+  @apply bg-green-50/70 border-green-200/60 text-green-700;
 }
 
 .table-status-occupied {
-  @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+  @apply bg-amber-50/70 border-amber-200/60 text-amber-700;
 }
 
 .table-status-has-orders {
-  @apply bg-blue-50 border-blue-200 text-blue-800;
+  @apply bg-blue-50/70 border-blue-200/60 text-blue-700;
 }
 
-/* Mobile table card styles */
+/* Mobile table card styles - Soft pastel tones */
 .mobile-table-card {
   @apply flex items-center justify-between p-4 rounded-lg border transition-all duration-200;
 }
@@ -246,13 +246,13 @@
 }
 
 .mobile-table-card.available {
-  @apply bg-white border-green-200 hover:border-green-300;
+  @apply bg-green-50/60 border-green-200/50 hover:border-green-300/60;
 }
 
 .mobile-table-card.occupied {
-  @apply bg-yellow-50 border-yellow-200 hover:border-yellow-300;
+  @apply bg-amber-50/60 border-amber-200/50 hover:border-amber-300/60;
 }
 
 .mobile-table-card.has-orders {
-  @apply bg-blue-50 border-blue-200 hover:border-blue-300;
+  @apply bg-blue-50/60 border-blue-200/50 hover:border-blue-300/60;
 }

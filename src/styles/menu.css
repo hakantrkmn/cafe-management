@@ -60,11 +60,11 @@
 }
 
 .category-card-status-new {
-  @apply bg-green-500 text-xs;
+  @apply bg-green-100 text-green-700 text-xs;
 }
 
 .category-card-status-modified {
-  @apply bg-blue-500 text-xs;
+  @apply bg-blue-100 text-blue-700 text-xs;
 }
 
 .category-card-order {
@@ -170,19 +170,19 @@
 
 /* Menu Item Card Styles */
 .menu-item-status-new {
-  @apply bg-green-500;
+  @apply bg-green-100 text-green-700;
 }
 
 .menu-item-status-modified {
-  @apply bg-blue-500;
+  @apply bg-blue-100 text-blue-700;
 }
 
 .menu-item-availability-available {
-  @apply text-green-600 border-green-600;
+  @apply text-green-600/80 border-green-600/60;
 }
 
 .menu-item-availability-unavailable {
-  @apply text-red-600 border-red-600;
+  @apply text-red-400/80 border-red-400/60;
 }
 
 .menu-item-actions {
@@ -199,19 +199,19 @@
 
 /* Extra Card Styles */
 .extra-status-new {
-  @apply bg-green-500;
+  @apply bg-green-100 text-green-700;
 }
 
 .extra-status-modified {
-  @apply bg-blue-500;
+  @apply bg-blue-100 text-blue-700;
 }
 
 .extra-availability-available {
-  @apply text-green-600 border-green-600;
+  @apply text-green-600/80 border-green-600/60;
 }
 
 .extra-availability-unavailable {
-  @apply text-red-600 border-red-600;
+  @apply text-red-400/80 border-red-400/60;
 }
 
 .extra-actions {

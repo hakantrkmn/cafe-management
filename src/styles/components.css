@@ -71,11 +71,11 @@
 }
 
 .user-info-status-active {
-  @apply bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800;
+  @apply bg-green-50/60 text-green-700/90 border-green-200/50 dark:bg-green-950/15 dark:text-green-300 dark:border-green-800/50;
 }
 
 .user-info-status-pending {
-  @apply bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800;
+  @apply bg-amber-50/60 text-amber-700/90 border-amber-200/50 dark:bg-amber-950/15 dark:text-amber-300 dark:border-amber-800/50;
 }
 
 /* Dashboard Header Styles */
