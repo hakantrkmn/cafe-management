@@ -10,8 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { usePopularProductsStore } from "@/store/popularProductsStore";
 import { Category, MenuItem } from "@/types";
-import { ChevronDown, Coffee, Search } from "lucide-react";
+import { ChevronDown, Coffee, Search, Star } from "lucide-react";
 import { useState } from "react";
 
 interface MenuSelectionProps {
@@ -25,6 +26,7 @@ export function MenuSelection({
   menuItems,
   onItemSelect,
 }: MenuSelectionProps) {
+  const { popularProducts } = usePopularProductsStore();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null // Başlangıçta "Tümü" seçili
   );
@@ -33,6 +35,13 @@ export function MenuSelection({
     if (categoryId === null) {
       // Tüm ürünleri göster
       return menuItems.filter((item) => item.isAvailable);
+    }
+    if (categoryId === "popular") {
+      // Popüler ürünleri göster
+      const popularIds = popularProducts.map((p) => p.id);
+      return menuItems.filter(
+        (item) => popularIds.includes(item.id) && item.isAvailable
+      );
     }
     return menuItems.filter(
       (item) => item.categoryId === categoryId && item.isAvailable
@@ -46,6 +55,12 @@ export function MenuSelection({
   const categoryItems = getCategoryMenuItems(selectedCategoryId).filter(
     (item) => item.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const getSelectedCategoryName = () => {
+    if (selectedCategoryId === null) return "Tüm Kategoriler";
+    if (selectedCategoryId === "popular") return "Popüler Ürünler";
+    return selectedCategory?.name || "Kategori Seçin";
+  };
 
   return (
     <div className="menu-selection-container">
@@ -64,9 +79,10 @@ export function MenuSelection({
                 variant="outline"
                 className="flex items-center gap-2 whitespace-nowrap w-full sm:w-auto justify-center sm:justify-start"
               >
-                {selectedCategoryId === null
-                  ? "Tüm Kategoriler"
-                  : selectedCategory?.name || "Kategori Seçin"}
+                {selectedCategoryId === "popular" && (
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                )}
+                {getSelectedCategoryName()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -80,6 +96,15 @@ export function MenuSelection({
               >
                 Tüm Kategoriler
               </DropdownMenuItem>
+              {popularProducts.length > 0 && (
+                <DropdownMenuItem
+                  onClick={() => setSelectedCategoryId("popular")}
+                  className="cursor-pointer flex items-center gap-2"
+                >
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                  Popüler Ürünler ({popularProducts.length})
+                </DropdownMenuItem>
+              )}
               {categories.map((category) => (
                 <DropdownMenuItem
                   key={category.id}

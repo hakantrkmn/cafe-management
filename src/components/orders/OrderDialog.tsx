@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SWIPE_THRESHOLD } from "@/lib/constants";
 import {
   Category,
   Extra,
@@ -15,7 +16,7 @@ import {
   OrderCartItem,
   OrderWithRelations,
 } from "@/types";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ExtraSelectionDialog } from "./ExtraSelectionDialog";
 import { MenuSelection } from "./MenuSelection";
 import { OrderSummary } from "./OrderSummary";
@@ -72,6 +73,9 @@ export function OrderDialog({
   );
   const [extraDialogOpen, setExtraDialogOpen] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [activeTab, setActiveTab] = useState("menu");
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
 
   const handleItemSelect = (menuItem: MenuItem) => {
     setSelectedMenuItem(menuItem);
@@ -110,6 +114,29 @@ export function OrderDialog({
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > SWIPE_THRESHOLD;
+    const isRightSwipe = distance < -SWIPE_THRESHOLD;
+
+    if (isLeftSwipe && activeTab === "menu") {
+      // Sola swipe: Ürün ekleme -> Sipariş özeti
+      setActiveTab("orders");
+    } else if (isRightSwipe && activeTab === "orders") {
+      // Sağa swipe: Sipariş özeti -> Ürün ekleme
+      setActiveTab("menu");
+    }
+  };
+
   if (!selectedTableId) return null;
 
   return (
@@ -123,8 +150,16 @@ export function OrderDialog({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="h-[calc(90vh-70px)]">
-            <Tabs defaultValue="menu" className="h-full flex flex-col">
+          <div
+            className="h-[calc(90vh-70px)]"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="h-full flex flex-col"
+            >
               <TabsList className="order-dialog-tabs-list grid grid-cols-2">
                 <TabsTrigger value="menu" className="text-xs sm:text-sm">
                   Ürün Ekleme
@@ -133,6 +168,10 @@ export function OrderDialog({
                   Sipariş Özeti
                 </TabsTrigger>
               </TabsList>
+
+              <div className="order-dialog-swipe-hint">
+                Kaydırarak değiştirebilirsiniz
+              </div>
 
               <TabsContent value="menu" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto p-3 sm:p-6 bg-white">

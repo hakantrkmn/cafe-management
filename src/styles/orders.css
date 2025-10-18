@@ -17,6 +17,10 @@
   @apply max-w-full px-4 mb-3;
 }
 
+.order-dialog-swipe-hint {
+  @apply text-center py-1 text-xs text-muted-foreground bg-muted border-b border-border;
+}
+
 /* Menu Selection Header */
 .menu-selection-header {
   @apply mb-6 flex flex-col gap-4;
