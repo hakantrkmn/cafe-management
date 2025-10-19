@@ -1,7 +1,7 @@
 "use client";
 
+import { usePageLoading } from "@/hooks/usePageLoading";
 import { useReportsPage } from "@/hooks/useReportsPage";
-import { Loader2 } from "lucide-react";
 import { ReportsCharts } from "./ReportsCharts";
 import { ReportsFilters } from "./ReportsFilters";
 import { ReportsSummary } from "./ReportsSummary";
@@ -27,15 +27,14 @@ export function ReportsPage() {
     refreshData,
   } = useReportsPage();
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </div>
-    );
-  }
+  // Auto page loading
+  usePageLoading(isLoading, {
+    loadingText: "Raporlar yükleniyor...",
+    delay: 200,
+    minDuration: 800,
+  });
+
+  // Loading is now handled by usePageLoading hook
 
   if (!isAuthenticated) {
     return (

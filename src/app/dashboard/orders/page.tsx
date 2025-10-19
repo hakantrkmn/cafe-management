@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { OrderDialog } from "@/components/orders/OrderDialog";
 import { TableLayoutEditor } from "@/components/orders/TableLayoutEditor";
 import { useOrdersPage } from "@/hooks/useOrdersPage";
+import { usePageLoading } from "@/hooks/usePageLoading";
 import { Table } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -30,19 +31,18 @@ export default function OrdersPage() {
     closeOrderDialog,
   } = useOrdersPage();
 
+  // Auto page loading
+  usePageLoading(isLoading, {
+    loadingText: "Siparişler yükleniyor...",
+    delay: 200,
+    minDuration: 800,
+  });
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/auth/signin");
     }
   }, [isAuthenticated, isLoading, router]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Yükleniyor...</div>
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return null;

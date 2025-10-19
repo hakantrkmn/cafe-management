@@ -332,6 +332,7 @@ export function useFeaturePage() {
 - TanStack Query integration for efficient data caching
 - Role-based access control (Manager only)
 - Flexible filtering with date ranges and time periods
+- Chart integration with Recharts library for data visualization
 
 **Key Components**:
 
@@ -340,8 +341,18 @@ export function useFeaturePage() {
 - ReportsFilters: Date range and time range filtering components
 - ReportsSummary: Summary cards with key metrics display
 - ReportsTable: Detailed data table with sortable columns
+- ReportsCharts: Chart container with 6 different chart types
 - useReportsData: Data fetching hook with TanStack Query
 - useReportsPage: Page logic hook with filter management
+
+**Chart Components**:
+
+- ProductSalesChart: Bar chart with product selection filter
+- SalesTrendChart: Line chart for daily revenue trends
+- CategoryDistributionChart: Pie chart for category revenue distribution
+- PaymentStatusChart: Pie chart for payment status distribution
+- TablePerformanceChart: Bar chart for table performance metrics
+- HourlySalesChart: Area chart for hourly sales distribution
 
 **Data Structure**:
 
@@ -356,13 +367,28 @@ interface ReportsData {
   orders: Order[];
   topProducts: ProductAnalytics[];
   tableStats: TableStat[];
+  chartData: {
+    hourlyRevenue: { hour: number; revenue: number; orderCount: number }[];
+    dailyRevenue: { date: string; revenue: number; orderCount: number }[];
+    categoryDistribution: {
+      category: string;
+      revenue: number;
+      percentage: number;
+    }[];
+    paymentStatus: { status: string; count: number; percentage: number }[];
+  };
 }
 ```
 
-**Analytics Features**:
+**Enhanced Analytics Features**:
 
 - Order analytics with revenue calculations
-- Product consumption tracking and top products analysis
+- Product consumption tracking with size-based analysis
 - Table utilization and performance metrics
-- Date range filtering with time zone support
+- Date range and time range filtering with time zone support
 - Real-time data updates with TanStack Query caching
+- Interactive charts with filtering capabilities
+- Product selection filters for detailed analysis
+- Category and size-based filtering for top products
+- Peak time analysis for products
+- Comprehensive chart visualization with Recharts

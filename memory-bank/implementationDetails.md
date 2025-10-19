@@ -354,6 +354,7 @@ export default function FeaturePage() {
   - `ReportsFilters` - Date range and time range filtering components
   - `ReportsSummary` - Summary cards with key metrics display
   - `ReportsTable` - Detailed data table with sortable columns
+  - `ReportsCharts` - Chart container with 6 different chart types
 - **Features**:
   - Complete analytics dashboard with date/time filtering
   - Order analytics with revenue calculations and trends
@@ -362,22 +363,51 @@ export default function FeaturePage() {
   - Flexible date range filtering with time zone support
   - Real-time data updates with TanStack Query caching
   - Role-based access control (Manager only)
+  - Interactive charts with filtering capabilities
 
-#### 2. Reports Data Management
+#### 2. Chart Integration System
+
+- **Chart Library**: Recharts integration for data visualization
+- **Chart Components**:
+  - `ProductSalesChart` - Bar chart with product selection filter
+  - `SalesTrendChart` - Line chart for daily revenue trends
+  - `CategoryDistributionChart` - Pie chart for category revenue distribution
+  - `PaymentStatusChart` - Pie chart for payment status distribution
+  - `TablePerformanceChart` - Bar chart for table performance metrics
+  - `HourlySalesChart` - Area chart for hourly sales distribution
+- **Features**:
+  - Interactive tooltips with detailed information
+  - Responsive design for all screen sizes
+  - Custom color schemes and styling
+  - Product selection filtering for detailed analysis
+
+#### 3. Enhanced Filtering System
+
+- **Product Selection Filter**: Dialog-based product selection for charts
+- **Category Filter**: Filter top products by category
+- **Size Filter**: Filter top products by size variations
+- **Time Filtering**: Working time range filtering in API
+- **Combined Filtering**: Multiple filters work together for precise analysis
+
+#### 4. Reports Data Management
 
 - **useReportsData**: Data fetching hook with TanStack Query integration
 - **useReportsPage**: Page logic hook with filter management and data fetching
 - **State Management**: Date range, time range, and reports data state
 - **Performance**: Efficient data aggregation and caching strategies
+- **Chart Data**: Structured data for all chart types
 
-#### 3. Analytics Features
+#### 5. Enhanced Analytics Features
 
 - **Order Analytics**: Total orders, revenue, average order value tracking
-- **Product Analytics**: Top-selling menu items and consumption patterns
+- **Product Analytics**: Top-selling menu items with size-based analysis
 - **Table Analytics**: Table utilization and performance metrics
 - **Revenue Analytics**: Revenue tracking and business insights
 - **Date Filtering**: Flexible date and time range filtering
 - **Real-time Updates**: Background data updates with TanStack Query
+- **Peak Time Analysis**: Product peak sales hours and days
+- **Category Integration**: Real category data from database
+- **Size-based Tracking**: Separate tracking for product size variations
 
 ### Ready for Implementation
 

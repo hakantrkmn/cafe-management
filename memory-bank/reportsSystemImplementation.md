@@ -1,289 +1,356 @@
-# Reports System Implementation
+# Reports System Implementation: Cafe Management System
 
 ## Overview
 
-The Reports System has been successfully implemented as a comprehensive analytics and reporting solution for the cafe management system. The system provides detailed insights into business operations, order analytics, and performance metrics with flexible filtering capabilities.
+The Reports System provides comprehensive analytics and reporting capabilities for cafe management, featuring interactive charts, advanced filtering, and detailed business insights.
 
-## Architecture
+## Implementation Summary
 
-### Core Components
+### ✅ Completed Features (December 2024)
 
-#### 1. Reports Page Hook (`useReportsPage`)
+1. **Reports Page Design Enhancement**
 
-The `useReportsPage` hook manages all reports-related logic and state:
+   - Fixed width and spacing issues with container layout
+   - Responsive design with proper padding and margins
+   - Modern UI with consistent spacing
 
-- **Authentication**: Role-based access control (Manager only)
-- **Filter Management**: Date range and time range filtering
-- **Data Fetching**: Integration with reports data hook
-- **Navigation**: Automatic redirects for unauthorized users
-- **Refresh Functionality**: Manual data refresh capabilities
+2. **Product Sales Chart Enhancement**
 
-#### 2. Reports Data Hook (`useReportsData`)
+   - Added product selection filter with dialog interface
+   - Interactive product selection with checkboxes
+   - "Select All" and "Deselect All" functionality
+   - Real-time chart updates based on selected products
 
-The `useReportsData` hook handles data fetching and caching:
+3. **Reports Table Enhancement**
 
-- **TanStack Query Integration**: Efficient data caching and background updates
-- **Filter Integration**: Date and time range filtering
-- **Error Handling**: Graceful error handling with user feedback
-- **Loading States**: Proper loading state management
+   - Added category and size filters for top products table
+   - Dialog-based filter interface with checkboxes
+   - Combined filtering (category AND size)
+   - Filter count indicators and clear all functionality
 
-#### 3. Reports API (`/api/cafes/[id]/reports`)
+4. **Chart Integration**
 
-The reports API provides comprehensive analytics data:
+   - Complete Recharts library integration
+   - 6 different chart types implemented
+   - Interactive tooltips and responsive design
+   - Custom color schemes and styling
 
-- **Order Analytics**: Total orders, revenue, average order value
-- **Product Analytics**: Top-selling menu items and consumption patterns
-- **Table Analytics**: Table utilization and performance metrics
-- **Date Filtering**: Flexible date and time range filtering
-- **Data Aggregation**: Efficient data processing and aggregation
+5. **Enhanced Product Statistics**
+
+   - Size-based product tracking with separate entries
+   - Peak time analysis for products
+   - Average price calculations
+   - Category integration from database
+
+6. **Time Filtering Implementation**
+
+   - Working time range filtering in reports API
+   - Combined date and time filtering
+   - Precise time-based order filtering
+
+7. **Category Integration**
+   - Real category data from database
+   - Proper category filtering instead of name parsing
+   - Category field added to product statistics
 
 ## Technical Implementation
 
-### API Routes
+### API Enhancements
 
-#### Reports Endpoint (`/api/cafes/[id]/reports`)
+#### Reports API Updates (`/api/cafes/[id]/reports/route.ts`)
 
-**GET - Fetch Reports Data**:
-
-- Date range filtering with time zone support
-- Order analytics with revenue calculations
-- Product consumption tracking
-- Table utilization statistics
-- Performance metrics and insights
-
-### Data Flow
-
-#### Reports Data Flow
-
-1. **Filter Selection**: User selects date range and time range
-2. **API Request**: Reports data hook fetches filtered data
-3. **Data Processing**: API processes and aggregates data
-4. **UI Update**: Components display processed analytics
-5. **Real-time Updates**: TanStack Query provides background updates
-
-### State Management
-
-#### Reports Page State
+**Enhanced Product Statistics**:
 
 ```typescript
-interface ReportsPageState {
-  dateRange: DateRange;
-  timeRange: TimeRange;
-  reportsData: ReportsData;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  isManager: boolean;
+// Size-based product tracking
+const sizeLabels = {
+  SMALL: "Küçük",
+  MEDIUM: "Orta",
+  LARGE: "Büyük",
+};
+
+// Unique key generation for size-based products
+const sizeKey = item.size ? `-${item.size}` : "";
+const key = `${item.menuItemId}${sizeKey}`;
+
+// Product stats with category and size
+productStats.set(key, {
+  id: key,
+  name: displayName,
+  size: sizeLabel,
+  category: item.menuItem.category?.name || "Kategori Yok",
+  totalSold: 0,
+  totalRevenue: 0,
+  averagePrice: 0,
+  peakHour: undefined,
+  peakDay: undefined,
+});
+```
+
+**Time Filtering Implementation**:
+
+```typescript
+// Apply time filtering after date filtering
+let filteredOrders = orders;
+if (startTime || endTime) {
+  filteredOrders = orders.filter((order) => {
+    const orderTime = order.createdAt.toTimeString().slice(0, 5); // HH:mm format
+    if (startTime && orderTime < startTime) return false;
+    if (endTime && orderTime > endTime) return false;
+    return true;
+  });
 }
 ```
 
-#### Reports Data Structure
+**Chart Data Calculation**:
+
+```typescript
+// Hourly revenue data
+const hourlyRevenue: { hour: number; revenue: number; orderCount: number }[] =
+  [];
+for (let i = 0; i < 24; i++) {
+  hourlyRevenue.push({ hour: i, revenue: 0, orderCount: 0 });
+}
+
+// Process orders for chart data
+filteredOrders.forEach((order) => {
+  const hour = order.createdAt.getHours();
+  hourlyRevenue[hour].revenue += order.totalAmount || 0;
+  hourlyRevenue[hour].orderCount += 1;
+});
+```
+
+### Frontend Components
+
+#### Chart Components
+
+**ProductSalesChart**:
+
+- Bar chart with product selection filter
+- Dialog-based product selection
+- Real-time filtering based on selected products
+- Custom tooltips with detailed information
+
+**SalesTrendChart**:
+
+- Line chart for daily revenue trends
+- Dual-axis for revenue and order count
+- Date formatting with Turkish locale
+
+**CategoryDistributionChart**:
+
+- Pie chart for category revenue distribution
+- Interactive segments with percentages
+- Color-coded categories
+
+**PaymentStatusChart**:
+
+- Pie chart for payment status distribution
+- Green for paid, red for unpaid orders
+- Percentage display
+
+**TablePerformanceChart**:
+
+- Bar chart for table performance metrics
+- Revenue and order count per table
+- Horizontal layout for better readability
+
+**HourlySalesChart**:
+
+- Area chart for hourly sales distribution
+- 24-hour timeline with peak hour highlighting
+- Smooth area fills with gradients
+
+#### Filtering System
+
+**Product Selection Filter**:
+
+```typescript
+const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
+  new Set(data.slice(0, 8).map((product) => product.id))
+);
+
+const handleProductToggle = (productId: string) => {
+  const newSelected = new Set(selectedProducts);
+  if (newSelected.has(productId)) {
+    newSelected.delete(productId);
+  } else {
+    newSelected.add(productId);
+  }
+  setSelectedProducts(newSelected);
+};
+```
+
+**Category and Size Filtering**:
+
+```typescript
+const filteredTopProducts = useMemo(() => {
+  return topProducts.filter((product) => {
+    // Category filter
+    if (selectedCategories.size > 0) {
+      if (!product.category || !selectedCategories.has(product.category)) {
+        return false;
+      }
+    }
+
+    // Size filter
+    if (selectedSizes.size > 0) {
+      if (!product.size || !selectedSizes.has(product.size)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}, [topProducts, selectedCategories, selectedSizes]);
+```
+
+### Type Definitions
+
+#### Enhanced Interfaces
+
+**ReportsTopProduct**:
+
+```typescript
+interface ReportsTopProduct {
+  id: string;
+  name: string;
+  size?: string; // "Küçük", "Orta", "Büyük" or undefined
+  category: string; // Product category
+  totalSold: number;
+  totalRevenue: number;
+  averagePrice: number;
+  peakHour?: number; // 0-23
+  peakDay?: string; // Day name
+}
+```
+
+**Chart Data Structure**:
 
 ```typescript
 interface ReportsData {
-  summary: {
-    totalOrders: number;
-    totalRevenue: number;
-    totalTables: number;
-    averageOrderValue: number;
+  summary: ReportsSummary;
+  orders: ReportsOrder[];
+  topProducts: ReportsTopProduct[];
+  tableStats: ReportsTableStat[];
+  chartData: {
+    hourlyRevenue: { hour: number; revenue: number; orderCount: number }[];
+    dailyRevenue: { date: string; revenue: number; orderCount: number }[];
+    categoryDistribution: {
+      category: string;
+      revenue: number;
+      percentage: number;
+    }[];
+    paymentStatus: { status: string; count: number; percentage: number }[];
   };
-  orders: Order[];
-  topProducts: ProductAnalytics[];
-  tableStats: TableStat[];
 }
 ```
 
 ## Key Features
 
-### 1. Date and Time Filtering
+### 1. Interactive Charts
 
-- **Date Range Picker**: Flexible date range selection
-- **Time Range Filter**: Hour-based time filtering
-- **Default Ranges**: Last 30 days, last week, today
-- **Real-time Updates**: Immediate data refresh on filter changes
+- 6 different chart types for comprehensive data visualization
+- Interactive tooltips with detailed information
+- Responsive design for all screen sizes
+- Custom color schemes and styling
 
-### 2. Analytics Dashboard
+### 2. Advanced Filtering
 
-- **Summary Cards**: Key metrics at a glance
-- **Revenue Analytics**: Total revenue and average order value
-- **Order Analytics**: Order count and trends
-- **Table Analytics**: Table utilization and performance
+- Product selection filter for charts
+- Category and size filters for tables
+- Combined filtering capabilities
+- Real-time filter updates
 
-### 3. Product Analytics
+### 3. Enhanced Analytics
 
-- **Top Products**: Most popular menu items
-- **Consumption Tracking**: Product consumption patterns
-- **Revenue by Product**: Product-specific revenue analysis
-- **Quantity Analysis**: Product quantity tracking
+- Size-based product tracking
+- Peak time analysis
+- Category revenue distribution
+- Table performance metrics
+- Hourly sales patterns
 
-### 4. Table Statistics
+### 4. User Experience
 
-- **Table Utilization**: Table usage patterns
-- **Performance Metrics**: Table efficiency analysis
-- **Order Distribution**: Orders per table analysis
-- **Revenue by Table**: Table-specific revenue tracking
-
-### 5. Order Analytics
-
-- **Order History**: Complete order tracking
-- **Payment Analytics**: Payment patterns and trends
-- **Order Timing**: Peak hours and timing analysis
-- **Customer Behavior**: Order patterns and preferences
-
-## Component Architecture
-
-### Reports Components
-
-#### 1. ReportsPage
-
-- Main reports page component
-- Integrates all reports sub-components
-- Handles loading and error states
-- Manages authentication and authorization
-
-#### 2. ReportsFilters
-
-- Date range picker component
-- Time range selector
-- Filter reset functionality
-- Refresh button with loading states
-
-#### 3. ReportsSummary
-
-- Summary cards display
-- Key metrics visualization
-- Responsive grid layout
-- Metric formatting and display
-
-#### 4. ReportsTable
-
-- Detailed data table
-- Sortable columns
-- Responsive design
-- Data export capabilities (future)
+- Modern UI with consistent design
+- Responsive layout for all devices
+- Loading states and error handling
+- Turkish localization throughout
 
 ## Performance Optimizations
 
-### 1. Data Caching
+### 1. Data Aggregation
 
-- **TanStack Query**: Efficient data caching and background updates
-- **Stale-while-revalidate**: Immediate data display with background updates
-- **Query Invalidation**: Smart cache invalidation strategies
+- Efficient database queries with proper includes
+- Client-side filtering for better performance
+- Memoized calculations for chart data
 
-### 2. API Optimization
+### 2. Caching Strategy
 
-- **Data Aggregation**: Server-side data processing
-- **Efficient Queries**: Optimized database queries
-- **Pagination**: Large dataset handling
-- **Filtering**: Server-side filtering for performance
+- TanStack Query for automatic caching
+- Background data updates
+- Optimistic UI updates
 
-### 3. UI Performance
+### 3. Component Optimization
 
-- **Lazy Loading**: Components loaded only when needed
-- **Memoization**: Proper use of React.memo and useMemo
-- **Virtual Scrolling**: For large data tables (future)
+- Memoized filter calculations
+- Lazy loading for chart components
+- Efficient re-rendering with proper dependencies
 
-## Security Features
+## Security Considerations
 
-### 1. Authentication & Authorization
+### 1. Access Control
 
-- **Role-based Access**: Manager-only access to reports
-- **Session Validation**: All API routes require valid sessions
-- **Cafe Ownership**: Users can only access their own cafe data
+- Manager-only access to reports
+- Session validation for all API calls
+- Cafe ownership verification
 
-### 2. Data Security
+### 2. Data Validation
 
-- **Input Validation**: All filter inputs validated
-- **SQL Injection Prevention**: Parameterized queries
-- **Data Sanitization**: Proper data sanitization
-
-### 3. Error Handling
-
-- **Graceful Degradation**: System continues to work with partial data
-- **User-friendly Errors**: Clear error messages for users
-- **Error Logging**: Comprehensive error logging for debugging
-
-## User Experience
-
-### 1. Intuitive Interface
-
-- **Turkish Localization**: All text in Turkish for local users
-- **Consistent Design**: shadcn/ui components for consistency
-- **Responsive Layout**: Works on all screen sizes
-
-### 2. Efficient Workflow
-
-- **Quick Access**: Easy navigation to reports
-- **Filter Persistence**: Filters maintained across sessions
-- **Real-time Updates**: Immediate feedback for all actions
-
-### 3. Data Visualization
-
-- **Clear Metrics**: Easy-to-understand analytics
-- **Visual Indicators**: Color-coded status indicators
-- **Export Options**: Data export capabilities (future)
+- Input sanitization for all filters
+- Type safety with TypeScript
+- Error handling without sensitive information
 
 ## Future Enhancements
 
-### 1. Advanced Analytics
+### 1. Export Functionality
 
-- **Charts and Graphs**: Visual data representation
-- **Trend Analysis**: Historical trend tracking
-- **Predictive Analytics**: Future performance predictions
-- **Comparative Analysis**: Period-over-period comparisons
+- PDF export for reports
+- Excel export for data analysis
+- Image export for charts
 
-### 2. Export Functionality
+### 2. Advanced Analytics
 
-- **PDF Reports**: Printable report generation
-- **Excel Export**: Spreadsheet export capabilities
-- **Scheduled Reports**: Automated report generation
-- **Email Reports**: Email-based report distribution
+- Predictive analytics
+- Trend analysis
+- Comparative reporting
 
-### 3. Real-time Features
+### 3. Real-time Updates
 
-- **Live Updates**: Real-time data updates
-- **Push Notifications**: Important metric alerts
-- **Dashboard Widgets**: Customizable dashboard components
+- Live data updates
+- WebSocket integration
+- Real-time notifications
 
-### 4. Advanced Filtering
+## Testing Considerations
 
-- **Custom Date Ranges**: Flexible date selection
-- **Product Filtering**: Filter by specific products
-- **Staff Filtering**: Filter by staff member
-- **Table Filtering**: Filter by specific tables
+### 1. Data Accuracy
 
-## Success Metrics
+- Verify calculations for all metrics
+- Test with various data scenarios
+- Validate filter combinations
 
-### 1. User Experience
+### 2. Performance Testing
 
-- **Task Completion**: 100% success rate for report generation
-- **User Satisfaction**: High satisfaction with analytics interface
-- **Learning Curve**: Minimal training required for managers
+- Large dataset handling
+- Chart rendering performance
+- Filter response times
 
-### 2. Technical Performance
+### 3. User Experience
 
-- **API Response Times**: Under 500ms for report generation
-- **Data Accuracy**: 100% accurate analytics data
-- **System Reliability**: 99.9% uptime for reports
-
-### 3. Business Impact
-
-- **Decision Making**: Data-driven business decisions
-- **Performance Tracking**: Clear visibility into operations
-- **Revenue Optimization**: Insights for revenue improvement
+- Mobile responsiveness
+- Accessibility compliance
+- Cross-browser compatibility
 
 ## Conclusion
 
-The Reports System represents a significant enhancement to the cafe management system, providing comprehensive analytics and reporting capabilities. The implementation provides a modern, intuitive interface with robust backend functionality, ensuring data accuracy and excellent user experience.
-
-Key achievements:
-
-- Complete analytics dashboard with flexible filtering
-- Comprehensive order and product analytics
-- Table utilization and performance metrics
-- Revenue tracking and business insights
-- Modern UI with Turkish localization
-- Robust error handling and validation
-- Performance optimizations for smooth operation
-- Secure role-based access control
-
-The system is ready for production use and provides a solid foundation for future enhancements including advanced visualizations, export functionality, and real-time updates.
+The Reports System implementation provides a comprehensive analytics solution with interactive charts, advanced filtering, and detailed business insights. The system is fully functional, performant, and ready for production use with proper security measures and user experience considerations.

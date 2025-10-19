@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { usePageLoading } from "@/hooks/usePageLoading";
 import { useStaffPage } from "@/hooks/useStaffPage";
 import { useRouter } from "next/navigation";
 
@@ -26,15 +27,12 @@ export default function StaffPage() {
   } = useStaffPage();
   const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="p-6">
-          <div className="text-lg">Yükleniyor...</div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // Auto page loading
+  usePageLoading(isLoading, {
+    loadingText: "Çalışanlar yükleniyor...",
+    delay: 200,
+    minDuration: 800,
+  });
 
   if (!isAuthenticated) {
     return null;

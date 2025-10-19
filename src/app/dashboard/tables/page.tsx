@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { usePageLoading } from "@/hooks/usePageLoading";
 import { useTablesPage } from "@/hooks/useTablesPage";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -36,15 +37,12 @@ export default function TablesPage() {
   } = useTablesPage();
   const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="p-6">
-          <div className="text-lg">Yükleniyor...</div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // Auto page loading
+  usePageLoading(isLoading, {
+    loadingText: "Masalar yükleniyor...",
+    delay: 200,
+    minDuration: 800,
+  });
 
   if (!isAuthenticated) {
     return null;

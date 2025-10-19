@@ -3,6 +3,7 @@
 import { DashboardCards } from "@/components/dashboard/DashboardCards";
 import { UserInfo } from "@/components/dashboard/UserInfo";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { usePageLoading } from "@/hooks/usePageLoading";
 import { useAuth } from "@/queries/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -11,19 +12,18 @@ export default function DashboardPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
+  // Auto page loading
+  usePageLoading(isLoading, {
+    loadingText: "Dashboard yükleniyor...",
+    delay: 200,
+    minDuration: 800,
+  });
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/auth/signin");
     }
   }, [isAuthenticated, isLoading, router]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Yükleniyor...</div>
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return null;

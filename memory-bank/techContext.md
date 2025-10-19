@@ -72,6 +72,7 @@ src/
 - **@dnd-kit/sortable**: ^10.0.0 (sortable drag and drop)
 - **@dnd-kit/utilities**: ^3.2.2 (drag and drop utilities)
 - **react-resizable-panels**: ^3.0.6 (resizable panel components)
+- **recharts**: ^2.12.7 (chart library for data visualization)
 
 ## Technical Decisions Made
 
@@ -99,6 +100,8 @@ src/
 22. **Reports API**: Comprehensive reports endpoint with analytics ✅
 23. **Reports Components**: Modern UI components for reports display ✅
 24. **TanStack Query Integration**: Efficient data caching for reports ✅
+25. **Chart Integration**: Recharts library for data visualization ✅
+26. **Enhanced Reports**: Product selection filters and category/size filtering ✅
 
 ## Technical Decisions Pending
 

@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { LoadingProvider } from "@/components/providers/LoadingProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -32,7 +33,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <LoadingProvider>{children}</LoadingProvider>
+          </AuthProvider>
         </QueryProvider>
         <Toaster />
       </body>
