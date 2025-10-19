@@ -179,6 +179,7 @@ export function useOrdersPage() {
     markProductAsPaid: orderOperations.markProductAsPaid,
     deleteProduct: orderOperations.deleteProduct,
     markAllAsPaid,
+    refreshOrders: orderOperations.refreshOrders,
     closeOrderDialog,
   };
 }

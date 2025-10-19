@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatPrice } from "@/lib/formatters";
 import { OrderProduct, OrderWithRelations } from "@/types";
-import { CheckCircle, CreditCard, X } from "lucide-react";
+import { CheckCircle, CreditCard } from "lucide-react";
 
 interface OrderProductsProps {
   order: OrderWithRelations;
@@ -31,7 +31,7 @@ export function OrderProducts({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className="order-products-grid">
       {order.products.map((product: OrderProduct, index) => {
         // Bu ürün için menu item bilgisini bul
         const menuItem = order.orderItems.find(
@@ -111,7 +111,7 @@ export function OrderProducts({
                     disabled={isSaving}
                     className="order-pay-button"
                   >
-                    <CreditCard className="h-3 w-3 mr-1" />
+                    <CreditCard className="mr-1" />
                     Öde
                   </Button>
                 )}
@@ -122,8 +122,7 @@ export function OrderProducts({
                   disabled={isSaving}
                   className="order-delete-button"
                 >
-                  <X className="h-3 w-3" />
-                  <span className="sr-only">Sil</span>
+                  Sil
                 </Button>
               </div>
             </div>

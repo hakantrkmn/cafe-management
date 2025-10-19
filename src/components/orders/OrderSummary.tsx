@@ -6,7 +6,14 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatOrderId, formatPrice } from "@/lib/formatters";
 import { OrderCartItem, OrderWithRelations } from "@/types";
-import { CreditCard, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import {
+  CreditCard,
+  Minus,
+  Plus,
+  RefreshCw,
+  ShoppingCart,
+  Trash2,
+} from "lucide-react";
 import { OrderProducts } from "./OrderProducts";
 
 interface OrderSummaryProps {
@@ -20,6 +27,7 @@ interface OrderSummaryProps {
   onMarkAllAsPaid: () => void;
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   onDeleteProduct: (orderId: string, productIndex: number) => void;
+  onRefresh: () => void;
   isSaving: boolean;
   selectedTableName?: string;
 }
@@ -34,17 +42,30 @@ export function OrderSummary({
   onMarkAllAsPaid,
   onMarkProductAsPaid,
   onDeleteProduct,
+  onRefresh,
   isSaving,
   selectedTableName,
 }: OrderSummaryProps) {
   return (
     <div className="space-y-6 p-6 h-full">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <ShoppingCart className="h-5 w-5" />
-        <h3 className="text-lg font-semibold">
-          Sipariş Özeti {selectedTableName && `- ${selectedTableName}`}
-        </h3>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ShoppingCart className="h-5 w-5" />
+          <h3 className="text-lg font-semibold">
+            Sipariş Özeti {selectedTableName && `- ${selectedTableName}`}
+          </h3>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onRefresh}
+          disabled={isSaving}
+          className="order-refresh-button"
+        >
+          <RefreshCw className="h-4 w-4 mr-1" />
+          Yenile
+        </Button>
       </div>
 
       {/* Existing Orders */}

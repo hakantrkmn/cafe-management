@@ -104,14 +104,32 @@ export async function POST(
       );
     }
 
-    // Check if user with this email already exists and is staff
+    // Check if user with this email exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (existingUser && existingUser.role !== "STAFF") {
+    if (!existingUser) {
+      return NextResponse.json(
+        {
+          message:
+            "Bu email adresi ile kayıtlı kullanıcı bulunamadı. Önce kullanıcının kayıt olması gerekiyor.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (existingUser.role !== "STAFF") {
       return NextResponse.json(
         { message: "Bu email adresi zaten farklı bir rol ile kayıtlı" },
+        { status: 400 }
+      );
+    }
+
+    // Check if staff is already assigned to another cafe
+    if (existingUser.cafeId && existingUser.cafeId !== id) {
+      return NextResponse.json(
+        { message: "Bu çalışan zaten başka bir kafede çalışıyor" },
         { status: 400 }
       );
     }
@@ -121,16 +139,26 @@ export async function POST(
       data: {
         cafeId: id,
         email: email,
-        userId: existingUser?.id || null,
+        userId: existingUser.id, // User always exists at this point
       },
       include: {
         user: true,
       },
     });
 
+    // Update user's cafeId to assign them to this cafe (only if not already assigned)
+    if (!existingUser.cafeId) {
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { cafeId: id },
+      });
+    }
+
     return NextResponse.json(
       {
-        message: "Çalışan başarıyla davet edildi",
+        message: existingUser.cafeId
+          ? "Çalışan başarıyla davet edildi"
+          : "Çalışan başarıyla davet edildi ve kafeye atandı",
         allowedStaff,
       },
       { status: 201 }

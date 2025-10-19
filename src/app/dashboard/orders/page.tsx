@@ -28,6 +28,7 @@ export default function OrdersPage() {
     markProductAsPaid,
     deleteProduct,
     markAllAsPaid,
+    refreshOrders,
     closeOrderDialog,
   } = useOrdersPage();
 
@@ -107,6 +108,7 @@ export default function OrdersPage() {
           onMarkAllAsPaid={markAllAsPaid}
           onMarkProductAsPaid={markProductAsPaid}
           onDeleteProduct={deleteProduct}
+          onRefresh={refreshOrders}
           isSaving={orderOperations.isSaving}
         />
       </div>

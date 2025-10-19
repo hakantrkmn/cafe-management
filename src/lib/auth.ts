@@ -10,8 +10,6 @@ export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   EMAIL_VE_SIFRE_GEREKLI: "Email ve şifre alanları zorunludur",
   KULLANICI_BULUNAMADI: "Bu email adresi ile kayıtlı kullanıcı bulunamadı",
   YANLIS_SIFRE: "Şifre yanlış. Lütfen tekrar deneyin",
-  CAFE_ERISIMI_YOK:
-    "Bu cafe için erişim izniniz bulunmuyor. Lütfen yöneticinizle iletişime geçin",
   GIRIS_HATASI:
     "Giriş sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin",
   CredentialsSignin: "Giriş bilgileri yanlış. Email ve şifrenizi kontrol edin",
@@ -59,29 +57,9 @@ export const authOptions: NextAuthOptions = {
             throw new Error("YANLIS_SIFRE");
           }
 
-          // If user is STAFF and doesn't have cafeId, get it from AllowedStaff
-          let finalCafeId = user.cafeId;
-          let finalCafe = user.cafe;
-
-          if (user.role === "STAFF" && !user.cafeId) {
-            const allowedStaff = await prisma.allowedStaff.findFirst({
-              where: { userId: user.id },
-              include: { cafe: true },
-            });
-
-            if (!allowedStaff) {
-              throw new Error("CAFE_ERISIMI_YOK");
-            }
-
-            finalCafeId = allowedStaff.cafeId;
-            finalCafe = allowedStaff.cafe;
-
-            // Update user's cafeId in database
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { cafeId: allowedStaff.cafeId },
-            });
-          }
+          // Staff users can login without being assigned to a cafe
+          const finalCafeId = user.cafeId;
+          const finalCafe = user.cafe;
 
           return {
             id: user.id,

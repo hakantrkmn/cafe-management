@@ -46,6 +46,7 @@ interface OrderDialogProps {
   onMarkAllAsPaid: () => void;
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   onDeleteProduct: (orderId: string, productIndex: number) => void;
+  onRefresh: () => void;
   isSaving: boolean;
 }
 
@@ -68,6 +69,7 @@ export function OrderDialog({
   onMarkAllAsPaid,
   onMarkProductAsPaid,
   onDeleteProduct,
+  onRefresh,
   isSaving,
 }: OrderDialogProps) {
   const [selectedMenuItem, setSelectedMenuItem] =
@@ -209,6 +211,7 @@ export function OrderDialog({
                       onMarkAllAsPaid={onMarkAllAsPaid}
                       onMarkProductAsPaid={onMarkProductAsPaid}
                       onDeleteProduct={onDeleteProduct}
+                      onRefresh={onRefresh}
                       isSaving={isSaving}
                       selectedTableName={selectedTableName}
                     />

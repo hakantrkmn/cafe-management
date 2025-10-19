@@ -94,7 +94,7 @@ export function MenuItemSelectionCard({
       {item.hasSizes && item.prices && (
         <div className="size-selection mb-3">
           <p className="text-sm font-medium mb-2">Boy Seçin:</p>
-          <div className="flex gap-2">
+          <div className="size-selection-buttons">
             {item.prices.map((price) => (
               <button
                 key={price.size}

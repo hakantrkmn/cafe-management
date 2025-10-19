@@ -30,6 +30,7 @@ interface UseOrderOperationsReturn {
     products: OrderProduct[]
   ) => Promise<void>;
   getTableProducts: (tableId: string) => string[];
+  refreshOrders: () => void;
   isSaving: boolean;
 }
 
@@ -41,7 +42,7 @@ export function useOrderOperations({
   cafeId,
 }: UseOrderOperationsProps): UseOrderOperationsReturn {
   // Data queries
-  const { data: ordersData } = useOrders(cafeId || "");
+  const { data: ordersData, refetch: refetchOrders } = useOrders(cafeId || "");
 
   // Mutations
   const createOrderMutation = useCreateOrder();
@@ -343,6 +344,7 @@ export function useOrderOperations({
     markAllAsPaid,
     updateOrderProducts,
     getTableProducts,
+    refreshOrders: () => refetchOrders(),
     isSaving: createOrderMutation.isPending || updateOrderMutation.isPending,
   };
 }
