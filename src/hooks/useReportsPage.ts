@@ -80,6 +80,12 @@ export function useReportsPage() {
         orders: [],
         topProducts: [],
         tableStats: [],
+        chartData: {
+          hourlyRevenue: [],
+          dailyRevenue: [],
+          categoryDistribution: [],
+          paymentStatus: [],
+        },
       } as ReportsData),
 
     // Filters

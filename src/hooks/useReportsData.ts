@@ -7,6 +7,7 @@ import { DateRange, TimeRange } from "./useReportsPage";
 export interface ReportsProduct {
   id: string;
   name: string;
+  size?: string;
   price: number;
   quantity: number;
   total: number;
@@ -24,8 +25,13 @@ export interface ReportsOrder {
 export interface ReportsTopProduct {
   id: string;
   name: string;
+  size?: string; // "Küçük", "Orta", "Büyük" or undefined
+  category: string; // Product category
   totalSold: number;
   totalRevenue: number;
+  averagePrice: number;
+  peakHour?: number; // 0-23
+  peakDay?: string; // Day name
 }
 
 export interface ReportsTableStat {
@@ -47,6 +53,17 @@ export interface ReportsData {
   orders: ReportsOrder[];
   topProducts: ReportsTopProduct[];
   tableStats: ReportsTableStat[];
+  // Chart data
+  chartData: {
+    hourlyRevenue: { hour: number; revenue: number; orderCount: number }[];
+    dailyRevenue: { date: string; revenue: number; orderCount: number }[];
+    categoryDistribution: {
+      category: string;
+      revenue: number;
+      percentage: number;
+    }[];
+    paymentStatus: { status: string; count: number; percentage: number }[];
+  };
 }
 
 // API functions

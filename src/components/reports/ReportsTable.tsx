@@ -1,12 +1,21 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -24,9 +33,10 @@ import {
   ChevronDown,
   ChevronRight,
   DollarSign,
+  Filter,
   Package,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface ReportsTableProps {
   data: ReportsData;
@@ -36,8 +46,86 @@ export function ReportsTable({ data }: ReportsTableProps) {
   const { orders, topProducts, tableStats } = data;
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
+  // Filter states for top products table
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
+    new Set()
+  );
+  const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   const toggleOrderExpansion = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
+  };
+
+  // Extract unique categories and sizes from topProducts
+  const { categories, sizes } = useMemo(() => {
+    const categorySet = new Set<string>();
+    const sizeSet = new Set<string>();
+
+    topProducts.forEach((product) => {
+      // Use the category field directly from the product
+      if (product.category) {
+        categorySet.add(product.category);
+      }
+
+      if (product.size) {
+        sizeSet.add(product.size);
+      }
+    });
+
+    return {
+      categories: Array.from(categorySet).sort(),
+      sizes: Array.from(sizeSet).sort(),
+    };
+  }, [topProducts]);
+
+  // Filter top products based on selected filters
+  const filteredTopProducts = useMemo(() => {
+    return topProducts.filter((product) => {
+      // Category filter
+      if (selectedCategories.size > 0) {
+        if (!product.category || !selectedCategories.has(product.category)) {
+          return false;
+        }
+      }
+
+      // Size filter
+      if (selectedSizes.size > 0) {
+        if (!product.size || !selectedSizes.has(product.size)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [topProducts, selectedCategories, selectedSizes]);
+
+  // Handle category selection
+  const handleCategoryToggle = (category: string) => {
+    const newSelected = new Set(selectedCategories);
+    if (newSelected.has(category)) {
+      newSelected.delete(category);
+    } else {
+      newSelected.add(category);
+    }
+    setSelectedCategories(newSelected);
+  };
+
+  // Handle size selection
+  const handleSizeToggle = (size: string) => {
+    const newSelected = new Set(selectedSizes);
+    if (newSelected.has(size)) {
+      newSelected.delete(size);
+    } else {
+      newSelected.add(size);
+    }
+    setSelectedSizes(newSelected);
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCategories(new Set());
+    setSelectedSizes(new Set());
   };
 
   return (
@@ -134,6 +222,7 @@ export function ReportsTable({ data }: ReportsTableProps) {
                                 <TableRow key={product.id}>
                                   <TableCell className="font-medium">
                                     {product.name}
+                                    {product.size ? ` (${product.size})` : ""}
                                   </TableCell>
                                   <TableCell className="text-center">
                                     {product.quantity}
@@ -162,15 +251,138 @@ export function ReportsTable({ data }: ReportsTableProps) {
       {/* Top Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            En Çok Satan Ürünler
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              En Çok Satan Ürünler
+              {(selectedCategories.size > 0 || selectedSizes.size > 0) && (
+                <Badge variant="secondary" className="ml-2">
+                  {filteredTopProducts.length} / {topProducts.length}
+                </Badge>
+              )}
+            </CardTitle>
+            <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filtrele
+                  {(selectedCategories.size > 0 || selectedSizes.size > 0) && (
+                    <Badge
+                      variant="secondary"
+                      className="ml-2 h-4 px-1 text-xs"
+                    >
+                      {selectedCategories.size + selectedSizes.size}
+                    </Badge>
+                  )}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Ürün Filtreleri</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6">
+                  {/* Category Filter */}
+                  {categories.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-medium">Kategoriler</h4>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedCategories(new Set())}
+                          className="h-6 px-2 text-xs"
+                        >
+                          Temizle
+                        </Button>
+                      </div>
+                      <div className="max-h-32 overflow-y-auto space-y-2">
+                        {categories.map((category) => (
+                          <div
+                            key={category}
+                            className="flex items-center space-x-2 p-2 rounded hover:bg-muted/50"
+                          >
+                            <Checkbox
+                              id={`category-${category}`}
+                              checked={selectedCategories.has(category)}
+                              onCheckedChange={() =>
+                                handleCategoryToggle(category)
+                              }
+                            />
+                            <label
+                              htmlFor={`category-${category}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                            >
+                              {category}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Size Filter */}
+                  {sizes.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-medium">Boyutlar</h4>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedSizes(new Set())}
+                          className="h-6 px-2 text-xs"
+                        >
+                          Temizle
+                        </Button>
+                      </div>
+                      <div className="max-h-32 overflow-y-auto space-y-2">
+                        {sizes.map((size) => (
+                          <div
+                            key={size}
+                            className="flex items-center space-x-2 p-2 rounded hover:bg-muted/50"
+                          >
+                            <Checkbox
+                              id={`size-${size}`}
+                              checked={selectedSizes.has(size)}
+                              onCheckedChange={() => handleSizeToggle(size)}
+                            />
+                            <label
+                              htmlFor={`size-${size}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                            >
+                              {size}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Clear All Button */}
+                  {(selectedCategories.size > 0 || selectedSizes.size > 0) && (
+                    <div className="pt-4 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={clearAllFilters}
+                        className="w-full"
+                      >
+                        Tüm Filtreleri Temizle
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {topProducts.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>Henüz satış verisi bulunamadı</p>
+            </div>
+          ) : filteredTopProducts.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Seçilen filtreler için ürün bulunamadı</p>
             </div>
           ) : (
             <Table>
@@ -179,19 +391,32 @@ export function ReportsTable({ data }: ReportsTableProps) {
                   <TableHead>Ürün Adı</TableHead>
                   <TableHead className="text-center">Satış Adedi</TableHead>
                   <TableHead className="text-right">Toplam Gelir</TableHead>
+                  <TableHead className="text-right">Ortalama Fiyat</TableHead>
+                  <TableHead className="text-center">
+                    En Çok Satılan Saat
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topProducts.map((product) => (
+                {filteredTopProducts.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">
                       {product.name}
+                      {product.size ? ` (${product.size})` : ""}
                     </TableCell>
                     <TableCell className="text-center">
                       {product.totalSold}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatPrice(product.totalRevenue)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatPrice(product.averagePrice)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {product.peakHour !== undefined
+                        ? `${product.peakHour}:00`
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 ))}

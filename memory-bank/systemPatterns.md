@@ -320,3 +320,49 @@ export function useFeaturePage() {
 - **Transaction Handling**: Database transactions for order creation and payment processing
 - **Table Status Management**: Real-time table status tracking (available, occupied, has-orders)
 - **Cart Management**: Add, remove, update quantities with extras support and localStorage persistence
+
+### 2. Reports System Pattern
+
+**Purpose**: Provide comprehensive analytics and reporting for business insights
+
+**Implementation**:
+
+- Reports API with date/time filtering and data aggregation
+- Reports components with summary cards and detailed tables
+- TanStack Query integration for efficient data caching
+- Role-based access control (Manager only)
+- Flexible filtering with date ranges and time periods
+
+**Key Components**:
+
+- Reports API: `/api/cafes/[id]/reports` with comprehensive analytics
+- ReportsPage: Main reports interface with filter management
+- ReportsFilters: Date range and time range filtering components
+- ReportsSummary: Summary cards with key metrics display
+- ReportsTable: Detailed data table with sortable columns
+- useReportsData: Data fetching hook with TanStack Query
+- useReportsPage: Page logic hook with filter management
+
+**Data Structure**:
+
+```typescript
+interface ReportsData {
+  summary: {
+    totalOrders: number;
+    totalRevenue: number;
+    totalTables: number;
+    averageOrderValue: number;
+  };
+  orders: Order[];
+  topProducts: ProductAnalytics[];
+  tableStats: TableStat[];
+}
+```
+
+**Analytics Features**:
+
+- Order analytics with revenue calculations
+- Product consumption tracking and top products analysis
+- Table utilization and performance metrics
+- Date range filtering with time zone support
+- Real-time data updates with TanStack Query caching
