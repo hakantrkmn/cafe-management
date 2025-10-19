@@ -124,12 +124,12 @@ export function useOrdersPage() {
       // Her siparişi ayrı ayrı ödendi olarak işaretle
       await Promise.all(
         tableOrders.map(async (order) => {
-          const orderProducts = order.orderItems.map((item) => ({
-            id: item.menuItemId,
+          // Mevcut products array'ini kullan ve tüm ürünleri ödendi olarak işaretle
+          const updatedProducts = order.products.map((product) => ({
+            ...product,
             isPaid: true,
-            price: item.menuItemPrice,
           }));
-          await orderOperations.markOrderAsPaid(order.id, orderProducts);
+          await orderOperations.markOrderAsPaid(order.id, updatedProducts);
         })
       );
     } catch (error) {

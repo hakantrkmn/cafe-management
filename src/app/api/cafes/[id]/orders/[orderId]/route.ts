@@ -179,7 +179,6 @@ export async function PATCH(
             });
 
             // Ekstra fiyatlarını hesapla
-            let extrasTotal = 0;
             const extras: { id: string; price: number }[] = [];
 
             if (item.extras && item.extras.length > 0) {
@@ -190,7 +189,6 @@ export async function PATCH(
 
                 if (extraItem) {
                   const extraTotalPrice = extraItem.price * extra.quantity;
-                  extrasTotal += extraTotalPrice;
 
                   extras.push({
                     id: extra.extraId,
@@ -216,7 +214,7 @@ export async function PATCH(
               .map(() => ({
                 id: item.menuItemId,
                 isPaid: false,
-                price: itemPrice + extrasTotal, // Ana ürün + ekstralar
+                price: itemPrice, // Sadece ana ürün fiyatı
                 size: item.size, // Include size in products array
                 extras: extras.length > 0 ? extras : undefined, // Optional extras
               }));

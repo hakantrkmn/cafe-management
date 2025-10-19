@@ -54,7 +54,7 @@ export async function POST(
       return NextResponse.json({ message: "Cafe not found" }, { status: 404 });
     }
 
-    // Execute all operations in a transaction
+    // Execute all operations in a transaction with increased timeout
     const result = await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
         // Delete operations first
@@ -72,7 +72,7 @@ export async function POST(
           });
         }
 
-        // Create operations
+        // Create operations - Batch create all menu items at once
         const createData = body.menuItems
           .filter((item) => item._status === "new")
           .map((item) => ({
@@ -87,62 +87,75 @@ export async function POST(
 
         const createdMenuItems =
           createData.length > 0
-            ? await Promise.all(
-                createData.map(async (data) => {
-                  const menuItem = await tx.menuItem.create({ data });
+            ? await tx.menuItem.createMany({
+                data: createData,
+              })
+            : { count: 0 };
 
-                  // Create size prices if hasSizes is true
-                  if (
-                    data.hasSizes &&
-                    body.menuItems.find(
-                      (item) =>
-                        item._status === "new" && item.name === data.name
-                    )?.sizes
-                  ) {
-                    const sizes = body.menuItems.find(
-                      (item) =>
-                        item._status === "new" && item.name === data.name
-                    )!.sizes!;
-                    await Promise.all([
-                      tx.menuItemPrice.create({
-                        data: {
-                          menuItemId: menuItem.id,
-                          size: "SMALL",
-                          price: sizes.SMALL,
-                        },
-                      }),
-                      tx.menuItemPrice.create({
-                        data: {
-                          menuItemId: menuItem.id,
-                          size: "MEDIUM",
-                          price: sizes.MEDIUM,
-                        },
-                      }),
-                      tx.menuItemPrice.create({
-                        data: {
-                          menuItemId: menuItem.id,
-                          size: "LARGE",
-                          price: sizes.LARGE,
-                        },
-                      }),
-                    ]);
+        // Get created menu items to create prices
+        const newMenuItems = body.menuItems.filter(
+          (item) => item._status === "new"
+        );
+        if (newMenuItems.length > 0) {
+          const createdItems = await tx.menuItem.findMany({
+            where: {
+              cafeId: id,
+              name: { in: newMenuItems.map((item) => item.name) },
+            },
+          });
+
+          // Batch create all prices at once
+          const allPrices = [];
+          for (const item of newMenuItems) {
+            if (item.hasSizes && item.sizes) {
+              const menuItem = createdItems.find((ci) => ci.name === item.name);
+              if (menuItem) {
+                allPrices.push(
+                  {
+                    menuItemId: menuItem.id,
+                    size: "SMALL" as const,
+                    price: item.sizes.SMALL,
+                  },
+                  {
+                    menuItemId: menuItem.id,
+                    size: "MEDIUM" as const,
+                    price: item.sizes.MEDIUM,
+                  },
+                  {
+                    menuItemId: menuItem.id,
+                    size: "LARGE" as const,
+                    price: item.sizes.LARGE,
                   }
+                );
+              }
+            }
+          }
 
-                  return menuItem;
-                })
-              )
-            : [];
+          if (allPrices.length > 0) {
+            await tx.menuItemPrice.createMany({
+              data: allPrices,
+            });
+          }
+        }
 
-        // Update operations
+        // Update operations - Batch update
         const validUpdates = body.menuItems.filter(
           (item) => item._status === "modified" && !item.id.startsWith("temp_")
         );
 
         if (validUpdates.length > 0) {
+          // First, delete all existing prices for items being updated
+          const updateIds = validUpdates.map((item) => item.id);
+          await tx.menuItemPrice.deleteMany({
+            where: {
+              menuItemId: { in: updateIds },
+            },
+          });
+
+          // Batch update all menu items
           await Promise.all(
-            validUpdates.map(async (item) => {
-              // Update menu item
-              await tx.menuItem.update({
+            validUpdates.map((item) =>
+              tx.menuItem.update({
                 where: { id: item.id },
                 data: {
                   name: item.name,
@@ -152,52 +165,47 @@ export async function POST(
                   hasSizes: item.hasSizes,
                   categoryId: item.categoryId,
                 },
-              });
-
-              // Handle size prices
-              if (item.hasSizes && item.sizes) {
-                // Delete existing size prices
-                await tx.menuItemPrice.deleteMany({
-                  where: { menuItemId: item.id },
-                });
-
-                // Create new size prices
-                await Promise.all([
-                  tx.menuItemPrice.create({
-                    data: {
-                      menuItemId: item.id,
-                      size: "SMALL",
-                      price: item.sizes.SMALL,
-                    },
-                  }),
-                  tx.menuItemPrice.create({
-                    data: {
-                      menuItemId: item.id,
-                      size: "MEDIUM",
-                      price: item.sizes.MEDIUM,
-                    },
-                  }),
-                  tx.menuItemPrice.create({
-                    data: {
-                      menuItemId: item.id,
-                      size: "LARGE",
-                      price: item.sizes.LARGE,
-                    },
-                  }),
-                ]);
-              } else {
-                // If hasSizes is false, delete any existing size prices
-                await tx.menuItemPrice.deleteMany({
-                  where: { menuItemId: item.id },
-                });
-              }
-            })
+              })
+            )
           );
+
+          // Batch create all new prices for updated items
+          const allUpdatePrices = [];
+          for (const item of validUpdates) {
+            if (item.hasSizes && item.sizes) {
+              allUpdatePrices.push(
+                {
+                  menuItemId: item.id,
+                  size: "SMALL" as const,
+                  price: item.sizes.SMALL,
+                },
+                {
+                  menuItemId: item.id,
+                  size: "MEDIUM" as const,
+                  price: item.sizes.MEDIUM,
+                },
+                {
+                  menuItemId: item.id,
+                  size: "LARGE" as const,
+                  price: item.sizes.LARGE,
+                }
+              );
+            }
+          }
+
+          if (allUpdatePrices.length > 0) {
+            await tx.menuItemPrice.createMany({
+              data: allUpdatePrices,
+            });
+          }
         }
 
         return {
           createdMenuItems,
         };
+      },
+      {
+        timeout: 30000, // 30 seconds timeout
       }
     );
 
