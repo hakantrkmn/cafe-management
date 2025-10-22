@@ -1,5 +1,6 @@
 "use client";
 
+import { OrderCalculator } from "@/lib/orderCalculator";
 import {
   ExtraWithQuantity,
   MenuItemSize,
@@ -20,12 +21,13 @@ interface UseCartManagementReturn {
   removeFromCart: (itemId: string) => void;
   updateCartItemQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
+  validateCart: () => { isValid: boolean; errors: string[] };
 }
 
 export function useCartManagement(): UseCartManagementReturn {
   const [cartItems, setCartItems] = useState<OrderCartItem[]>([]);
 
-  // Add item to cart
+  // Add item to cart using centralized calculator
   const addToCart = useCallback(
     (
       menuItem: MenuItemWithRelations,
@@ -33,34 +35,30 @@ export function useCartManagement(): UseCartManagementReturn {
       extras: ExtraWithQuantity[] = [],
       size?: MenuItemSize
     ) => {
-      // Get the correct price based on size
-      let itemPrice = menuItem.price;
-      if (menuItem.hasSizes && size && menuItem.prices) {
-        const sizePrice = menuItem.prices.find((p) => p.size === size);
-        if (sizePrice) {
-          itemPrice = sizePrice.price;
-        }
+      // Create separate cart items for each quantity of the menu item
+      const newCartItems: OrderCartItem[] = [];
+
+      for (let i = 0; i < quantity; i++) {
+        // Create a cart item for each instance of the menu item
+        const cartItem = OrderCalculator.createCartItem(
+          menuItem,
+          1, // Each cart item has quantity 1
+          [], // Don't include extras in the menu item cart item
+          size
+        );
+        newCartItems.push(cartItem);
       }
 
-      const cartItem: OrderCartItem = {
-        id: `${Date.now()}-${Math.random()}`,
-        menuItemId: menuItem.id,
-        menuItemName: menuItem.name,
-        menuItemPrice: itemPrice,
-        quantity,
-        size,
-        extras: extras.map((extra) => ({
-          extraId: extra.id,
-          extraName: extra.name,
-          extraPrice: extra.price,
-          quantity: extra.quantity,
-        })),
-        subtotal:
-          itemPrice * quantity +
-          extras.reduce((sum, extra) => sum + extra.price * extra.quantity, 0),
-      };
+      // Create separate cart items for each extra instance
+      extras.forEach((extra) => {
+        for (let i = 0; i < extra.quantity; i++) {
+          // Create a cart item for each extra instance using the new method
+          const extraCartItem = OrderCalculator.createExtraCartItem(extra, 1);
+          newCartItems.push(extraCartItem);
+        }
+      });
 
-      setCartItems((prev) => [...prev, cartItem]);
+      setCartItems((prev) => [...prev, ...newCartItems]);
     },
     []
   );
@@ -70,33 +68,26 @@ export function useCartManagement(): UseCartManagementReturn {
     setCartItems((prev) => prev.filter((item) => item.id !== itemId));
   }, []);
 
-  // Update cart item quantity
+  // Update cart item quantity using centralized calculator
   const updateCartItemQuantity = useCallback(
     (itemId: string, quantity: number) => {
-      if (quantity <= 0) {
-        removeFromCart(itemId);
-        return;
-      }
-
-      setCartItems((prev) =>
-        prev.map((item) => {
-          if (item.id === itemId) {
-            const basePrice = item.menuItemPrice;
-            const extrasTotal = item.extras.reduce(
-              (sum, extra) => sum + extra.extraPrice * extra.quantity,
-              0
-            );
-            return {
-              ...item,
-              quantity,
-              subtotal: basePrice * quantity + extrasTotal,
-            };
-          }
-          return item;
-        })
+      setCartItems(
+        (prev) =>
+          prev
+            .map((item) => {
+              if (item.id === itemId) {
+                const updatedItem = OrderCalculator.updateCartItemQuantity(
+                  item,
+                  quantity
+                );
+                return updatedItem || item; // Return original item if null (should be removed)
+              }
+              return item;
+            })
+            .filter((item) => item !== null) // Remove null items
       );
     },
-    [removeFromCart]
+    []
   );
 
   // Clear cart
@@ -104,8 +95,27 @@ export function useCartManagement(): UseCartManagementReturn {
     setCartItems([]);
   }, []);
 
-  // Calculate cart total
-  const cartTotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+  // Validate entire cart
+  const validateCart = useCallback(() => {
+    const errors: string[] = [];
+
+    cartItems.forEach((item, index) => {
+      const validation = OrderCalculator.validateCartItem(item);
+      if (!validation.isValid) {
+        validation.errors.forEach((error) => {
+          errors.push(`Item ${index + 1}: ${error}`);
+        });
+      }
+    });
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }, [cartItems]);
+
+  // Calculate cart total using centralized calculator
+  const cartTotal = OrderCalculator.calculateCartTotal(cartItems);
 
   return {
     cartItems,
@@ -114,5 +124,6 @@ export function useCartManagement(): UseCartManagementReturn {
     removeFromCart,
     updateCartItemQuantity,
     clearCart,
+    validateCart,
   };
 }

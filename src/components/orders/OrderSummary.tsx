@@ -161,7 +161,7 @@ export function OrderSummary({
                       </div>
                     )}
                     <p className="text-sm text-muted-foreground">
-                      {formatPrice(item.menuItemPrice)} × {item.quantity}
+                      {formatPrice(item.subtotal)} (Toplam)
                     </p>
                   </div>
 

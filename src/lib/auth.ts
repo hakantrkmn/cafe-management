@@ -67,9 +67,23 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             cafeId: finalCafeId || undefined,
-            cafe: finalCafe,
-            managedCafe: user.managedCafe,
-          };
+            cafe: finalCafe
+              ? {
+                  id: finalCafe.id,
+                  name: finalCafe.name,
+                  address: finalCafe.address || undefined,
+                  phone: finalCafe.phone || undefined,
+                }
+              : undefined,
+            managedCafe: user.managedCafe
+              ? {
+                  id: user.managedCafe.id,
+                  name: user.managedCafe.name,
+                  address: user.managedCafe.address || undefined,
+                  phone: user.managedCafe.phone || undefined,
+                }
+              : undefined,
+          } as unknown as import("next-auth").User; // Type assertion needed for NextAuth compatibility
         } catch (error) {
           console.error("Auth error:", error);
           throw new Error("GIRIS_HATASI");
@@ -95,8 +109,22 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub!;
         session.user.role = token.role as "MANAGER" | "STAFF";
         session.user.cafeId = token.cafeId as string | undefined;
-        session.user.cafe = token.cafe as any; // eslint-disable-line @typescript-eslint/no-explicit-any
-        session.user.managedCafe = token.managedCafe as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        session.user.cafe = token.cafe as
+          | {
+              id: string;
+              name: string;
+              address?: string;
+              phone?: string;
+            }
+          | undefined;
+        session.user.managedCafe = token.managedCafe as
+          | {
+              id: string;
+              name: string;
+              address?: string;
+              phone?: string;
+            }
+          | undefined;
       }
       return session;
     },

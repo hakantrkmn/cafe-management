@@ -45,31 +45,23 @@ export async function PATCH(
 
     let updatedOrder;
 
-    if (body.isPaid !== undefined) {
-      // Mark as paid/unpaid
-      const updateData: {
-        isPaid: boolean;
-        paidAt: Date | null;
-        products?: { id: string; isPaid: boolean; price: number }[];
-      } = {
-        isPaid: body.isPaid,
-        paidAt: body.isPaid ? new Date() : null,
+    if (body.products !== undefined) {
+      // Products array güncelleniyorsa (deleteProduct, markProductAsPaid durumu)
+      // Tüm ürünler ödendi mi kontrol et
+      const allProductsPaid = body.products.every(
+        (product: { isPaid: boolean }) => product.isPaid
+      );
+
+      // Eğer totalAmount gönderilmişse, bu deleteProduct işlemi
+      // Eğer totalAmount gönderilmemişse, bu markProductAsPaid işlemi
+      const updateData = {
+        products: body.products, // Prisma JSON field
+        isPaid: allProductsPaid,
+        paidAt: allProductsPaid ? new Date() : null,
+        ...(body.totalAmount !== undefined && {
+          totalAmount: body.totalAmount,
+        }),
       };
-
-      // Eğer products array'i de gönderilmişse, onu da güncelle
-      if (body.products !== undefined) {
-        updateData.products = body.products;
-        // Tüm ürünler ödendi mi kontrol et (products array'inden)
-        const allProductsPaid = body.products.every(
-          (product: { isPaid: boolean }) => product.isPaid
-        );
-
-        // Eğer tüm ürünler ödendiyse, siparişi de ödendi olarak işaretle
-        if (allProductsPaid) {
-          updateData.isPaid = true;
-          updateData.paidAt = new Date();
-        }
-      }
 
       updatedOrder = await prisma.order.update({
         where: { id: orderId },
@@ -84,21 +76,19 @@ export async function PATCH(
           },
         },
       });
-    } else if (body.products !== undefined) {
-      // Sadece products array'i güncelleniyorsa (markProductAsPaid durumu)
-
-      // Tüm ürünler ödendi mi kontrol et
-      const allProductsPaid = body.products.every(
-        (product: { isPaid: boolean }) => product.isPaid
-      );
+    } else if (body.isPaid !== undefined) {
+      // Mark as paid/unpaid (sadece isPaid güncelleniyorsa)
+      const updateData: {
+        isPaid: boolean;
+        paidAt: Date | null;
+      } = {
+        isPaid: body.isPaid,
+        paidAt: body.isPaid ? new Date() : null,
+      };
 
       updatedOrder = await prisma.order.update({
         where: { id: orderId },
-        data: {
-          products: body.products,
-          isPaid: allProductsPaid, // Tüm ürünler ödendiyse siparişi de ödendi olarak işaretle
-          paidAt: allProductsPaid ? new Date() : null,
-        },
+        data: updateData,
         include: {
           table: true,
           staff: true,
@@ -178,27 +168,7 @@ export async function PATCH(
               include: { prices: true },
             });
 
-            // Ekstra fiyatlarını hesapla
-            const extras: { id: string; price: number }[] = [];
-
-            if (item.extras && item.extras.length > 0) {
-              for (const extra of item.extras) {
-                const extraItem = await tx.extra.findUnique({
-                  where: { id: extra.extraId },
-                });
-
-                if (extraItem) {
-                  const extraTotalPrice = extraItem.price * extra.quantity;
-
-                  extras.push({
-                    id: extra.extraId,
-                    price: extraTotalPrice,
-                  });
-                }
-              }
-            }
-
-            // Get the correct price based on size
+            // Size fiyatını hesapla
             let itemPrice = menuItem.price;
             if (menuItem.hasSizes && item.size && menuItem.prices) {
               const sizePrice = menuItem.prices.find(
@@ -209,14 +179,34 @@ export async function PATCH(
               }
             }
 
+            // Extras fiyatlarını hesapla (ayrı tutulacak)
+            const extras: { id: string; name: string; price: number }[] = [];
+
+            if (item.extras && item.extras.length > 0) {
+              for (const extra of item.extras) {
+                const extraItem = await tx.extra.findUnique({
+                  where: { id: extra.extraId },
+                });
+
+                if (extraItem) {
+                  const extraPrice = extraItem.price * extra.quantity;
+                  extras.push({
+                    id: extra.extraId,
+                    name: extraItem.name,
+                    price: extraPrice,
+                  });
+                }
+              }
+            }
+
             return Array(item.quantity)
               .fill(null)
               .map(() => ({
                 id: item.menuItemId,
                 isPaid: false,
-                price: itemPrice, // Sadece ana ürün fiyatı
-                size: item.size, // Include size in products array
-                extras: extras.length > 0 ? extras : undefined, // Optional extras
+                price: itemPrice, // Sadece ürün fiyatı (sabit)
+                size: item.size,
+                extras: extras.length > 0 ? extras : undefined, // Extras ayrı tutulur
               }));
           }
         );

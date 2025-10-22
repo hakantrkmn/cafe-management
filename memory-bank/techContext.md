@@ -102,6 +102,8 @@ src/
 24. **TanStack Query Integration**: Efficient data caching for reports ✅
 25. **Chart Integration**: Recharts library for data visualization ✅
 26. **Enhanced Reports**: Product selection filters and category/size filtering ✅
+27. **Order Product Management**: Centralized utilities with type safety and database consistency ✅
+28. **Production Optimization**: Code quality, performance, and maintainability improvements ✅
 
 ## Technical Decisions Pending
 
@@ -164,6 +166,19 @@ src/
 - **Performance Optimization**: Efficient data aggregation and caching strategies
 - **Security**: Role-based access control (Manager only) with proper authentication
 - **User Experience**: Turkish localization with responsive design and intuitive interface
+
+### Order Product Management Refactoring (December 2024)
+
+- **Centralized Utilities**: Created `OrderProductUtils` class for all product operations
+- **Type Safety Enhancement**: Eliminated all `any` types with proper interfaces
+- **Database Consistency**: Fixed `totalAmount` not updating when products are deleted
+- **API Route Optimization**: Separated `markProductAsPaid` and `deleteProduct` logic
+- **Frontend Integration**: Updated hooks to use centralized utilities
+- **Code Organization**: Centralized product logic in dedicated utility class
+- **Error Handling**: Improved error handling with proper type safety
+- **Performance Optimization**: Reduced code duplication and improved maintainability
+- **Extra Price Display**: Added price display for extras in order summary
+- **Production Readiness**: Removed debug logs and optimized for production deployment
 
 ## Performance Considerations
 

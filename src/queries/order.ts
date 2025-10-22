@@ -1,4 +1,4 @@
-import { CreateOrderRequest, QueryKeys } from "@/types";
+import { CreateOrderRequest, QueryKeys, UpdateOrderRequest } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // API functions
@@ -53,7 +53,7 @@ const ordersApi = {
   }: {
     cafeId: string;
     orderId: string;
-    data: { isPaid?: boolean; orderItems?: CreateOrderRequest["orderItems"] };
+    data: UpdateOrderRequest;
   }) => {
     const response = await fetch(`/api/cafes/${cafeId}/orders/${orderId}`, {
       method: "PATCH",

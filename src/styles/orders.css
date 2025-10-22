@@ -260,3 +260,35 @@
 .mobile-table-card.has-orders {
   @apply bg-blue-50/60 border-blue-200/50 hover:border-blue-300/60;
 }
+
+/* Extra Selection Grid Styles */
+.extra-selection-grid {
+  @apply grid gap-2 max-h-48 overflow-y-auto;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 640px) {
+  .extra-selection-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .extra-selection-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .extra-selection-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.extra-selection-card {
+  @apply p-3 transition-all duration-200 hover:shadow-sm;
+}
+
+.extra-selection-card:hover {
+  @apply border-primary/30;
+}

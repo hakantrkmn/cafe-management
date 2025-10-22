@@ -62,8 +62,9 @@ export async function POST(
       );
     }
 
-    // Calculate total amount
+    // Calculate total amount - basit hesaplama
     let totalAmount = 0;
+
     for (const orderItem of body.orderItems) {
       const menuItem = await prisma.menuItem.findUnique({
         where: { id: orderItem.menuItemId },
@@ -77,7 +78,7 @@ export async function POST(
         );
       }
 
-      // Get the correct price based on size
+      // Size fiyatını hesapla
       let itemPrice = menuItem.price;
       if (menuItem.hasSizes && orderItem.size && menuItem.prices) {
         const sizePrice = menuItem.prices.find(
@@ -85,47 +86,39 @@ export async function POST(
         );
         if (sizePrice) {
           itemPrice = sizePrice.price;
-        } else {
-          return NextResponse.json(
-            { message: `Invalid size for menu item: ${orderItem.menuItemId}` },
-            { status: 400 }
-          );
         }
-      } else if (menuItem.hasSizes && !orderItem.size) {
-        return NextResponse.json(
-          { message: `Size is required for menu item: ${menuItem.name}` },
-          { status: 400 }
-        );
       }
 
-      let itemTotal = itemPrice * orderItem.quantity;
-
-      // Add extras
-      if (orderItem.extras) {
+      // Extras fiyatlarını hesapla
+      let extrasTotal = 0;
+      if (orderItem.extras && orderItem.extras.length > 0) {
         for (const extra of orderItem.extras) {
           const extraItem = await prisma.extra.findUnique({
             where: { id: extra.extraId },
           });
-
           if (extraItem) {
-            itemTotal += extraItem.price * extra.quantity;
+            extrasTotal += extraItem.price * extra.quantity;
           }
         }
       }
 
+      // Toplam fiyat = (ürün fiyatı + extras) * quantity
+      const itemTotal = (itemPrice + extrasTotal) * orderItem.quantity;
       totalAmount += itemTotal;
     }
 
     // Create order with items in transaction
     const order = await prisma.$transaction(async (tx) => {
-      // Create products array with individual payment tracking
-      const orderProductsPromises = body.orderItems.map(async (item) => {
+      // Basit products array oluştur
+      const orderProducts = [];
+
+      for (const item of body.orderItems) {
         const menuItem = await tx.menuItem.findUniqueOrThrow({
           where: { id: item.menuItemId },
           include: { prices: true },
         });
 
-        // Get the correct price based on size
+        // Size fiyatını hesapla
         let itemPrice = menuItem.price;
         if (menuItem.hasSizes && item.size && menuItem.prices) {
           const sizePrice = menuItem.prices.find((p) => p.size === item.size);
@@ -134,40 +127,36 @@ export async function POST(
           }
         }
 
-        // Ekstra fiyatlarını hesapla
-        const extras: { id: string; price: number }[] = [];
+        // Extras fiyatlarını hesapla (ayrı tutulacak)
+        const extras = [];
 
         if (item.extras && item.extras.length > 0) {
           for (const extra of item.extras) {
             const extraItem = await tx.extra.findUnique({
               where: { id: extra.extraId },
             });
-
             if (extraItem) {
-              const extraTotalPrice = extraItem.price * extra.quantity;
-
+              const extraPrice = extraItem.price * extra.quantity;
               extras.push({
                 id: extra.extraId,
-                price: extraTotalPrice,
+                name: extraItem.name,
+                price: extraPrice,
               });
             }
           }
         }
 
-        // Her ürün için ayrı entry oluştur
-        return Array(item.quantity)
-          .fill(null)
-          .map(() => ({
+        // Her ürün için ayrı entry oluştur (ürün fiyatı sabit, extras ayrı)
+        for (let i = 0; i < item.quantity; i++) {
+          orderProducts.push({
             id: item.menuItemId,
             isPaid: false,
-            price: itemPrice, // Sadece ana ürün fiyatı
-            size: item.size, // Include size in products array
-            extras: extras.length > 0 ? extras : undefined, // Optional extras
-          }));
-      });
-
-      const orderProductsArrays = await Promise.all(orderProductsPromises);
-      const orderProducts = orderProductsArrays.flat();
+            price: itemPrice, // Sadece ürün fiyatı (sabit)
+            size: item.size,
+            extras: extras.length > 0 ? extras : undefined, // Extras ayrı tutulur
+          });
+        }
+      }
 
       // Create order with individual product payment tracking
       const newOrder = await tx.order.create({

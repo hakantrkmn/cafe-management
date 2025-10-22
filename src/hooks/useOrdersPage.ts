@@ -1,8 +1,14 @@
 "use client";
 
+import { OrderCalculator } from "@/lib/orderCalculator";
 import { useAuth } from "@/queries/auth";
 import { useMenu } from "@/queries/menu";
 import { useTables } from "@/queries/tables";
+import {
+  ExtraWithQuantity,
+  MenuItemSize,
+  MenuItemWithRelations,
+} from "@/types";
 import { useCallback, useState } from "react";
 import { useCartManagement } from "./useCartManagement";
 import { useOrderOperations } from "./useOrderOperations";
@@ -118,24 +124,44 @@ export function useOrdersPage() {
     if (!selectedTableId) return;
 
     try {
-      // Masadaki tüm siparişleri al
-      const tableOrders = orderOperations.getTableOrders(selectedTableId);
-
-      // Her siparişi ayrı ayrı ödendi olarak işaretle
-      await Promise.all(
-        tableOrders.map(async (order) => {
-          // Mevcut products array'ini kullan ve tüm ürünleri ödendi olarak işaretle
-          const updatedProducts = order.products.map((product) => ({
-            ...product,
-            isPaid: true,
-          }));
-          await orderOperations.markOrderAsPaid(order.id, updatedProducts);
-        })
-      );
+      // Mark all orders as paid using the centralized method
+      await orderOperations.markAllAsPaid(selectedTableId);
     } catch (error) {
       console.error("Error marking all orders as paid:", error);
     }
   }, [selectedTableId, orderOperations]);
+
+  // Direct save function - saves cart item immediately without confirmation
+  const saveCartItemDirectly = useCallback(
+    async (
+      menuItem: MenuItemWithRelations,
+      quantity: number,
+      extras: ExtraWithQuantity[] = [],
+      size?: MenuItemSize
+    ) => {
+      if (!selectedTableId || !cafeId) return;
+
+      try {
+        await OrderCalculator.createAndSaveCartItem(
+          menuItem,
+          quantity,
+          extras,
+          size,
+          selectedTableId,
+          cafeId,
+          {
+            getTableOrders: orderOperations.getTableOrders,
+            saveOrder: orderOperations.saveOrder,
+            addToExistingOrder: orderOperations.addToExistingOrder,
+          }
+        );
+      } catch (error) {
+        console.error("Error saving cart item directly:", error);
+        throw error; // Re-throw to handle in UI
+      }
+    },
+    [selectedTableId, cafeId, orderOperations]
+  );
 
   // Close order dialog
   const closeOrderDialog = useCallback(() => {
@@ -181,5 +207,8 @@ export function useOrdersPage() {
     markAllAsPaid,
     refreshOrders: orderOperations.refreshOrders,
     closeOrderDialog,
+
+    // Direct save functionality
+    saveCartItemDirectly,
   };
 }

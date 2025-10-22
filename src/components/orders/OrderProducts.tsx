@@ -38,9 +38,14 @@ export function OrderProducts({
           (item) => item.menuItemId === product.id
         )?.menuItem;
 
-        // Bu ürün için ekstra bilgilerini bul
-        const orderItem = order.orderItems.find(
+        // Bu ürün için tüm orderItems'i bul (birden fazla olabilir)
+        const matchingOrderItems = order.orderItems.filter(
           (item) => item.menuItemId === product.id
+        );
+
+        // Tüm orderItemExtras'ları topla
+        const allOrderItemExtras = matchingOrderItems.flatMap(
+          (item) => item.orderItemExtras
         );
 
         return (
@@ -84,9 +89,16 @@ export function OrderProducts({
                 <div className="order-product-extras">
                   <div className="order-product-extras-list">
                     {product.extras.map((extra, extraIndex) => {
-                      const extraInfo = orderItem?.orderItemExtras.find(
-                        (e) => e.extraId === extra.id
-                      );
+                      // Extra adını bul: önce product.extras.name varsa onu kullan,
+                      // yoksa orderItemExtras'tan bul
+                      const extraName =
+                        extra.name ||
+                        allOrderItemExtras.find((e) => e.extraId === extra.id)
+                          ?.extraName ||
+                        null;
+
+                      // Extra adı bulunamazsa badge gösterme
+                      if (!extraName) return null;
 
                       return (
                         <Badge
@@ -94,7 +106,7 @@ export function OrderProducts({
                           variant="outline"
                           className="order-product-extra-badge"
                         >
-                          {extraInfo?.extraName || "Ekstra"}
+                          {extraName} (+{formatPrice(extra.price)})
                         </Badge>
                       );
                     })}

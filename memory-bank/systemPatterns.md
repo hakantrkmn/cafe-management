@@ -321,7 +321,65 @@ export function useFeaturePage() {
 - **Table Status Management**: Real-time table status tracking (available, occupied, has-orders)
 - **Cart Management**: Add, remove, update quantities with extras support and localStorage persistence
 
-### 2. Reports System Pattern
+### 2. Order Product Management Pattern
+
+**Purpose**: Centralized management of product add/remove operations with proper type safety and database consistency
+
+**Implementation**:
+
+- `OrderProductUtils` class for all product manipulation operations
+- Centralized calculation logic for order totals and payment status
+- Type-safe interfaces replacing all `any` types
+- Proper database updates for `totalAmount` when products are deleted
+- Separated logic for `markProductAsPaid` vs `deleteProduct` operations
+- Production-ready code with debug log cleanup
+
+**Key Components**:
+
+- `OrderProductUtils.markProductAsPaid()`: Mark individual products as paid
+- `OrderProductUtils.removeProductFromOrder()`: Remove products and recalculate totals
+- `OrderProductUtils.calculateOrderTotal()`: Calculate order totals from products array
+- `OrderProductUtils.areAllProductsPaid()`: Check if all products in order are paid
+- `OrderProductUtils.getProductsByPaymentStatus()`: Filter products by payment status
+
+**Data Structure**:
+
+```typescript
+interface OrderProduct {
+  id: string;
+  isPaid: boolean;
+  price: number;
+  size?: string;
+  extras?: { id: string; price: number }[];
+}
+
+interface OrderOperations {
+  getTableOrders: (tableId: string) => OrderWithRelations[];
+  saveOrder: (tableId: string, cartItems: OrderCartItem[]) => Promise<void>;
+  addToExistingOrder: (
+    orderId: string,
+    cartItems: OrderCartItem[]
+  ) => Promise<void>;
+}
+```
+
+**API Route Logic**:
+
+- `markProductAsPaid`: Updates only `isPaid` status, preserves `totalAmount`
+- `deleteProduct`: Updates both `isPaid` status and `totalAmount`
+- Conditional `totalAmount` update based on request body content
+- Proper type safety with Prisma JSON field handling
+- Database consistency ensured with proper transaction handling
+
+**Frontend Integration**:
+
+- `useOrderOperations` hook uses centralized utilities
+- Proper query invalidation after operations
+- Type-safe error handling throughout
+- Clean separation of concerns between UI and business logic
+- Extra price display in order summary for enhanced UX
+
+### 3. Reports System Pattern
 
 **Purpose**: Provide comprehensive analytics and reporting for business insights
 

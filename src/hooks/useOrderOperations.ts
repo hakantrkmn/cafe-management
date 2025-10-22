@@ -1,5 +1,7 @@
 "use client";
 
+import { OrderCalculator } from "@/lib/orderCalculator";
+import { OrderProductUtils } from "@/lib/orderProductUtils";
 import { useCreateOrder, useOrders, useUpdateOrder } from "@/queries/order";
 import {
   CreateOrderRequest,
@@ -61,10 +63,20 @@ export function useOrderOperations({
     [orders]
   );
 
-  // Save order
+  // Save order using centralized calculator
   const saveOrder = useCallback(
     async (tableId: string, cartItems: OrderCartItem[]): Promise<void> => {
       if (!cafeId || cartItems.length === 0) return;
+
+      // Validate cart items before saving
+      const validation = cartItems.every((item) => {
+        const itemValidation = OrderCalculator.validateCartItem(item);
+        return itemValidation.isValid;
+      });
+
+      if (!validation) {
+        throw new Error("Invalid cart items detected");
+      }
 
       const orderData: CreateOrderRequest = {
         tableId,
@@ -92,10 +104,20 @@ export function useOrderOperations({
     [cafeId, createOrderMutation]
   );
 
-  // Add items to existing order
+  // Add items to existing order using centralized calculator
   const addToExistingOrder = useCallback(
     async (orderId: string, cartItems: OrderCartItem[]): Promise<void> => {
       if (!cafeId || cartItems.length === 0) return;
+
+      // Validate cart items before adding
+      const validation = cartItems.every((item) => {
+        const itemValidation = OrderCalculator.validateCartItem(item);
+        return itemValidation.isValid;
+      });
+
+      if (!validation) {
+        throw new Error("Invalid cart items detected");
+      }
 
       const orderData: CreateOrderRequest = {
         tableId: "", // Not needed for existing order
@@ -124,7 +146,7 @@ export function useOrderOperations({
     [cafeId, updateOrderMutation]
   );
 
-  // Mark order as paid
+  // Mark order as paid using centralized calculator
   const markOrderAsPaid = useCallback(
     async (orderId: string, products?: OrderProduct[]): Promise<void> => {
       if (!cafeId) return;
@@ -133,7 +155,19 @@ export function useOrderOperations({
         const updateData: { isPaid: boolean; products?: OrderProduct[] } = {
           isPaid: true,
         };
+
         if (products) {
+          // Validate products before updating
+          const validation = products.every((product) => {
+            const productValidation =
+              OrderCalculator.validateOrderProduct(product);
+            return productValidation.isValid;
+          });
+
+          if (!validation) {
+            throw new Error("Invalid product data detected");
+          }
+
           updateData.products = products;
         }
 
@@ -150,36 +184,31 @@ export function useOrderOperations({
     [cafeId, updateOrderMutation]
   );
 
-  // Mark individual product as paid
+  // Mark individual product as paid using centralized utils
   const markProductAsPaid = useCallback(
     async (orderId: string, productIndex: number): Promise<void> => {
       if (!cafeId) return;
 
       try {
-        // Mevcut siparişi bul
         const order = orders.find((o: OrderWithRelations) => o.id === orderId);
         if (!order || !order.products) return;
 
-        // Products array'ini kopyala ve belirtilen index'teki ürünü ödendi olarak işaretle
-        const updatedProducts = [...order.products];
-        if (updatedProducts[productIndex]) {
-          updatedProducts[productIndex] = {
-            ...updatedProducts[productIndex],
-            isPaid: true,
-          };
-        }
-
-        // Tüm ürünler ödendi mi kontrol et
-        const allProductsPaid = updatedProducts.every(
-          (product: OrderProduct) => product.isPaid
+        // Use centralized utils to mark product as paid
+        const updatedProducts = OrderProductUtils.markProductAsPaid(
+          order.products,
+          productIndex
         );
+
+        // Check if all products are paid using centralized utils
+        const allProductsPaid =
+          OrderProductUtils.areAllProductsPaid(updatedProducts);
 
         await updateOrderMutation.mutateAsync({
           cafeId,
           orderId,
           data: {
             products: updatedProducts,
-            isPaid: allProductsPaid, // Tüm ürünler ödendiyse siparişi de ödendi olarak işaretle
+            isPaid: allProductsPaid,
             paidAt: allProductsPaid ? new Date() : null,
           } as UpdateOrderRequest,
         });
@@ -191,51 +220,45 @@ export function useOrderOperations({
     [cafeId, orders, updateOrderMutation]
   );
 
-  // Delete individual product from order
+  // Delete individual product from order using centralized utils
   const deleteProduct = useCallback(
     async (orderId: string, productIndex: number): Promise<void> => {
       if (!cafeId) return;
 
       try {
-        // Mevcut siparişi bul
         const order = orders.find((o: OrderWithRelations) => o.id === orderId);
         if (!order || !order.products) return;
 
-        // Products array'inden belirtilen index'teki ürünü sil
-        const updatedProducts = [...order.products];
-        updatedProducts.splice(productIndex, 1);
+        // Use centralized utils to remove product and get updated data
+        const { updatedProducts, newTotalAmount } =
+          OrderProductUtils.removeProductFromOrder(
+            order.products,
+            productIndex
+          );
 
-        // Eğer hiç ürün kalmadıysa siparişi sil
+        // If no products left, mark order as empty
         if (updatedProducts.length === 0) {
-          // Siparişi tamamen sil - bu durumda API'de ayrı bir endpoint gerekebilir
-          // Şimdilik products array'ini boş bırakıyoruz
           await updateOrderMutation.mutateAsync({
             cafeId,
             orderId,
             data: {
               products: [],
+              totalAmount: 0,
               isPaid: false,
               paidAt: null,
             } as UpdateOrderRequest,
           });
         } else {
-          // Kalan ürünlerin toplam fiyatını hesapla
-          const remainingTotal = updatedProducts.reduce(
-            (sum, product) => sum + product.price,
-            0
-          );
-
-          // Tüm ürünler ödendi mi kontrol et
-          const allProductsPaid = updatedProducts.every(
-            (product: OrderProduct) => product.isPaid
-          );
+          // Calculate payment status using centralized utils
+          const allProductsPaid =
+            OrderProductUtils.areAllProductsPaid(updatedProducts);
 
           await updateOrderMutation.mutateAsync({
             cafeId,
             orderId,
             data: {
               products: updatedProducts,
-              totalAmount: remainingTotal,
+              totalAmount: newTotalAmount,
               isPaid: allProductsPaid,
               paidAt: allProductsPaid ? new Date() : null,
             } as UpdateOrderRequest,
@@ -249,7 +272,7 @@ export function useOrderOperations({
     [cafeId, orders, updateOrderMutation]
   );
 
-  // Mark all orders as paid
+  // Mark all orders as paid using centralized utils
   const markAllAsPaid = useCallback(
     async (tableId: string): Promise<void> => {
       if (!cafeId) return;
@@ -262,12 +285,9 @@ export function useOrderOperations({
       try {
         await Promise.all(
           tableOrders.map(async (order: OrderWithRelations) => {
-            // Mevcut products array'ini kopyala ve tüm ürünleri ödendi olarak işaretle
-            const updatedProducts = order.products.map(
-              (product: OrderProduct) => ({
-                ...product,
-                isPaid: true,
-              })
+            // Use centralized utils to mark all products as paid
+            const updatedProducts = OrderProductUtils.markAllProductsAsPaid(
+              order.products
             );
 
             await updateOrderMutation.mutateAsync({
@@ -308,26 +328,26 @@ export function useOrderOperations({
     [cafeId, updateOrderMutation]
   );
 
-  // Get all products consumed at a table (from paid orders only)
+  // Get all products consumed at a table using centralized utils
   const getTableProducts = useCallback(
     (tableId: string): string[] => {
       const tableOrders = orders.filter(
         (order: OrderWithRelations) => order.tableId === tableId && order.isPaid
       );
 
-      // Sadece ödenmiş siparişlerin products array'ini birleştir
+      // Use centralized utils to get paid products
       const allProducts = tableOrders.reduce(
         (acc: string[], order: OrderWithRelations) => {
-          const paidProducts =
-            order.products
-              ?.filter((product: OrderProduct) => product.isPaid)
-              ?.map((product: OrderProduct) => product.id) || [];
+          const paidProducts = OrderProductUtils.getProductsByPaymentStatus(
+            order.products,
+            true
+          ).map((product: OrderProduct) => product.id);
           return [...acc, ...paidProducts];
         },
         []
       );
 
-      // Duplicate'leri kaldır
+      // Remove duplicates
       return [...new Set(allProducts)] as string[];
     },
     [orders]

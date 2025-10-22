@@ -30,6 +30,7 @@ export default function OrdersPage() {
     markAllAsPaid,
     refreshOrders,
     closeOrderDialog,
+    saveCartItemDirectly,
   } = useOrdersPage();
 
   // Auto page loading
@@ -74,10 +75,14 @@ export default function OrdersPage() {
     <DashboardLayout>
       <div className="page-container">
         <div className="page-header">
-          <h1 className="page-title">Sipariş Yönetimi</h1>
-          <p className="page-description">
-            Masaları düzenleyin ve siparişleri yönetin
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="page-title">Sipariş Yönetimi</h1>
+              <p className="page-description">
+                Masaları düzenleyin ve siparişleri yönetin
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Table Layout Editor */}
@@ -109,6 +114,7 @@ export default function OrdersPage() {
           onMarkProductAsPaid={markProductAsPaid}
           onDeleteProduct={deleteProduct}
           onRefresh={refreshOrders}
+          onSaveCartItemDirectly={saveCartItemDirectly}
           isSaving={orderOperations.isSaving}
         />
       </div>

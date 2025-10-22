@@ -107,6 +107,7 @@ export interface OrderProduct {
 
 export interface OrderProductExtra {
   id: string; // extraId
+  name?: string; // ekstra adı (optional, eski veriler için)
   price: number; // ekstra fiyatı
 }
 
@@ -270,6 +271,39 @@ export interface AuthUser {
   cafeId?: string;
   cafe?: Cafe;
   managedCafe?: Cafe;
+}
+
+// Realtime Types
+export interface RealtimeOrderUpdate {
+  operationType: "insert" | "update" | "delete" | "replace";
+  fullDocument?: OrderWithRelations;
+  documentKey: { _id: string };
+  updateDescription?: {
+    updatedFields: Record<string, unknown>;
+    removedFields: string[];
+  };
+  clusterTime: string;
+  ns: {
+    db: string;
+    coll: string;
+  };
+}
+
+export interface RealtimeConnectionStatus {
+  isConnected: boolean;
+  isRealtimeEnabled: boolean;
+  lastUpdate?: Date;
+  error?: string;
+}
+
+// Order Operations Interface - replaces any types
+export interface OrderOperations {
+  getTableOrders: (tableId: string) => OrderWithRelations[];
+  saveOrder: (tableId: string, cartItems: OrderCartItem[]) => Promise<void>;
+  addToExistingOrder: (
+    orderId: string,
+    cartItems: OrderCartItem[]
+  ) => Promise<void>;
 }
 
 // Query key types

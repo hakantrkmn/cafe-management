@@ -47,6 +47,12 @@ interface OrderDialogProps {
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   onDeleteProduct: (orderId: string, productIndex: number) => void;
   onRefresh: () => void;
+  onSaveCartItemDirectly: (
+    menuItem: MenuItemWithRelations,
+    quantity: number,
+    extras: ExtraWithQuantity[],
+    size?: MenuItemSize
+  ) => Promise<void>;
   isSaving: boolean;
 }
 
@@ -70,6 +76,7 @@ export function OrderDialog({
   onMarkProductAsPaid,
   onDeleteProduct,
   onRefresh,
+  onSaveCartItemDirectly,
   isSaving,
 }: OrderDialogProps) {
   const [selectedMenuItem, setSelectedMenuItem] =
@@ -92,14 +99,29 @@ export function OrderDialog({
     setExtraDialogOpen(true);
   };
 
-  const handleAddToCart = (
+  const handleAddToCart = async (
     menuItem: MenuItemWithRelations,
     quantity: number,
     selectedExtras: ExtraWithQuantity[]
   ) => {
     console.log("OrderDialog - handleAddToCart called");
     setIsAddingToCart(true);
-    onAddToCart(menuItem, quantity, selectedExtras, selectedSize);
+
+    try {
+      // Use direct save functionality instead of adding to cart
+      await onSaveCartItemDirectly(
+        menuItem,
+        quantity,
+        selectedExtras,
+        selectedSize
+      );
+      console.log("OrderDialog - item saved directly");
+    } catch (error) {
+      console.error("Error saving item directly:", error);
+      // Fallback to cart if direct save fails
+      onAddToCart(menuItem, quantity, selectedExtras, selectedSize);
+    }
+
     setSelectedMenuItem(null);
     setSelectedSize(undefined);
     setExtraDialogOpen(false);

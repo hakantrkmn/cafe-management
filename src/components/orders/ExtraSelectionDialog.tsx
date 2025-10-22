@@ -97,14 +97,19 @@ export function ExtraSelectionDialog({
   const handleAddToCart = (): void => {
     if (!menuItem) return;
 
-    const extrasWithQuantity: ExtraWithQuantity[] = selectedExtras.map(
-      (se) => ({
-        id: se.extra.id,
-        name: se.extra.name,
-        price: se.extra.price,
-        quantity: se.quantity,
-      })
-    );
+    // Create separate entries for each extra instance (like products)
+    const extrasWithQuantity: ExtraWithQuantity[] = [];
+    selectedExtras.forEach((se) => {
+      // Add the extra multiple times based on quantity
+      for (let i = 0; i < se.quantity; i++) {
+        extrasWithQuantity.push({
+          id: se.extra.id,
+          name: se.extra.name,
+          price: se.extra.price,
+          quantity: 1, // Each instance has quantity 1
+        });
+      }
+    });
 
     console.log("ExtraSelectionDialog - handleAddToCart called");
     onAddToCart(menuItem, quantity, extrasWithQuantity);
@@ -126,7 +131,7 @@ export function ExtraSelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle>
             {menuItem.name}
@@ -204,24 +209,26 @@ export function ExtraSelectionDialog({
           {availableExtras.length > 0 && (
             <div className="space-y-2">
               <Label>Ekstralar</Label>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="extra-selection-grid">
                 {availableExtras.map((extra) => {
                   const selectedExtra = selectedExtras.find(
                     (se) => se.extra.id === extra.id
                   );
 
                   return (
-                    <Card key={extra.id} className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                    <Card key={extra.id} className="extra-selection-card">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
                           <Checkbox
                             checked={!!selectedExtra}
                             onCheckedChange={(checked) =>
                               handleExtraToggle(extra, checked as boolean)
                             }
                           />
-                          <div>
-                            <p className="font-medium text-sm">{extra.name}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">
+                              {extra.name}
+                            </p>
                             <p className="text-xs text-muted-foreground">
                               {formatPrice(extra.price)}
                             </p>
@@ -229,7 +236,7 @@ export function ExtraSelectionDialog({
                         </div>
 
                         {selectedExtra && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-center gap-2">
                             <Button
                               size="sm"
                               variant="outline"
@@ -239,10 +246,11 @@ export function ExtraSelectionDialog({
                                   selectedExtra.quantity - 1
                                 )
                               }
+                              className="h-7 w-7 p-0"
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
-                            <span className="w-6 text-center text-sm">
+                            <span className="w-8 text-center text-sm font-medium">
                               {selectedExtra.quantity}
                             </span>
                             <Button
@@ -254,6 +262,7 @@ export function ExtraSelectionDialog({
                                   selectedExtra.quantity + 1
                                 )
                               }
+                              className="h-7 w-7 p-0"
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
