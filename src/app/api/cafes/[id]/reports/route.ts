@@ -119,6 +119,7 @@ export async function GET(
       // Group products by menu item
       const productMap = new Map();
 
+      // First, process orderItems (legacy data)
       order.orderItems.forEach((item) => {
         // Create unique key including size for size-based products
         const sizeKey = item.size ? `-${item.size}` : "";
@@ -171,6 +172,62 @@ export async function GET(
         });
       });
 
+      // Process products array (new data structure)
+      if (order.products && Array.isArray(order.products)) {
+        order.products.forEach((productJson) => {
+          // Type cast the JSON product to our expected structure
+          const product = productJson as {
+            id: string;
+            isPaid: boolean;
+            price: number;
+            size?: string;
+            extras?: Array<{
+              id: string;
+              name: string;
+              price: number;
+            }>;
+          };
+
+          // Get menu item details for display name
+          const menuItem = order.orderItems.find(
+            (item) => item.menuItemId === product.id
+          )?.menuItem;
+          if (!menuItem) return;
+
+          // Create unique key including size for size-based products
+          const sizeKey = product.size ? `-${product.size}` : "";
+          const key = `${product.id}${sizeKey}`;
+
+          // Size label mapping
+          const sizeLabels = {
+            SMALL: "Küçük",
+            MEDIUM: "Orta",
+            LARGE: "Büyük",
+          };
+
+          const sizeLabel = product.size
+            ? sizeLabels[product.size as keyof typeof sizeLabels] ||
+              product.size
+            : undefined;
+          const displayName =
+            menuItem.name + (sizeLabel ? ` - ${sizeLabel}` : "");
+
+          if (!productMap.has(key)) {
+            productMap.set(key, {
+              id: key,
+              name: displayName,
+              size: sizeLabel,
+              price: product.price,
+              quantity: 0,
+              total: 0,
+            });
+          }
+          const productEntry = productMap.get(key);
+          productEntry.quantity += 1;
+          productEntry.total += product.price;
+        });
+      }
+
       return {
         id: order.id,
         tableName: order.table?.name || "Masa Silinmiş",
@@ -190,6 +247,7 @@ export async function GET(
     };
 
     filteredOrders.forEach((order) => {
+      // Process orderItems (legacy data)
       order.orderItems.forEach((item) => {
         // Create unique key including size for size-based products
         const sizeKey = item.size ? `-${item.size}` : "";
@@ -218,6 +276,58 @@ export async function GET(
         stats.totalSold += 1;
         stats.totalRevenue += item.menuItemPrice;
       });
+
+      // Process products array (new data structure)
+      if (order.products && Array.isArray(order.products)) {
+        order.products.forEach((productJson) => {
+          // Type cast the JSON product to our expected structure
+          const product = productJson as {
+            id: string;
+            isPaid: boolean;
+            price: number;
+            size?: string;
+            extras?: Array<{
+              id: string;
+              name: string;
+              price: number;
+            }>;
+          };
+
+          // Get menu item details for display name
+          const menuItem = order.orderItems.find(
+            (item) => item.menuItemId === product.id
+          )?.menuItem;
+          if (!menuItem) return;
+
+          // Create unique key including size for size-based products
+          const sizeKey = product.size ? `-${product.size}` : "";
+          const key = `${product.id}${sizeKey}`;
+
+          const sizeLabel = product.size
+            ? sizeLabels[product.size as keyof typeof sizeLabels] ||
+              product.size
+            : undefined;
+          const displayName =
+            menuItem.name + (sizeLabel ? ` - ${sizeLabel}` : "");
+
+          if (!productStats.has(key)) {
+            productStats.set(key, {
+              id: key,
+              name: displayName,
+              size: sizeLabel,
+              category: menuItem.category?.name || "Kategori Yok",
+              totalSold: 0,
+              totalRevenue: 0,
+              averagePrice: 0,
+              peakHour: undefined,
+              peakDay: undefined,
+            });
+          }
+          const stats = productStats.get(key);
+          stats.totalSold += 1;
+          stats.totalRevenue += product.price;
+        });
+      }
 
       // Add extras to product stats
       order.orderItems.forEach((item) => {
