@@ -1,5 +1,6 @@
 "use client";
 
+import { useConfirmationModal } from "@/components/providers/ConfirmationModalProvider";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { OrderWithRelations, Table, TableStatus } from "@/types";
 import { ArrowRightLeft, Table as TableIcon } from "lucide-react";
+import { useState } from "react";
 
 interface TableLayoutEditorProps {
   tables: Table[];
@@ -30,6 +32,10 @@ export function TableLayoutEditor({
   availableTables = [],
   isSaving = false,
 }: TableLayoutEditorProps) {
+  const { showConfirmation } = useConfirmationModal();
+  const [selectedTransferTable, setSelectedTransferTable] = useState<
+    Record<string, string>
+  >({});
   const getStatusColor = (status: TableStatus): string => {
     switch (status) {
       case "available":
@@ -113,9 +119,44 @@ export function TableLayoutEditor({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Select
-                        onValueChange={(targetTableId) =>
-                          onTransferOrder(table.id, targetTableId)
-                        }
+                        value={selectedTransferTable[table.id] || ""}
+                        onValueChange={async (targetTableId) => {
+                          // Set the selected value first
+                          setSelectedTransferTable((prev) => ({
+                            ...prev,
+                            [table.id]: targetTableId,
+                          }));
+
+                          const targetTable = availableTables.find(
+                            (t) => t.id === targetTableId
+                          );
+
+                          if (targetTable) {
+                            const confirmed = await showConfirmation({
+                              title: "Siparişi Taşı",
+                              description: `${table.name} masasındaki siparişleri ${targetTable.name} masasına taşımak istediğinizden emin misiniz?`,
+                              confirmText: "Taşı",
+                              cancelText: "İptal",
+                              variant: "warning",
+                              onConfirm: () => {
+                                onTransferOrder(table.id, targetTableId);
+                                // Clear selection after successful transfer
+                                setSelectedTransferTable((prev) => ({
+                                  ...prev,
+                                  [table.id]: "",
+                                }));
+                              },
+                            });
+
+                            // Reset dropdown if user cancelled
+                            if (!confirmed) {
+                              setSelectedTransferTable((prev) => ({
+                                ...prev,
+                                [table.id]: "",
+                              }));
+                            }
+                          }
+                        }}
                         disabled={isSaving}
                       >
                         <SelectTrigger className="w-fit h-8 text-xs">

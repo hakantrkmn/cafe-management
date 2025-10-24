@@ -1,5 +1,6 @@
 "use client";
 
+import { useConfirmationModal } from "@/components/providers/ConfirmationModalProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,6 +21,7 @@ export function OrderProducts({
   onDeleteProduct,
   isSaving,
 }: OrderProductsProps) {
+  const { showConfirmation } = useConfirmationModal();
   if (!order.products || order.products.length === 0) {
     return (
       <div className="text-center py-6">
@@ -130,7 +132,18 @@ export function OrderProducts({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onDeleteProduct(order.id, index)}
+                  onClick={async () => {
+                    await showConfirmation({
+                      title: "Ürünü Sil",
+                      description: `${
+                        menuItem?.name || "Bu ürün"
+                      } siparişten silinecek. Bu işlem geri alınamaz.`,
+                      confirmText: "Sil",
+                      cancelText: "İptal",
+                      variant: "destructive",
+                      onConfirm: () => onDeleteProduct(order.id, index),
+                    });
+                  }}
                   disabled={isSaving}
                   className="order-delete-button"
                 >

@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { ConfirmationModalProvider } from "@/components/providers/ConfirmationModalProvider";
 import { LoadingProvider } from "@/components/providers/LoadingProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import type { Metadata } from "next";
@@ -34,10 +35,17 @@ export default function RootLayout({
       >
         <QueryProvider>
           <AuthProvider>
-            <LoadingProvider>{children}</LoadingProvider>
+            <ConfirmationModalProvider>
+              <LoadingProvider>{children}</LoadingProvider>
+            </ConfirmationModalProvider>
           </AuthProvider>
         </QueryProvider>
-        <Toaster />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 1000, // 3 saniye
+          }}
+        />
       </body>
     </html>
   );

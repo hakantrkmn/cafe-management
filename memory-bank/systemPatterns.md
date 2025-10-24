@@ -344,6 +344,12 @@ export function useFeaturePage() {
 - **Extra Name Display**: Extras show proper names from OrderProductExtra.name field
 - **Fallback Logic**: System attempts to find extra name from orderItemExtras if not available in product.extras
 - **Multi-OrderItem Support**: OrderProducts component handles multiple orderItems for same product
+- **Order History Tab**: Complete order history system with paid orders display and date filtering
+- **Order History Component**: Detailed paid orders view with staff information and product details
+- **Order History API**: getTablePaidOrders function with date range filtering and sorting
+- **Order History UI**: Third tab in OrderDialog with swipe gesture support for 3-tab navigation
+- **Order History Styling**: Responsive design with comprehensive CSS classes for order history display
+- **Order History Data Safety**: Null/undefined date handling with user-friendly error messages and validation
 
 **Data Structure**:
 
@@ -459,3 +465,63 @@ interface ReportsData {
 - Category and size-based filtering for top products
 - Peak time analysis for products
 - Comprehensive chart visualization with Recharts
+
+### 4. Order History Pattern
+
+**Purpose**: Provide comprehensive order history tracking with paid orders display and date filtering
+
+**Implementation**:
+
+- Order History component with detailed paid orders display
+- Date range filtering with from/to date pickers
+- Staff information and payment timestamp display
+- Product details with extras and size information
+- Read-only interface for historical data viewing
+- Responsive design with mobile-optimized layout
+
+**Key Components**:
+
+- OrderHistory: Main component for displaying paid orders with filtering
+- getTablePaidOrders: API function to fetch paid orders with date filtering
+- OrderDialog: Third tab integration with swipe gesture support
+- Date filtering: From/to date pickers with validation
+- Staff information: Display of staff member who created the order
+- Product details: Complete product information with extras and pricing
+
+**Data Structure**:
+
+```typescript
+interface OrderHistoryProps {
+  paidOrders: OrderWithRelations[];
+  selectedTableName?: string;
+}
+
+interface OrderHistoryFilters {
+  dateFrom: string;
+  dateTo: string;
+}
+```
+
+**UI Features**:
+
+- Date range filtering with clear filters functionality
+- Order count display and empty state handling
+- Staff information with user icon
+- Product details with size and extras display
+- Payment timestamp with Turkish date formatting
+- Responsive card layout with proper spacing
+- Error handling for invalid dates with user-friendly messages
+
+**Navigation Integration**:
+
+- Third tab in OrderDialog with "Sipariş Geçmişi" label
+- Swipe gesture support for 3-tab navigation (Menu → Orders → History)
+- Consistent styling with existing order components
+- Mobile-optimized touch interactions
+
+**Data Safety**:
+
+- Null/undefined date handling with fallback messages
+- Invalid date validation with user-friendly error messages
+- Date filtering with proper validation and error handling
+- Graceful degradation for missing data

@@ -253,9 +253,6 @@ export function OrderDialog({
                       onMarkProductAsPaid={onMarkProductAsPaid}
                       onDeleteProduct={onDeleteProduct}
                       onRefresh={onRefresh}
-                      onTransferOrder={onTransferOrder}
-                      availableTables={availableTables}
-                      currentTableId={selectedTableId || undefined}
                       isSaving={isSaving}
                       selectedTableName={selectedTableName}
                     />

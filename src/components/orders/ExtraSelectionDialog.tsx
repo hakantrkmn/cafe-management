@@ -21,6 +21,7 @@ import {
 } from "@/types";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface ExtraSelectionDialogProps {
   open: boolean;
@@ -113,6 +114,13 @@ export function ExtraSelectionDialog({
 
     console.log("ExtraSelectionDialog - handleAddToCart called");
     onAddToCart(menuItem, quantity, extrasWithQuantity);
+
+    // Show success toast
+    toast.success(`${menuItem.name} sepete eklendi`, {
+      description: `Miktar: ${quantity}${
+        selectedSize ? ` (${selectedSize})` : ""
+      }`,
+    });
 
     // Reset form
     setQuantity(1);
