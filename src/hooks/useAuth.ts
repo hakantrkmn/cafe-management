@@ -2,11 +2,47 @@
 
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useAuth() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [isPWA, setIsPWA] = useState(false);
+
+  // PWA detection
+  useEffect(() => {
+    const checkPWA = () => {
+      const isStandalone = window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isInStandaloneMode =
+        "standalone" in window.navigator &&
+        (window.navigator as { standalone?: boolean }).standalone;
+
+      setIsPWA(isStandalone || (isIOS && !!isInStandaloneMode));
+    };
+
+    checkPWA();
+    window.addEventListener("resize", checkPWA);
+    return () => window.removeEventListener("resize", checkPWA);
+  }, []);
+
+  // PWA için session persistence
+  useEffect(() => {
+    if (isPWA && session) {
+      // Session'ı localStorage'a kaydet
+      localStorage.setItem(
+        "pwa-session",
+        JSON.stringify({
+          user: session.user,
+          expires: new Date(
+            Date.now() + 30 * 24 * 60 * 60 * 1000
+          ).toISOString(), // 30 gün
+        })
+      );
+    }
+  }, [session, isPWA]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -39,9 +75,14 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
+    // PWA için localStorage'ı temizle
+    if (isPWA) {
+      localStorage.removeItem("pwa-session");
+    }
+
     await signOut({ redirect: false });
     router.push("/auth/signin");
-  }, [router]);
+  }, [router, isPWA]);
 
   const isAuthenticated = status === "authenticated";
   const isLoading = status === "loading";
@@ -55,6 +96,7 @@ export function useAuth() {
     isLoading,
     isManager,
     isStaff,
+    isPWA,
     login,
     logout,
     session,
