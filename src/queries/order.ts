@@ -1,4 +1,9 @@
-import { CreateOrderRequest, QueryKeys, UpdateOrderRequest } from "@/types";
+import {
+  CreateOrderRequest,
+  QueryKeys,
+  TransferOrderRequest,
+  UpdateOrderRequest,
+} from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // API functions
@@ -89,6 +94,29 @@ const ordersApi = {
 
     return response.json();
   },
+
+  transferOrder: async ({
+    cafeId,
+    data,
+  }: {
+    cafeId: string;
+    data: TransferOrderRequest;
+  }) => {
+    const response = await fetch(`/api/cafes/${cafeId}/orders/transfer`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Sipariş taşınamadı");
+    }
+
+    return response.json();
+  },
 };
 
 // Hooks
@@ -166,6 +194,26 @@ export function useDeleteOrder() {
     },
     onError: (error) => {
       console.error("Delete order error:", error);
+    },
+  });
+}
+
+export function useTransferOrder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ordersApi.transferOrder,
+    onSuccess: (_, variables) => {
+      // Invalidate orders and tables queries
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.orders(variables.cafeId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.tables(variables.cafeId),
+      });
+    },
+    onError: (error) => {
+      console.error("Transfer order error:", error);
     },
   });
 }

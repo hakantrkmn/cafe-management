@@ -16,10 +16,12 @@ import {
   MenuItemWithRelations,
   OrderCartItem,
   OrderWithRelations,
+  Table,
 } from "@/types";
 import { useRef, useState } from "react";
 import { ExtraSelectionDialog } from "./ExtraSelectionDialog";
 import { MenuSelection } from "./MenuSelection";
+import { OrderHistory } from "./OrderHistory";
 import { OrderSummary } from "./OrderSummary";
 
 interface OrderDialogProps {
@@ -33,6 +35,7 @@ interface OrderDialogProps {
   cartItems: OrderCartItem[];
   cartTotal: number;
   existingOrders: OrderWithRelations[];
+  paidOrders: OrderWithRelations[];
   onAddToCart: (
     menuItem: MenuItemWithRelations,
     quantity: number,
@@ -47,6 +50,8 @@ interface OrderDialogProps {
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   onDeleteProduct: (orderId: string, productIndex: number) => void;
   onRefresh: () => void;
+  onTransferOrder?: (sourceTableId: string, targetTableId: string) => void;
+  availableTables?: Table[];
   onSaveCartItemDirectly: (
     menuItem: MenuItemWithRelations,
     quantity: number,
@@ -67,6 +72,7 @@ export function OrderDialog({
   cartItems,
   cartTotal,
   existingOrders,
+  paidOrders,
   onAddToCart,
   onUpdateQuantity,
   onRemoveItem,
@@ -76,6 +82,8 @@ export function OrderDialog({
   onMarkProductAsPaid,
   onDeleteProduct,
   onRefresh,
+  onTransferOrder,
+  availableTables,
   onSaveCartItemDirectly,
   isSaving,
 }: OrderDialogProps) {
@@ -162,12 +170,20 @@ export function OrderDialog({
     const isLeftSwipe = distance > SWIPE_THRESHOLD;
     const isRightSwipe = distance < -SWIPE_THRESHOLD;
 
-    if (isLeftSwipe && activeTab === "menu") {
-      // Sola swipe: Ürün ekleme -> Sipariş özeti
-      setActiveTab("orders");
-    } else if (isRightSwipe && activeTab === "orders") {
-      // Sağa swipe: Sipariş özeti -> Ürün ekleme
-      setActiveTab("menu");
+    if (isLeftSwipe) {
+      // Sola swipe: Menu -> Orders -> History
+      if (activeTab === "menu") {
+        setActiveTab("orders");
+      } else if (activeTab === "orders") {
+        setActiveTab("history");
+      }
+    } else if (isRightSwipe) {
+      // Sağa swipe: History -> Orders -> Menu
+      if (activeTab === "history") {
+        setActiveTab("orders");
+      } else if (activeTab === "orders") {
+        setActiveTab("menu");
+      }
     }
   };
 
@@ -194,12 +210,15 @@ export function OrderDialog({
               onValueChange={setActiveTab}
               className="h-full flex flex-col"
             >
-              <TabsList className="order-dialog-tabs-list grid grid-cols-2">
+              <TabsList className="order-dialog-tabs-list grid grid-cols-3">
                 <TabsTrigger value="menu" className="text-xs sm:text-sm">
                   Ürün Ekleme
                 </TabsTrigger>
                 <TabsTrigger value="orders" className="text-xs sm:text-sm">
                   Sipariş Özeti
+                </TabsTrigger>
+                <TabsTrigger value="history" className="text-xs sm:text-sm">
+                  Sipariş Geçmişi
                 </TabsTrigger>
               </TabsList>
 
@@ -234,7 +253,21 @@ export function OrderDialog({
                       onMarkProductAsPaid={onMarkProductAsPaid}
                       onDeleteProduct={onDeleteProduct}
                       onRefresh={onRefresh}
+                      onTransferOrder={onTransferOrder}
+                      availableTables={availableTables}
+                      currentTableId={selectedTableId || undefined}
                       isSaving={isSaving}
+                      selectedTableName={selectedTableName}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="history" className="flex-1 overflow-hidden">
+                <div className="h-full overflow-y-auto bg-slate-50 p-3 sm:p-6">
+                  <div className="order-dialog-container">
+                    <OrderHistory
+                      paidOrders={paidOrders}
                       selectedTableName={selectedTableName}
                     />
                   </div>

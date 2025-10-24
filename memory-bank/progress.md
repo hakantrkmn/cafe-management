@@ -125,6 +125,10 @@
 - [x] **Extras Duplication Fix**: Fixed extras handling to create separate entries for each instance (like products)
 - [x] **Cart Management Enhancement**: Updated cart management to treat extras as separate products
 - [x] **ExtraSelectionDialog Update**: Modified extra selection to create separate cart items for each extra instance
+- [x] **Extra Name Display Fix**: Fixed extra name display in order summary - extras now show proper names instead of "Ekstra"
+- [x] **OrderProductExtra Enhancement**: Added name field to OrderProductExtra type for proper extra display
+- [x] **Multi-OrderItem Support**: Enhanced OrderProducts component to handle multiple orderItems for same product
+- [x] **Fallback Removal**: Removed "Ekstra" fallback text - extra badge only shown when name is available
 
 ### Phase 2: Core Features
 

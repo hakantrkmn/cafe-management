@@ -2,7 +2,12 @@
 
 import { OrderCalculator } from "@/lib/orderCalculator";
 import { OrderProductUtils } from "@/lib/orderProductUtils";
-import { useCreateOrder, useOrders, useUpdateOrder } from "@/queries/order";
+import {
+  useCreateOrder,
+  useOrders,
+  useTransferOrder,
+  useUpdateOrder,
+} from "@/queries/order";
 import {
   CreateOrderRequest,
   OrderCartItem,
@@ -32,6 +37,15 @@ interface UseOrderOperationsReturn {
     products: OrderProduct[]
   ) => Promise<void>;
   getTableProducts: (tableId: string) => string[];
+  getTablePaidOrders: (
+    tableId: string,
+    dateFrom?: Date,
+    dateTo?: Date
+  ) => OrderWithRelations[];
+  transferOrder: (
+    sourceTableId: string,
+    targetTableId: string
+  ) => Promise<void>;
   refreshOrders: () => void;
   isSaving: boolean;
 }
@@ -49,6 +63,7 @@ export function useOrderOperations({
   // Mutations
   const createOrderMutation = useCreateOrder();
   const updateOrderMutation = useUpdateOrder();
+  const transferOrderMutation = useTransferOrder();
 
   const orders = useMemo(() => ordersData?.data || [], [ordersData?.data]);
 
@@ -353,6 +368,60 @@ export function useOrderOperations({
     [orders]
   );
 
+  // Get paid orders for a specific table with optional date filtering
+  const getTablePaidOrders = useCallback(
+    (tableId: string, dateFrom?: Date, dateTo?: Date): OrderWithRelations[] => {
+      let tablePaidOrders = orders.filter(
+        (order: OrderWithRelations) => order.tableId === tableId && order.isPaid
+      );
+
+      // Apply date filtering if provided
+      if (dateFrom || dateTo) {
+        tablePaidOrders = tablePaidOrders.filter(
+          (order: OrderWithRelations) => {
+            if (!order.paidAt) return false;
+
+            const orderDate = new Date(order.paidAt);
+            if (dateFrom && orderDate < dateFrom) return false;
+            if (dateTo && orderDate > dateTo) return false;
+
+            return true;
+          }
+        );
+      }
+
+      // Sort by paidAt descending (most recent first)
+      return tablePaidOrders.sort(
+        (a: OrderWithRelations, b: OrderWithRelations) => {
+          if (!a.paidAt || !b.paidAt) return 0;
+          return new Date(b.paidAt).getTime() - new Date(a.paidAt).getTime();
+        }
+      );
+    },
+    [orders]
+  );
+
+  // Transfer order to another table
+  const transferOrder = useCallback(
+    async (sourceTableId: string, targetTableId: string): Promise<void> => {
+      if (!cafeId) return;
+
+      try {
+        await transferOrderMutation.mutateAsync({
+          cafeId,
+          data: {
+            sourceTableId,
+            targetTableId,
+          },
+        });
+      } catch (error) {
+        console.error("Error transferring order:", error);
+        throw error;
+      }
+    },
+    [cafeId, transferOrderMutation]
+  );
+
   return {
     orders,
     getTableOrders,
@@ -364,7 +433,12 @@ export function useOrderOperations({
     markAllAsPaid,
     updateOrderProducts,
     getTableProducts,
+    getTablePaidOrders,
+    transferOrder,
     refreshOrders: () => refetchOrders(),
-    isSaving: createOrderMutation.isPending || updateOrderMutation.isPending,
+    isSaving:
+      createOrderMutation.isPending ||
+      updateOrderMutation.isPending ||
+      transferOrderMutation.isPending,
   };
 }

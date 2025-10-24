@@ -341,6 +341,9 @@ export function useFeaturePage() {
 - `OrderProductUtils.calculateOrderTotal()`: Calculate order totals from products array
 - `OrderProductUtils.areAllProductsPaid()`: Check if all products in order are paid
 - `OrderProductUtils.getProductsByPaymentStatus()`: Filter products by payment status
+- **Extra Name Display**: Extras show proper names from OrderProductExtra.name field
+- **Fallback Logic**: System attempts to find extra name from orderItemExtras if not available in product.extras
+- **Multi-OrderItem Support**: OrderProducts component handles multiple orderItems for same product
 
 **Data Structure**:
 
@@ -350,7 +353,13 @@ interface OrderProduct {
   isPaid: boolean;
   price: number;
   size?: string;
-  extras?: { id: string; price: number }[];
+  extras?: OrderProductExtra[];
+}
+
+interface OrderProductExtra {
+  id: string; // extraId
+  name?: string; // ekstra adı (optional, eski veriler için)
+  price: number; // ekstra fiyatı
 }
 
 interface OrderOperations {

@@ -73,7 +73,7 @@
 }
 
 .orders-table-item-header {
-  @apply flex items-center justify-between mb-3;
+  @apply flex items-center justify-between mb-3 gap-3;
 }
 
 .orders-table-item-icon {
@@ -94,6 +94,23 @@
 
 .orders-table-item-stat {
   @apply flex flex-col gap-1 flex-1;
+}
+
+/* Transfer Button Styles */
+.orders-table-transfer-button {
+  @apply flex-shrink-0 z-10;
+}
+
+.orders-table-transfer-button [data-slot="select-trigger"] {
+  @apply h-8 text-xs px-2 py-1;
+}
+
+.orders-table-transfer-button [data-slot="select-trigger"]:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.orders-table-transfer-button:hover {
+  @apply z-20;
 }
 
 /* Order Product Card Styles */
@@ -291,4 +308,66 @@
 
 .extra-selection-card:hover {
   @apply border-primary/30;
+}
+
+/* Order History Styles */
+.order-history-card {
+  @apply border border-slate-200 rounded-lg p-4 bg-white shadow-sm;
+}
+
+.order-history-header {
+  @apply flex items-center justify-between mb-3;
+}
+
+.order-history-date {
+  @apply text-sm text-muted-foreground;
+}
+
+.order-history-staff {
+  @apply flex items-center gap-2 text-sm text-muted-foreground;
+}
+
+.order-history-products {
+  @apply space-y-2;
+}
+
+.order-history-product {
+  @apply flex items-center justify-between p-2 bg-slate-50 rounded-md;
+}
+
+.order-history-product-name {
+  @apply font-medium text-sm;
+}
+
+.order-history-product-price {
+  @apply text-sm font-medium;
+}
+
+.order-history-extras {
+  @apply flex flex-wrap gap-1 mt-1;
+}
+
+.order-history-extra-badge {
+  @apply text-xs;
+}
+
+/* Date Filter Styles */
+.order-history-filters {
+  @apply p-4 bg-white border border-slate-200 rounded-lg;
+}
+
+.order-history-filter-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+}
+
+.order-history-filter-label {
+  @apply text-xs font-medium text-slate-700;
+}
+
+.order-history-filter-input {
+  @apply text-sm;
+}
+
+.order-history-clear-filters {
+  @apply w-fit;
 }

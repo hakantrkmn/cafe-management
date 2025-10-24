@@ -1,14 +1,24 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { OrderWithRelations, Table, TableStatus } from "@/types";
-import { Table as TableIcon } from "lucide-react";
+import { ArrowRightLeft, Table as TableIcon } from "lucide-react";
 
 interface TableLayoutEditorProps {
   tables: Table[];
   getTableStatus: (table: Table) => TableStatus;
   onTableClick: (tableId: string) => void;
   orders: OrderWithRelations[];
+  onTransferOrder?: (sourceTableId: string, targetTableId: string) => void;
+  availableTables?: Table[];
+  isSaving?: boolean;
 }
 
 export function TableLayoutEditor({
@@ -16,6 +26,9 @@ export function TableLayoutEditor({
   getTableStatus,
   onTableClick,
   orders,
+  onTransferOrder,
+  availableTables = [],
+  isSaving = false,
 }: TableLayoutEditorProps) {
   const getStatusColor = (status: TableStatus): string => {
     switch (status) {
@@ -75,8 +88,8 @@ export function TableLayoutEditor({
           return (
             <div
               key={table.id}
+              className="orders-table-item cursor-pointer"
               onClick={() => onTableClick(table.id)}
-              className="orders-table-item"
             >
               <div className="orders-table-item-header">
                 <div className="flex items-center gap-3">
@@ -90,6 +103,42 @@ export function TableLayoutEditor({
                     </Badge>
                   </div>
                 </div>
+
+                {/* Transfer Button - Only show for tables with orders */}
+                {orderCount > 0 &&
+                  onTransferOrder &&
+                  availableTables.length > 0 && (
+                    <div
+                      className="orders-table-transfer-button"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Select
+                        onValueChange={(targetTableId) =>
+                          onTransferOrder(table.id, targetTableId)
+                        }
+                        disabled={isSaving}
+                      >
+                        <SelectTrigger className="w-fit h-8 text-xs">
+                          <ArrowRightLeft className="h-3 w-3 mr-1" />
+                          <SelectValue placeholder="Taşı" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableTables
+                            .filter(
+                              (targetTable) => targetTable.id !== table.id
+                            )
+                            .map((targetTable) => (
+                              <SelectItem
+                                key={targetTable.id}
+                                value={targetTable.id}
+                              >
+                                {targetTable.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
               </div>
 
               {orderCount > 0 && (

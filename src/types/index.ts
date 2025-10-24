@@ -232,6 +232,11 @@ export interface InviteStaffRequest {
   email: string;
 }
 
+export interface TransferOrderRequest {
+  sourceTableId: string;
+  targetTableId: string;
+}
+
 // API Response types
 export interface ApiResponse<T = unknown> {
   success: boolean;

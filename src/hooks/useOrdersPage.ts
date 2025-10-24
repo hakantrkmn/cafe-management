@@ -8,8 +8,10 @@ import {
   ExtraWithQuantity,
   MenuItemSize,
   MenuItemWithRelations,
+  Table,
 } from "@/types";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useCartManagement } from "./useCartManagement";
 import { useOrderOperations } from "./useOrderOperations";
 import { useTableManagement } from "./useTableManagement";
@@ -27,8 +29,11 @@ export function useOrdersPage() {
   );
   const { data: menuData, isLoading: menuLoading } = useMenu(cafeId || "");
 
-  const tables = tablesData || [];
-  const menu = menuData || { categories: [], menuItems: [], extras: [] };
+  const tables = useMemo(() => tablesData || [], [tablesData]);
+  const menu = useMemo(
+    () => menuData || { categories: [], menuItems: [], extras: [] },
+    [menuData]
+  );
 
   // Initialize specialized hooks
   const orderOperations = useOrderOperations({ cafeId });
@@ -176,6 +181,51 @@ export function useOrdersPage() {
     return orderOperations.getTableOrders(selectedTableId);
   }, [selectedTableId, orderOperations]);
 
+  // Get paid orders for selected table
+  const getTablePaidOrders = useCallback(() => {
+    if (!selectedTableId) return [];
+    return orderOperations.getTablePaidOrders(selectedTableId);
+  }, [selectedTableId, orderOperations]);
+
+  // Available tables for transfer (tables without orders)
+  const availableTables = useMemo(() => {
+    return tables.filter((table: Table) => {
+      const tableOrders = orderOperations.getTableOrders(table.id);
+      return tableOrders.length === 0;
+    });
+  }, [tables, orderOperations]);
+
+  // Transfer order functionality
+  const handleTransferOrder = useCallback(
+    async (sourceTableId: string, targetTableId: string) => {
+      try {
+        await orderOperations.transferOrder(sourceTableId, targetTableId);
+
+        // Find table names for success message
+        const sourceTable = tables.find((t: Table) => t.id === sourceTableId);
+        const targetTable = tables.find((t: Table) => t.id === targetTableId);
+
+        toast.success("Sipariş başarıyla taşındı", {
+          description: `${sourceTable?.name} masasından ${targetTable?.name} masasına taşındı`,
+          duration: 4000,
+        });
+
+        // Close dialog after successful transfer
+        setOrderDialogOpen(false);
+        setSelectedTableId(null);
+        cartManagement.clearCart();
+      } catch (error) {
+        console.error("Error transferring order:", error);
+        toast.error("Sipariş taşınamadı", {
+          description:
+            error instanceof Error ? error.message : "Bilinmeyen hata",
+          duration: 4000,
+        });
+      }
+    },
+    [orderOperations, tables, cartManagement]
+  );
+
   return {
     // Auth state
     isAuthenticated,
@@ -200,6 +250,7 @@ export function useOrdersPage() {
     // Order operations
     orderOperations,
     getTableOrders,
+    getTablePaidOrders,
     saveOrder,
     addToExistingOrder,
     markProductAsPaid: orderOperations.markProductAsPaid,
@@ -210,5 +261,9 @@ export function useOrdersPage() {
 
     // Direct save functionality
     saveCartItemDirectly,
+
+    // Transfer functionality
+    onTransferOrder: handleTransferOrder,
+    availableTables,
   };
 }

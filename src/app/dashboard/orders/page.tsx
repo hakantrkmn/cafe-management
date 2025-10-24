@@ -23,6 +23,7 @@ export default function OrdersPage() {
     cartManagement,
     orderOperations,
     getTableOrders,
+    getTablePaidOrders,
     saveOrder,
     addToExistingOrder,
     markProductAsPaid,
@@ -31,6 +32,8 @@ export default function OrdersPage() {
     refreshOrders,
     closeOrderDialog,
     saveCartItemDirectly,
+    onTransferOrder,
+    availableTables,
   } = useOrdersPage();
 
   // Auto page loading
@@ -70,6 +73,7 @@ export default function OrdersPage() {
     (table: Table) => table.id === selectedTableId
   );
   const existingOrders = getTableOrders();
+  const paidOrders = getTablePaidOrders();
 
   return (
     <DashboardLayout>
@@ -91,6 +95,9 @@ export default function OrdersPage() {
           getTableStatus={tableManagement.getTableStatus}
           onTableClick={tableManagement.handleTableClick}
           orders={orderOperations.orders}
+          onTransferOrder={onTransferOrder}
+          availableTables={availableTables}
+          isSaving={orderOperations.isSaving}
         />
 
         {/* Order Dialog */}
@@ -105,6 +112,7 @@ export default function OrdersPage() {
           cartItems={cartManagement.cartItems}
           cartTotal={cartManagement.cartTotal}
           existingOrders={existingOrders}
+          paidOrders={paidOrders}
           onAddToCart={cartManagement.addToCart}
           onUpdateQuantity={cartManagement.updateCartItemQuantity}
           onRemoveItem={cartManagement.removeFromCart}
@@ -114,6 +122,8 @@ export default function OrdersPage() {
           onMarkProductAsPaid={markProductAsPaid}
           onDeleteProduct={deleteProduct}
           onRefresh={refreshOrders}
+          onTransferOrder={onTransferOrder}
+          availableTables={availableTables}
           onSaveCartItemDirectly={saveCartItemDirectly}
           isSaving={orderOperations.isSaving}
         />

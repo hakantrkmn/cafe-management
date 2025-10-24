@@ -3,10 +3,18 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { formatOrderId, formatPrice } from "@/lib/formatters";
-import { OrderCartItem, OrderWithRelations } from "@/types";
+import { OrderCartItem, OrderWithRelations, Table } from "@/types";
 import {
+  ArrowRightLeft,
   CreditCard,
   Minus,
   Plus,
@@ -28,6 +36,9 @@ interface OrderSummaryProps {
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   onDeleteProduct: (orderId: string, productIndex: number) => void;
   onRefresh: () => void;
+  onTransferOrder?: (sourceTableId: string, targetTableId: string) => void;
+  availableTables?: Table[];
+  currentTableId?: string;
   isSaving: boolean;
   selectedTableName?: string;
 }
@@ -43,6 +54,9 @@ export function OrderSummary({
   onMarkProductAsPaid,
   onDeleteProduct,
   onRefresh,
+  onTransferOrder,
+  availableTables = [],
+  currentTableId,
   isSaving,
   selectedTableName,
 }: OrderSummaryProps) {
@@ -115,6 +129,34 @@ export function OrderSummary({
                       })()}
                     </div>
                   </div>
+
+                  {/* Transfer Button */}
+                  {onTransferOrder &&
+                    availableTables.length > 0 &&
+                    currentTableId && (
+                      <div className="flex items-center gap-2">
+                        <Select
+                          onValueChange={(targetTableId) =>
+                            onTransferOrder(currentTableId, targetTableId)
+                          }
+                          disabled={isSaving}
+                        >
+                          <SelectTrigger className="w-fit">
+                            <ArrowRightLeft className="h-4 w-4 mr-1" />
+                            <SelectValue placeholder="Masa Taşı" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableTables
+                              .filter((table) => table.id !== currentTableId)
+                              .map((table) => (
+                                <SelectItem key={table.id} value={table.id}>
+                                  {table.name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                 </div>
 
                 {/* Products List - Her ürün ayrı ayrı gösterilir */}
