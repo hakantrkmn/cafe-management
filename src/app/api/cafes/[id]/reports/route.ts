@@ -119,61 +119,14 @@ export async function GET(
       // Group products by menu item
       const productMap = new Map();
 
-      // First, process orderItems (legacy data)
-      order.orderItems.forEach((item) => {
-        // Create unique key including size for size-based products
-        const sizeKey = item.size ? `-${item.size}` : "";
-        const key = `${item.menuItemId}${sizeKey}`;
+      // Check if we have products array (new data structure) or orderItems (legacy)
+      const hasProductsArray =
+        order.products &&
+        Array.isArray(order.products) &&
+        order.products.length > 0;
 
-        // Size label mapping
-        const sizeLabels = {
-          SMALL: "Küçük",
-          MEDIUM: "Orta",
-          LARGE: "Büyük",
-        };
-
-        const sizeLabel = item.size
-          ? sizeLabels[item.size as keyof typeof sizeLabels] || item.size
-          : undefined;
-        const displayName =
-          item.menuItem.name + (sizeLabel ? ` - ${sizeLabel}` : "");
-
-        if (!productMap.has(key)) {
-          productMap.set(key, {
-            id: key, // Use the unique key (menuItemId + size) as the ID
-            name: displayName,
-            size: sizeLabel,
-            price: item.menuItemPrice,
-            quantity: 0,
-            total: 0,
-          });
-        }
-        const product = productMap.get(key);
-        product.quantity += 1;
-        product.total += item.menuItemPrice;
-      });
-
-      // Add extras to products
-      order.orderItems.forEach((item) => {
-        item.orderItemExtras.forEach((extraItem) => {
-          const key = `extra-${extraItem.extraId}`;
-          if (!productMap.has(key)) {
-            productMap.set(key, {
-              id: extraItem.extraId,
-              name: extraItem.extra.name,
-              price: extraItem.extraPrice,
-              quantity: 0,
-              total: 0,
-            });
-          }
-          const product = productMap.get(key);
-          product.quantity += 1;
-          product.total += extraItem.extraPrice;
-        });
-      });
-
-      // Process products array (new data structure)
-      if (order.products && Array.isArray(order.products)) {
+      if (hasProductsArray) {
+        // Process products array (new data structure) - prioritize this
         order.products.forEach((productJson) => {
           // Type cast the JSON product to our expected structure
           const product = productJson as {
@@ -226,6 +179,59 @@ export async function GET(
           productEntry.quantity += 1;
           productEntry.total += product.price;
         });
+      } else {
+        // Process orderItems (legacy data) - fallback for old orders
+        order.orderItems.forEach((item) => {
+          // Create unique key including size for size-based products
+          const sizeKey = item.size ? `-${item.size}` : "";
+          const key = `${item.menuItemId}${sizeKey}`;
+
+          // Size label mapping
+          const sizeLabels = {
+            SMALL: "Küçük",
+            MEDIUM: "Orta",
+            LARGE: "Büyük",
+          };
+
+          const sizeLabel = item.size
+            ? sizeLabels[item.size as keyof typeof sizeLabels] || item.size
+            : undefined;
+          const displayName =
+            item.menuItem.name + (sizeLabel ? ` - ${sizeLabel}` : "");
+
+          if (!productMap.has(key)) {
+            productMap.set(key, {
+              id: key, // Use the unique key (menuItemId + size) as the ID
+              name: displayName,
+              size: sizeLabel,
+              price: item.menuItemPrice,
+              quantity: 0,
+              total: 0,
+            });
+          }
+          const product = productMap.get(key);
+          product.quantity += 1;
+          product.total += item.menuItemPrice;
+        });
+
+        // Add extras to products (only for legacy data)
+        order.orderItems.forEach((item) => {
+          item.orderItemExtras.forEach((extraItem) => {
+            const key = `extra-${extraItem.extraId}`;
+            if (!productMap.has(key)) {
+              productMap.set(key, {
+                id: extraItem.extraId,
+                name: extraItem.extra.name,
+                price: extraItem.extraPrice,
+                quantity: 0,
+                total: 0,
+              });
+            }
+            const product = productMap.get(key);
+            product.quantity += 1;
+            product.total += extraItem.extraPrice;
+          });
+        });
       }
 
       return {
@@ -247,38 +253,14 @@ export async function GET(
     };
 
     filteredOrders.forEach((order) => {
-      // Process orderItems (legacy data)
-      order.orderItems.forEach((item) => {
-        // Create unique key including size for size-based products
-        const sizeKey = item.size ? `-${item.size}` : "";
-        const key = `${item.menuItemId}${sizeKey}`;
+      // Check if we have products array (new data structure) or orderItems (legacy)
+      const hasProductsArray =
+        order.products &&
+        Array.isArray(order.products) &&
+        order.products.length > 0;
 
-        const sizeLabel = item.size
-          ? sizeLabels[item.size as keyof typeof sizeLabels] || item.size
-          : undefined;
-        const displayName =
-          item.menuItem.name + (sizeLabel ? ` - ${sizeLabel}` : "");
-
-        if (!productStats.has(key)) {
-          productStats.set(key, {
-            id: key, // Use the unique key (menuItemId + size) as the ID
-            name: displayName,
-            size: sizeLabel,
-            category: item.menuItem.category?.name || "Kategori Yok",
-            totalSold: 0,
-            totalRevenue: 0,
-            averagePrice: 0,
-            peakHour: undefined,
-            peakDay: undefined,
-          });
-        }
-        const stats = productStats.get(key);
-        stats.totalSold += 1;
-        stats.totalRevenue += item.menuItemPrice;
-      });
-
-      // Process products array (new data structure)
-      if (order.products && Array.isArray(order.products)) {
+      if (hasProductsArray) {
+        // Process products array (new data structure) - prioritize this
         order.products.forEach((productJson) => {
           // Type cast the JSON product to our expected structure
           const product = productJson as {
@@ -326,6 +308,36 @@ export async function GET(
           const stats = productStats.get(key);
           stats.totalSold += 1;
           stats.totalRevenue += product.price;
+        });
+      } else {
+        // Process orderItems (legacy data) - fallback for old orders
+        order.orderItems.forEach((item) => {
+          // Create unique key including size for size-based products
+          const sizeKey = item.size ? `-${item.size}` : "";
+          const key = `${item.menuItemId}${sizeKey}`;
+
+          const sizeLabel = item.size
+            ? sizeLabels[item.size as keyof typeof sizeLabels] || item.size
+            : undefined;
+          const displayName =
+            item.menuItem.name + (sizeLabel ? ` - ${sizeLabel}` : "");
+
+          if (!productStats.has(key)) {
+            productStats.set(key, {
+              id: key, // Use the unique key (menuItemId + size) as the ID
+              name: displayName,
+              size: sizeLabel,
+              category: item.menuItem.category?.name || "Kategori Yok",
+              totalSold: 0,
+              totalRevenue: 0,
+              averagePrice: 0,
+              peakHour: undefined,
+              peakDay: undefined,
+            });
+          }
+          const stats = productStats.get(key);
+          stats.totalSold += 1;
+          stats.totalRevenue += item.menuItemPrice;
         });
       }
 
