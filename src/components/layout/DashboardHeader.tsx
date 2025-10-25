@@ -65,6 +65,10 @@ export function DashboardHeader() {
 
             {isManager ? (
               <>
+                <Link href="/dashboard/orders" className="dashboard-nav-link">
+                  <ShoppingCart className="h-4 w-4" />
+                  Sipariş Yönetimi
+                </Link>
                 <Link href="/dashboard/menu" className="dashboard-nav-link">
                   <Menu className="h-4 w-4" />
                   Menü Yönetimi
@@ -204,6 +208,14 @@ export function DashboardHeader() {
 
             {isManager ? (
               <>
+                <Link
+                  href="/dashboard/orders"
+                  className="dashboard-mobile-menu-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  Sipariş Yönetimi
+                </Link>
                 <Link
                   href="/dashboard/menu"
                   className="dashboard-mobile-menu-link"

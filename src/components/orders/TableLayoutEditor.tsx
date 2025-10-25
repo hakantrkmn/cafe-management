@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/select";
 import { OrderWithRelations, Table, TableStatus } from "@/types";
 import { ArrowRightLeft, Table as TableIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ReactSortable } from "react-sortablejs";
 
 interface TableLayoutEditorProps {
   tables: Table[];
@@ -21,6 +22,7 @@ interface TableLayoutEditorProps {
   onTransferOrder?: (sourceTableId: string, targetTableId: string) => void;
   availableTables?: Table[];
   isSaving?: boolean;
+  onTableOrderChange?: (tableIds: string[]) => void;
 }
 
 export function TableLayoutEditor({
@@ -31,11 +33,18 @@ export function TableLayoutEditor({
   onTransferOrder,
   availableTables = [],
   isSaving = false,
+  onTableOrderChange,
 }: TableLayoutEditorProps) {
   const { showConfirmation } = useConfirmationModal();
   const [selectedTransferTable, setSelectedTransferTable] = useState<
     Record<string, string>
   >({});
+  const [sortableTables, setSortableTables] = useState<Table[]>([]);
+
+  // Update sortableTables when tables prop changes
+  useEffect(() => {
+    setSortableTables(tables);
+  }, [tables]);
   const getStatusColor = (status: TableStatus): string => {
     switch (status) {
       case "available":
@@ -86,14 +95,52 @@ export function TableLayoutEditor({
       </div>
 
       {/* Table List */}
-      <div className="orders-table-list">
-        {tables.map((table) => {
+      <ReactSortable
+        list={sortableTables.map((table) => ({
+          sortableId: table.id,
+          ...table,
+        }))}
+        setList={(newList) => {
+          console.log("New list from sortable:", newList);
+
+          // Ignore empty arrays - this happens during initialization
+          if (newList.length === 0) {
+            console.log("Ignoring empty list");
+            return;
+          }
+
+          const newTables = newList
+            .map((item) => {
+              const originalTable = sortableTables.find(
+                (t) => t.id === item.sortableId
+              );
+              return originalTable || item;
+            })
+            .filter((item): item is Table => "id" in item && "name" in item);
+
+          console.log("New tables after mapping:", newTables);
+          setSortableTables(newTables);
+
+          if (onTableOrderChange) {
+            const tableIds = newTables.map((table) => table.id);
+            console.log("Calling onTableOrderChange with:", tableIds);
+            onTableOrderChange(tableIds);
+          }
+        }}
+        animation={150}
+        ghostClass="sortable-ghost"
+        handle=".orders-table-item"
+        disabled={isSaving}
+        className="orders-table-list"
+      >
+        {sortableTables.map((table) => {
           const status = getTableStatus(table);
           const { orderCount, totalAmount } = getTableOrderInfo(table.id);
 
           return (
             <div
               key={table.id}
+              data-id={table.id}
               className="orders-table-item cursor-pointer"
               onClick={() => onTableClick(table.id)}
             >
@@ -203,7 +250,7 @@ export function TableLayoutEditor({
             </div>
           );
         })}
-      </div>
+      </ReactSortable>
 
       {/* Empty State */}
       {tables.length === 0 && (

@@ -372,6 +372,21 @@
   @apply w-fit;
 }
 
+/* Drag and Drop Styles */
+.sortable-ghost {
+  opacity: 0.4;
+  background: hsl(var(--primary) / 0.1);
+  border: 2px dashed hsl(var(--primary));
+}
+
+.orders-table-item {
+  cursor: grab;
+}
+
+.orders-table-item:active {
+  cursor: grabbing;
+}
+
 /* Confirmation Modal Styles */
 .confirmation-modal-content {
   @apply max-w-md mx-auto;

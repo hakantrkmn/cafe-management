@@ -4,6 +4,7 @@ import { OrderCalculator } from "@/lib/orderCalculator";
 import { useAuth } from "@/queries/auth";
 import { useMenu } from "@/queries/menu";
 import { useTables } from "@/queries/tables";
+import { useTableOrderStore } from "@/store/tableOrderStore";
 import {
   ExtraWithQuantity,
   MenuItemSize,
@@ -29,11 +30,40 @@ export function useOrdersPage() {
   );
   const { data: menuData, isLoading: menuLoading } = useMenu(cafeId || "");
 
+  // Table order store
+  const { setTableOrder, getTableOrder } = useTableOrderStore();
+
   const tables = useMemo(() => tablesData || [], [tablesData]);
   const menu = useMemo(
     () => menuData || { categories: [], menuItems: [], extras: [] },
     [menuData]
   );
+
+  // Sort tables based on saved order
+  const sortedTables = useMemo(() => {
+    if (!cafeId || tables.length === 0) return tables;
+
+    const savedOrder = getTableOrder(cafeId);
+
+    if (savedOrder.length === 0) {
+      // Default to alphabetical sorting by table name
+      return [...tables].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    // Create a map for quick lookup
+    const tableMap = new Map(tables.map((table: Table) => [table.id, table]));
+
+    // First, add tables in saved order
+    const orderedTables = savedOrder
+      .map((id) => tableMap.get(id))
+      .filter(Boolean) as Table[];
+
+    // Then add any new tables that weren't in the saved order
+    const savedIds = new Set(savedOrder);
+    const newTables = tables.filter((table: Table) => !savedIds.has(table.id));
+
+    return [...orderedTables, ...newTables];
+  }, [tables, cafeId, getTableOrder]);
 
   // Initialize specialized hooks
   const orderOperations = useOrderOperations({ cafeId });
@@ -226,6 +256,16 @@ export function useOrdersPage() {
     [orderOperations, tables, cartManagement]
   );
 
+  // Handle table order change
+  const handleTableOrderChange = useCallback(
+    (tableIds: string[]) => {
+      if (cafeId) {
+        setTableOrder(cafeId, tableIds);
+      }
+    },
+    [cafeId, setTableOrder]
+  );
+
   return {
     // Auth state
     isAuthenticated,
@@ -234,7 +274,7 @@ export function useOrdersPage() {
     cafeId,
 
     // Data
-    tables,
+    tables: sortedTables,
     menu,
 
     // UI state
@@ -265,5 +305,8 @@ export function useOrdersPage() {
     // Transfer functionality
     onTransferOrder: handleTransferOrder,
     availableTables,
+
+    // Table ordering
+    onTableOrderChange: handleTableOrderChange,
   };
 }

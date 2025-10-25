@@ -34,6 +34,7 @@ export default function OrdersPage() {
     saveCartItemDirectly,
     onTransferOrder,
     availableTables,
+    onTableOrderChange,
   } = useOrdersPage();
 
   // Auto page loading
@@ -98,6 +99,7 @@ export default function OrdersPage() {
           onTransferOrder={onTransferOrder}
           availableTables={availableTables}
           isSaving={orderOperations.isSaving}
+          onTableOrderChange={onTableOrderChange}
         />
 
         {/* Order Dialog */}
