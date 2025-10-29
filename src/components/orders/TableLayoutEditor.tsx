@@ -205,9 +205,10 @@ export function TableLayoutEditor({
               key={table.id}
               data-id={table.id}
               className={`orders-table-item ${
-                !isMobile ? "cursor-pointer" : ""
+                !isMobile ? "cursor-pointer" : "touch-none"
               }`}
               onClick={!isMobile ? () => onTableClick(table.id) : undefined}
+              onTouchStart={isMobile ? (e) => e.preventDefault() : undefined}
             >
               <div className="orders-table-item-header">
                 <div className="flex items-center gap-3">

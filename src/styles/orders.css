@@ -433,6 +433,18 @@
   touch-action: none;
 }
 
+/* Mobile table item - disable touch events for scrolling */
+@media (max-width: 767px) {
+  .orders-table-item {
+    touch-action: pan-y;
+    pointer-events: auto;
+  }
+
+  .orders-table-item * {
+    pointer-events: auto;
+  }
+}
+
 /* Confirmation Modal Styles */
 .confirmation-modal-content {
   @apply max-w-md mx-auto;
