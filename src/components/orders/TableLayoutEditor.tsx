@@ -2,7 +2,6 @@
 
 import { useConfirmationModal } from "@/components/providers/ConfirmationModalProvider";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,7 +11,13 @@ import {
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { OrderWithRelations, Table, TableStatus } from "@/types";
-import { ArrowRightLeft, GripVertical, Table as TableIcon } from "lucide-react";
+import {
+  ArrowRightLeft,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  Table as TableIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { ReactSortable } from "react-sortablejs";
 
@@ -55,45 +60,48 @@ export function TableLayoutEditor({
     return index + 1; // Convert to 1-based index
   };
 
-  // Handle table order number change
-  const handleTableOrderNumberChange = (
-    tableId: string,
-    newOrderNumber: number
-  ) => {
-    // Validate input
-    if (
-      !newOrderNumber ||
-      newOrderNumber < 1 ||
-      newOrderNumber > sortableTables.length
-    ) {
-      return;
-    }
-
-    // Convert to 0-based index
-    const newIndex = newOrderNumber - 1;
+  // Handle move table up
+  const handleMoveTableUp = (tableId: string) => {
     const currentIndex = sortableTables.findIndex(
       (table) => table.id === tableId
     );
+    if (currentIndex <= 0) return; // Already at top
 
-    // If the position hasn't changed, do nothing
-    if (currentIndex === newIndex) {
-      return;
-    }
-
-    // Create new array with reordered tables
     const newTables = [...sortableTables];
-    const [movedTable] = newTables.splice(currentIndex, 1);
-    newTables.splice(newIndex, 0, movedTable);
+    [newTables[currentIndex - 1], newTables[currentIndex]] = [
+      newTables[currentIndex],
+      newTables[currentIndex - 1],
+    ];
 
-    // Update local state
     setSortableTables(newTables);
 
-    // Notify parent component
     if (onTableOrderChange) {
       const tableIds = newTables.map((table) => table.id);
       onTableOrderChange(tableIds);
     }
   };
+
+  // Handle move table down
+  const handleMoveTableDown = (tableId: string) => {
+    const currentIndex = sortableTables.findIndex(
+      (table) => table.id === tableId
+    );
+    if (currentIndex >= sortableTables.length - 1) return; // Already at bottom
+
+    const newTables = [...sortableTables];
+    [newTables[currentIndex], newTables[currentIndex + 1]] = [
+      newTables[currentIndex + 1],
+      newTables[currentIndex],
+    ];
+
+    setSortableTables(newTables);
+
+    if (onTableOrderChange) {
+      const tableIds = newTables.map((table) => table.id);
+      onTableOrderChange(tableIds);
+    }
+  };
+
   const getStatusColor = (status: TableStatus): string => {
     switch (status) {
       case "available":
@@ -219,26 +227,35 @@ export function TableLayoutEditor({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Order Number Input - Only show on mobile */}
+                  {/* Order Controls - Only show on mobile */}
                   {isMobile && (
                     <div
-                      className="orders-table-order-input"
+                      className="orders-table-order-controls"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Input
-                        type="number"
-                        min="1"
-                        max={sortableTables.length}
-                        value={getCurrentOrderNumber(table.id)}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          if (!isNaN(value)) {
-                            handleTableOrderNumberChange(table.id, value);
+                      <div className="flex flex-col gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleMoveTableUp(table.id)}
+                          disabled={getCurrentOrderNumber(table.id) === 1}
+                          className="orders-table-order-button orders-table-order-button-up"
+                          title="Yukarı taşı"
+                        >
+                          <ChevronUp className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveTableDown(table.id)}
+                          disabled={
+                            getCurrentOrderNumber(table.id) ===
+                            sortableTables.length
                           }
-                        }}
-                        className="w-16 h-8 text-xs text-center"
-                        placeholder="Sıra"
-                      />
+                          className="orders-table-order-button orders-table-order-button-down"
+                          title="Aşağı taşı"
+                        >
+                          <ChevronDown className="h-3 w-3" />
+                        </button>
+                      </div>
                     </div>
                   )}
 

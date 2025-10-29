@@ -113,13 +113,25 @@
   @apply z-20;
 }
 
-/* Order Number Input Styles */
-.orders-table-order-input {
+/* Order Controls Styles */
+.orders-table-order-controls {
   @apply flex-shrink-0 z-10;
 }
 
-.orders-table-order-input input {
-  @apply w-16 h-8 text-xs text-center;
+.orders-table-order-button {
+  @apply w-8 h-6 flex items-center justify-center rounded border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.orders-table-order-button-up {
+  @apply hover:border-primary/50;
+}
+
+.orders-table-order-button-down {
+  @apply hover:border-primary/50;
+}
+
+.orders-table-order-button:not(:disabled):hover {
+  @apply bg-primary/10 border-primary/70;
 }
 
 /* Order Product Card Styles */
