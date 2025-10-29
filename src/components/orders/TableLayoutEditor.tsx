@@ -15,6 +15,7 @@ import {
   ArrowRightLeft,
   ChevronDown,
   ChevronUp,
+  Eye,
   GripVertical,
   Table as TableIcon,
 } from "lucide-react";
@@ -203,8 +204,10 @@ export function TableLayoutEditor({
             <div
               key={table.id}
               data-id={table.id}
-              className="orders-table-item cursor-pointer"
-              onClick={() => onTableClick(table.id)}
+              className={`orders-table-item ${
+                !isMobile ? "cursor-pointer" : ""
+              }`}
+              onClick={!isMobile ? () => onTableClick(table.id) : undefined}
             >
               <div className="orders-table-item-header">
                 <div className="flex items-center gap-3">
@@ -329,6 +332,24 @@ export function TableLayoutEditor({
                         </Select>
                       </div>
                     )}
+
+                  {/* View Button - Only show on mobile */}
+                  {isMobile && (
+                    <div
+                      className="orders-table-view-button"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => onTableClick(table.id)}
+                        className="orders-table-view-btn"
+                        title="Masayı görüntüle"
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span className="text-xs">Görüntüle</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
