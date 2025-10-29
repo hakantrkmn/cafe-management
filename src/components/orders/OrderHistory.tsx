@@ -172,6 +172,78 @@ export function OrderHistory({
                   {order.products && order.products.length > 0 ? (
                     <div className="space-y-2">
                       {order.products.map((product, index) => {
+                        // Check if this is a campaign product
+                        const isCampaign =
+                          product.campaignId && product.campaignName;
+
+                        if (isCampaign) {
+                          // Display campaign
+                          return (
+                            <div
+                              key={`${order.id}-campaign-${index}`}
+                              className="flex flex-col gap-2 p-2 bg-blue-50 rounded-md border border-blue-200"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="default" className="text-xs">
+                                    Kampanya
+                                  </Badge>
+                                  <span className="font-semibold text-sm">
+                                    {product.campaignName}
+                                  </span>
+                                </div>
+                                <div className="text-sm font-medium">
+                                  {formatPrice(product.price)}
+                                </div>
+                              </div>
+
+                              {/* Campaign internal products */}
+                              {product.products &&
+                                product.products.length > 0 && (
+                                  <div className="ml-4 space-y-1 border-l-2 border-blue-200 pl-2">
+                                    {product.products.map(
+                                      (internalProduct, internalIndex) => {
+                                        // Find menu item for internal product
+                                        const internalMenuItem =
+                                          order.orderItems.find(
+                                            (item) =>
+                                              item.menuItemId ===
+                                              internalProduct.id
+                                          )?.menuItem;
+
+                                        return (
+                                          <div
+                                            key={`${order.id}-campaign-item-${internalIndex}`}
+                                            className="text-xs text-muted-foreground"
+                                          >
+                                            <span>
+                                              {internalProduct.quantity}x{" "}
+                                              {internalMenuItem?.name ||
+                                                "Bilinmeyen Ürün"}
+                                            </span>
+                                            {internalProduct.size && (
+                                              <span className="ml-2">
+                                                (
+                                                {internalProduct.size ===
+                                                  "SMALL" && "Küçük"}
+                                                {internalProduct.size ===
+                                                  "MEDIUM" && "Orta"}
+                                                {internalProduct.size ===
+                                                  "LARGE" && "Büyük"}
+                                                )
+                                              </span>
+                                            )}
+                                          </div>
+                                        );
+                                      }
+                                    )}
+                                  </div>
+                                )}
+                            </div>
+                          );
+                        }
+
+                        // Regular product
                         // Find menu item info
                         const menuItem = order.orderItems.find(
                           (item) => item.menuItemId === product.id
@@ -203,7 +275,8 @@ export function OrderHistory({
                                       variant="secondary"
                                       className="text-xs"
                                     >
-                                      {extra.name} (+{formatPrice(extra.price)})
+                                      {extra.name} (+
+                                      {formatPrice(extra.price)})
                                     </Badge>
                                   ))}
                                 </div>

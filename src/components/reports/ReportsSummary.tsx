@@ -5,6 +5,7 @@ import { ReportsData } from "@/hooks/useReportsData";
 import { formatPrice } from "@/lib/formatters";
 import {
   DollarSign,
+  Gift,
   Package,
   ShoppingCart,
   Table,
@@ -17,7 +18,7 @@ interface ReportsSummaryProps {
 }
 
 export function ReportsSummary({ data }: ReportsSummaryProps) {
-  const { summary, orders, topProducts } = data;
+  const { summary, orders, topProducts, campaignStats } = data;
 
   const summaryCards = [
     {
@@ -56,6 +57,14 @@ export function ReportsSummary({ data }: ReportsSummaryProps) {
 
   const paidOrders = orders.filter((order) => order.isPaid).length;
   const unpaidOrders = orders.length - paidOrders;
+
+  // Get most used campaign
+  const mostUsedCampaign =
+    campaignStats.length > 0
+      ? campaignStats.reduce((prev, current) =>
+          prev.totalUsed > current.totalUsed ? prev : current
+        )
+      : null;
 
   return (
     <div className="space-y-6">
@@ -138,6 +147,28 @@ export function ReportsSummary({ data }: ReportsSummaryProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Campaign Overview */}
+      {mostUsedCampaign && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Gift className="h-4 w-4 text-purple-600" />
+                En Çok Kullanılan Kampanya
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg font-bold text-purple-600">
+                {mostUsedCampaign.campaignName}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {mostUsedCampaign.totalUsed} kez kullanıldı
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { usePageLoading } from "@/hooks/usePageLoading";
 import { useReportsPage } from "@/hooks/useReportsPage";
+import { CampaignStatsTable } from "./CampaignStatsTable";
 import { ReportsCharts } from "./ReportsCharts";
 import { ReportsFilters } from "./ReportsFilters";
 import { ReportsSummary } from "./ReportsSummary";
@@ -86,6 +87,9 @@ export function ReportsPage() {
 
         {/* Charts */}
         <ReportsCharts data={reportsData} />
+
+        {/* Campaign Statistics */}
+        <CampaignStatsTable data={reportsData} />
 
         {/* Detailed Table */}
         <ReportsTable data={reportsData} />

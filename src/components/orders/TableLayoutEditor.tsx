@@ -2,6 +2,7 @@
 
 import { useConfirmationModal } from "@/components/providers/ConfirmationModalProvider";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -9,8 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import { OrderWithRelations, Table, TableStatus } from "@/types";
-import { ArrowRightLeft, Table as TableIcon } from "lucide-react";
+import { ArrowRightLeft, GripVertical, Table as TableIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ReactSortable } from "react-sortablejs";
 
@@ -36,6 +38,7 @@ export function TableLayoutEditor({
   onTableOrderChange,
 }: TableLayoutEditorProps) {
   const { showConfirmation } = useConfirmationModal();
+  const isMobile = useIsMobile();
   const [selectedTransferTable, setSelectedTransferTable] = useState<
     Record<string, string>
   >({});
@@ -45,6 +48,52 @@ export function TableLayoutEditor({
   useEffect(() => {
     setSortableTables(tables);
   }, [tables]);
+
+  // Get current order number for a table (1-based index)
+  const getCurrentOrderNumber = (tableId: string): number => {
+    const index = sortableTables.findIndex((table) => table.id === tableId);
+    return index + 1; // Convert to 1-based index
+  };
+
+  // Handle table order number change
+  const handleTableOrderNumberChange = (
+    tableId: string,
+    newOrderNumber: number
+  ) => {
+    // Validate input
+    if (
+      !newOrderNumber ||
+      newOrderNumber < 1 ||
+      newOrderNumber > sortableTables.length
+    ) {
+      return;
+    }
+
+    // Convert to 0-based index
+    const newIndex = newOrderNumber - 1;
+    const currentIndex = sortableTables.findIndex(
+      (table) => table.id === tableId
+    );
+
+    // If the position hasn't changed, do nothing
+    if (currentIndex === newIndex) {
+      return;
+    }
+
+    // Create new array with reordered tables
+    const newTables = [...sortableTables];
+    const [movedTable] = newTables.splice(currentIndex, 1);
+    newTables.splice(newIndex, 0, movedTable);
+
+    // Update local state
+    setSortableTables(newTables);
+
+    // Notify parent component
+    if (onTableOrderChange) {
+      const tableIds = newTables.map((table) => table.id);
+      onTableOrderChange(tableIds);
+    }
+  };
   const getStatusColor = (status: TableStatus): string => {
     switch (status) {
       case "available":
@@ -129,9 +178,14 @@ export function TableLayoutEditor({
         }}
         animation={150}
         ghostClass="sortable-ghost"
-        handle=".orders-table-item"
-        disabled={isSaving}
+        handle=".orders-table-drag-handle"
+        disabled={isSaving || isMobile}
         className="orders-table-list"
+        forceFallback={false}
+        fallbackTolerance={0}
+        swapThreshold={0.65}
+        touchStartThreshold={1}
+        delay={0}
       >
         {sortableTables.map((table) => {
           const status = getTableStatus(table);
@@ -146,6 +200,13 @@ export function TableLayoutEditor({
             >
               <div className="orders-table-item-header">
                 <div className="flex items-center gap-3">
+                  {/* Drag Handle - Only show on desktop */}
+                  {!isMobile && (
+                    <div className="orders-table-drag-handle cursor-grab active:cursor-grabbing select-none">
+                      <GripVertical className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+
                   <div className="orders-table-item-icon">
                     <TableIcon className="h-5 w-5" />
                   </div>
@@ -157,76 +218,101 @@ export function TableLayoutEditor({
                   </div>
                 </div>
 
-                {/* Transfer Button - Only show for tables with orders */}
-                {orderCount > 0 &&
-                  onTransferOrder &&
-                  availableTables.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {/* Order Number Input - Only show on mobile */}
+                  {isMobile && (
                     <div
-                      className="orders-table-transfer-button"
+                      className="orders-table-order-input"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Select
-                        value={selectedTransferTable[table.id] || ""}
-                        onValueChange={async (targetTableId) => {
-                          // Set the selected value first
-                          setSelectedTransferTable((prev) => ({
-                            ...prev,
-                            [table.id]: targetTableId,
-                          }));
+                      <Input
+                        type="number"
+                        min="1"
+                        max={sortableTables.length}
+                        value={getCurrentOrderNumber(table.id)}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (!isNaN(value)) {
+                            handleTableOrderNumberChange(table.id, value);
+                          }
+                        }}
+                        className="w-16 h-8 text-xs text-center"
+                        placeholder="Sıra"
+                      />
+                    </div>
+                  )}
 
-                          const targetTable = availableTables.find(
-                            (t) => t.id === targetTableId
-                          );
+                  {/* Transfer Button - Only show for tables with orders */}
+                  {orderCount > 0 &&
+                    onTransferOrder &&
+                    availableTables.length > 0 && (
+                      <div
+                        className="orders-table-transfer-button"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Select
+                          value={selectedTransferTable[table.id] || ""}
+                          onValueChange={async (targetTableId) => {
+                            // Set the selected value first
+                            setSelectedTransferTable((prev) => ({
+                              ...prev,
+                              [table.id]: targetTableId,
+                            }));
 
-                          if (targetTable) {
-                            const confirmed = await showConfirmation({
-                              title: "Siparişi Taşı",
-                              description: `${table.name} masasındaki siparişleri ${targetTable.name} masasına taşımak istediğinizden emin misiniz?`,
-                              confirmText: "Taşı",
-                              cancelText: "İptal",
-                              variant: "warning",
-                              onConfirm: () => {
-                                onTransferOrder(table.id, targetTableId);
-                                // Clear selection after successful transfer
+                            const targetTable = availableTables.find(
+                              (t) => t.id === targetTableId
+                            );
+
+                            if (targetTable) {
+                              const confirmed = await showConfirmation({
+                                title: "Siparişi Taşı",
+                                description: `${table.name} masasındaki siparişleri ${targetTable.name} masasına taşımak istediğinizden emin misiniz?`,
+                                confirmText: "Taşı",
+                                cancelText: "İptal",
+                                variant: "warning",
+                                onConfirm: () => {
+                                  onTransferOrder(table.id, targetTableId);
+                                  // Clear selection after successful transfer
+                                  setSelectedTransferTable((prev) => ({
+                                    ...prev,
+                                    [table.id]: "",
+                                  }));
+                                },
+                              });
+
+                              // Reset dropdown if user cancelled
+                              if (!confirmed) {
                                 setSelectedTransferTable((prev) => ({
                                   ...prev,
                                   [table.id]: "",
                                 }));
-                              },
-                            });
-
-                            // Reset dropdown if user cancelled
-                            if (!confirmed) {
-                              setSelectedTransferTable((prev) => ({
-                                ...prev,
-                                [table.id]: "",
-                              }));
+                              }
                             }
-                          }
-                        }}
-                        disabled={isSaving}
-                      >
-                        <SelectTrigger className="w-fit h-8 text-xs">
-                          <ArrowRightLeft className="h-3 w-3 mr-1" />
-                          <SelectValue placeholder="Taşı" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableTables
-                            .filter(
-                              (targetTable) => targetTable.id !== table.id
-                            )
-                            .map((targetTable) => (
-                              <SelectItem
-                                key={targetTable.id}
-                                value={targetTable.id}
-                              >
-                                {targetTable.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                          }}
+                          disabled={isSaving}
+                        >
+                          <SelectTrigger className="w-fit h-8 text-xs">
+                            <ArrowRightLeft className="h-3 w-3 mr-1" />
+                            <SelectValue placeholder="Taşı" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableTables
+                              .filter(
+                                (targetTable) => targetTable.id !== table.id
+                              )
+                              .map((targetTable) => (
+                                <SelectItem
+                                  key={targetTable.id}
+                                  value={targetTable.id}
+                                >
+                                  {targetTable.name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                </div>
               </div>
 
               {orderCount > 0 && (

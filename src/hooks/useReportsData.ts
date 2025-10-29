@@ -48,11 +48,20 @@ export interface ReportsSummary {
   averageOrderValue: number;
 }
 
+export interface ReportsCampaignStat {
+  campaignId: string;
+  campaignName: string;
+  totalUsed: number;
+  totalRevenue: number;
+  averageOrderValue: number;
+}
+
 export interface ReportsData {
   summary: ReportsSummary;
   orders: ReportsOrder[];
   topProducts: ReportsTopProduct[];
   tableStats: ReportsTableStat[];
+  campaignStats: ReportsCampaignStat[];
   // Chart data
   chartData: {
     hourlyRevenue: { hour: number; revenue: number; orderCount: number }[];

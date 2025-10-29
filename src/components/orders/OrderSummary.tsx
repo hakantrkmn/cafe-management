@@ -111,11 +111,16 @@ export function OrderSummary({
                       {(() => {
                         const productSummary = order.products.reduce(
                           (acc, product) => {
-                            const menuItem = order.orderItems.find(
-                              (item) => item.menuItemId === product.id
-                            )?.menuItem;
-                            const name = menuItem?.name || "Bilinmeyen Ürün";
-                            acc[name] = (acc[name] || 0) + 1;
+                            if (product.campaignName) {
+                              acc[product.campaignName] =
+                                (acc[product.campaignName] || 0) + 1;
+                            } else {
+                              const menuItem = order.orderItems.find(
+                                (item) => item.menuItemId === product.id
+                              )?.menuItem;
+                              const name = menuItem?.name || "Bilinmeyen Ürün";
+                              acc[name] = (acc[name] || 0) + 1;
+                            }
                             return acc;
                           },
                           {} as Record<string, number>

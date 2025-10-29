@@ -530,6 +530,39 @@ export async function GET(
       },
     ];
 
+    // Calculate campaign statistics
+    const campaignStatsMap = new Map();
+
+    filteredOrders.forEach((order) => {
+      if (order.campaignId && order.campaignName) {
+        const campaignId = order.campaignId;
+
+        if (!campaignStatsMap.has(campaignId)) {
+          campaignStatsMap.set(campaignId, {
+            campaignId,
+            campaignName: order.campaignName,
+            totalUsed: 0,
+            totalRevenue: 0,
+            averageOrderValue: 0,
+          });
+        }
+
+        const stats = campaignStatsMap.get(campaignId);
+        stats.totalUsed += 1;
+        stats.totalRevenue += order.totalAmount || 0;
+      }
+    });
+
+    // Calculate average order value for each campaign
+    campaignStatsMap.forEach((stats) => {
+      stats.averageOrderValue =
+        stats.totalUsed > 0 ? stats.totalRevenue / stats.totalUsed : 0;
+    });
+
+    const campaignStats = Array.from(campaignStatsMap.values()).sort(
+      (a, b) => b.totalRevenue - a.totalRevenue
+    );
+
     const reportsData = {
       summary: {
         totalOrders,
@@ -540,6 +573,7 @@ export async function GET(
       orders: processedOrders,
       topProducts,
       tableStats,
+      campaignStats,
       chartData: {
         hourlyRevenue,
         dailyRevenue: dailyRevenue.sort(

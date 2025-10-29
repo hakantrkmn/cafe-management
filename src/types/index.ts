@@ -1,6 +1,8 @@
 import {
   AllowedStaff,
   Cafe,
+  Campaign,
+  CampaignItem,
   Category,
   Extra,
   MenuItem,
@@ -18,6 +20,8 @@ import {
 export type {
   AllowedStaff,
   Cafe,
+  Campaign,
+  CampaignItem,
   Category,
   Extra,
   MenuItem,
@@ -46,6 +50,7 @@ export interface CafeWithRelations extends Cafe {
   categories: Category[];
   menuItems: MenuItem[];
   extras: Extra[];
+  campaigns: Campaign[];
   tables: Table[];
   orders: Order[];
 }
@@ -78,6 +83,7 @@ export interface OrderWithRelations extends Omit<Order, "products"> {
   staff: User;
   orderItems: OrderItemWithRelations[];
   products: OrderProduct[]; // Her ürün için ayrı ödeme durumu
+  campaign?: Campaign; // Optional campaign relation
 }
 
 export interface OrderItemWithRelations extends OrderItem {
@@ -96,13 +102,34 @@ export interface AllowedStaffWithRelations extends AllowedStaff {
   user?: User | null;
 }
 
+export interface CampaignWithRelations extends Campaign {
+  cafe: Cafe;
+  campaignItems: CampaignItemWithRelations[];
+}
+
+export interface CampaignItemWithRelations extends CampaignItem {
+  campaign: Campaign;
+  menuItem: MenuItem;
+}
+
 // Product interface for individual product payment tracking
 export interface OrderProduct {
-  id: string; // menuItemId (foreign key to MenuItem)
+  id: string; // menuItemId (foreign key to MenuItem) or campaign_${campaignId}
   isPaid: boolean;
   price: number; // Ana ürün + ekstraların toplam fiyatı
   size?: MenuItemSize; // Size for items with sizes
   extras?: OrderProductExtra[]; // Bu ürüne ait ekstralar (optional)
+  campaignId?: string; // Campaign ID if this is a campaign product
+  campaignName?: string; // Campaign name for display
+  products?: CampaignProduct[]; // Internal products for campaign
+}
+
+// Campaign internal product interface
+export interface CampaignProduct {
+  id: string; // menuItemId
+  price: number; // Individual product price
+  quantity: number; // Quantity in campaign
+  size?: MenuItemSize; // Size for items with sizes
 }
 
 export interface OrderProductExtra {
@@ -155,6 +182,28 @@ export interface CreateExtraRequest {
 
 export interface CreateTableRequest {
   name: string;
+}
+
+export interface CreateCampaignRequest {
+  name: string;
+  description?: string;
+  price: number;
+  isActive?: boolean;
+  items: CreateCampaignItemRequest[];
+}
+
+export interface CreateCampaignItemRequest {
+  menuItemId: string;
+  quantity: number;
+  size?: MenuItemSize;
+}
+
+export interface UpdateCampaignRequest {
+  name?: string;
+  description?: string;
+  price?: number;
+  isActive?: boolean;
+  items?: CreateCampaignItemRequest[];
 }
 
 export interface CreateOrderRequest {
@@ -323,6 +372,8 @@ export const QueryKeys = {
   menuItem: (id: string) => ["menuItems", id] as const,
   extras: (cafeId: string) => ["extras", cafeId] as const,
   extra: (id: string) => ["extras", id] as const,
+  campaigns: (cafeId: string) => ["campaigns", cafeId] as const,
+  campaign: (id: string) => ["campaigns", id] as const,
   tables: (cafeId: string) => ["tables", cafeId] as const,
   table: (id: string) => ["tables", id] as const,
   orders: (cafeId: string) => ["orders", cafeId] as const,

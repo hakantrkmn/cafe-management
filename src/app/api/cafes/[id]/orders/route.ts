@@ -62,49 +62,88 @@ export async function POST(
       );
     }
 
+    // Check if this is a campaign order by looking for campaign price pattern
+    const isCampaignOrder = body.orderItems.length > 1;
+    let campaignId: string | undefined;
+    let campaignName: string | undefined;
+    let campaignPrice: number | undefined;
+
+    if (isCampaignOrder) {
+      // Try to find matching campaign
+      const campaigns = await prisma.campaign.findMany({
+        where: { cafeId, isActive: true },
+        include: { campaignItems: true },
+      });
+
+      for (const campaign of campaigns) {
+        const campaignItemIds = campaign.campaignItems.map(
+          (item) => item.menuItemId
+        );
+        const orderItemIds = body.orderItems.map((item) => item.menuItemId);
+
+        // Check if all campaign items match order items
+        const matches =
+          campaignItemIds.every((id) => orderItemIds.includes(id)) &&
+          orderItemIds.every((id) => campaignItemIds.includes(id));
+
+        if (matches) {
+          campaignId = campaign.id;
+          campaignName = campaign.name;
+          campaignPrice = campaign.price;
+          break;
+        }
+      }
+    }
+
     // Calculate total amount - basit hesaplama
     let totalAmount = 0;
 
-    for (const orderItem of body.orderItems) {
-      const menuItem = await prisma.menuItem.findUnique({
-        where: { id: orderItem.menuItemId },
-        include: { prices: true },
-      });
+    // If campaign found, use campaign price as total
+    if (campaignPrice) {
+      totalAmount = campaignPrice;
+    } else {
+      // If not a campaign order, calculate individual item prices
+      for (const orderItem of body.orderItems) {
+        const menuItem = await prisma.menuItem.findUnique({
+          where: { id: orderItem.menuItemId },
+          include: { prices: true },
+        });
 
-      if (!menuItem) {
-        return NextResponse.json(
-          { message: `Menu item not found: ${orderItem.menuItemId}` },
-          { status: 404 }
-        );
-      }
-
-      // Size fiyatını hesapla
-      let itemPrice = menuItem.price;
-      if (menuItem.hasSizes && orderItem.size && menuItem.prices) {
-        const sizePrice = menuItem.prices.find(
-          (p) => p.size === orderItem.size
-        );
-        if (sizePrice) {
-          itemPrice = sizePrice.price;
+        if (!menuItem) {
+          return NextResponse.json(
+            { message: `Menu item not found: ${orderItem.menuItemId}` },
+            { status: 404 }
+          );
         }
-      }
 
-      // Extras fiyatlarını hesapla
-      let extrasTotal = 0;
-      if (orderItem.extras && orderItem.extras.length > 0) {
-        for (const extra of orderItem.extras) {
-          const extraItem = await prisma.extra.findUnique({
-            where: { id: extra.extraId },
-          });
-          if (extraItem) {
-            extrasTotal += extraItem.price * extra.quantity;
+        // Size fiyatını hesapla
+        let itemPrice = menuItem.price;
+        if (menuItem.hasSizes && orderItem.size && menuItem.prices) {
+          const sizePrice = menuItem.prices.find(
+            (p) => p.size === orderItem.size
+          );
+          if (sizePrice) {
+            itemPrice = sizePrice.price;
           }
         }
-      }
 
-      // Toplam fiyat = (ürün fiyatı + extras) * quantity
-      const itemTotal = (itemPrice + extrasTotal) * orderItem.quantity;
-      totalAmount += itemTotal;
+        // Extras fiyatlarını hesapla
+        let extrasTotal = 0;
+        if (orderItem.extras && orderItem.extras.length > 0) {
+          for (const extra of orderItem.extras) {
+            const extraItem = await prisma.extra.findUnique({
+              where: { id: extra.extraId },
+            });
+            if (extraItem) {
+              extrasTotal += extraItem.price * extra.quantity;
+            }
+          }
+        }
+
+        // Toplam fiyat = (ürün fiyatı + extras) * quantity
+        const itemTotal = (itemPrice + extrasTotal) * orderItem.quantity;
+        totalAmount += itemTotal;
+      }
     }
 
     // Create order with items in transaction
@@ -112,49 +151,92 @@ export async function POST(
       // Basit products array oluştur
       const orderProducts = [];
 
-      for (const item of body.orderItems) {
-        const menuItem = await tx.menuItem.findUniqueOrThrow({
-          where: { id: item.menuItemId },
-          include: { prices: true },
-        });
+      // If this is a campaign order, add campaign as single product with internal products array
+      if (campaignId && campaignName && campaignPrice) {
+        // Create products array for campaign
+        const campaignProducts = [];
 
-        // Size fiyatını hesapla
-        let itemPrice = menuItem.price;
-        if (menuItem.hasSizes && item.size && menuItem.prices) {
-          const sizePrice = menuItem.prices.find((p) => p.size === item.size);
-          if (sizePrice) {
-            itemPrice = sizePrice.price;
-          }
-        }
+        for (const item of body.orderItems) {
+          const menuItem = await tx.menuItem.findUniqueOrThrow({
+            where: { id: item.menuItemId },
+            include: { prices: true },
+          });
 
-        // Extras fiyatlarını hesapla (ayrı tutulacak)
-        const extras = [];
-
-        if (item.extras && item.extras.length > 0) {
-          for (const extra of item.extras) {
-            const extraItem = await tx.extra.findUnique({
-              where: { id: extra.extraId },
-            });
-            if (extraItem) {
-              const extraPrice = extraItem.price * extra.quantity;
-              extras.push({
-                id: extra.extraId,
-                name: extraItem.name,
-                price: extraPrice,
-              });
+          // Size fiyatını hesapla
+          let itemPrice = menuItem.price;
+          if (menuItem.hasSizes && item.size && menuItem.prices) {
+            const sizePrice = menuItem.prices.find((p) => p.size === item.size);
+            if (sizePrice) {
+              itemPrice = sizePrice.price;
             }
           }
+
+          // Add to campaign products array
+          campaignProducts.push({
+            id: item.menuItemId,
+            price: itemPrice,
+            quantity: item.quantity,
+            size: item.size,
+          });
         }
 
-        // Her ürün için ayrı entry oluştur (ürün fiyatı sabit, extras ayrı)
-        for (let i = 0; i < item.quantity; i++) {
-          orderProducts.push({
-            id: item.menuItemId,
-            isPaid: false,
-            price: itemPrice, // Sadece ürün fiyatı (sabit)
-            size: item.size,
-            extras: extras.length > 0 ? extras : undefined, // Extras ayrı tutulur
+        // Add campaign as single product
+        orderProducts.push({
+          id: campaignId, // Use actual campaign ID from database
+          isPaid: false,
+          price: campaignPrice,
+          size: undefined,
+          extras: undefined,
+          campaignId: campaignId,
+          campaignName: campaignName,
+          products: campaignProducts, // Campaign's internal products
+        });
+      } else {
+        // Regular order - add individual products
+        for (const item of body.orderItems) {
+          const menuItem = await tx.menuItem.findUniqueOrThrow({
+            where: { id: item.menuItemId },
+            include: { prices: true },
           });
+
+          // Size fiyatını hesapla
+          let itemPrice = menuItem.price;
+          if (menuItem.hasSizes && item.size && menuItem.prices) {
+            const sizePrice = menuItem.prices.find((p) => p.size === item.size);
+            if (sizePrice) {
+              itemPrice = sizePrice.price;
+            }
+          }
+
+          // Extras fiyatlarını hesapla (ayrı tutulacak)
+          const extras = [];
+
+          if (item.extras && item.extras.length > 0) {
+            for (const extra of item.extras) {
+              const extraItem = await tx.extra.findUnique({
+                where: { id: extra.extraId },
+              });
+              if (extraItem) {
+                const extraPrice = extraItem.price * extra.quantity;
+                extras.push({
+                  id: extra.extraId,
+                  name: extraItem.name,
+                  price: extraPrice,
+                });
+              }
+            }
+          }
+
+          // Her ürün için ayrı entry oluştur (ürün fiyatı sabit, extras ayrı)
+          for (let i = 0; i < item.quantity; i++) {
+            orderProducts.push({
+              id: item.menuItemId,
+              isPaid: false,
+              price: itemPrice, // Sadece ürün fiyatı (sabit)
+              size: item.size,
+              extras: extras.length > 0 ? extras : undefined, // Extras ayrı tutulur
+            });
+          }
         }
       }
 
@@ -166,6 +248,9 @@ export async function POST(
           staffId: session.user.id,
           totalAmount,
           products: orderProducts,
+          campaignId,
+          campaignName,
+          campaignPrice,
         },
       });
 

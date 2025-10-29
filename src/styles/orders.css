@@ -113,6 +113,15 @@
   @apply z-20;
 }
 
+/* Order Number Input Styles */
+.orders-table-order-input {
+  @apply flex-shrink-0 z-10;
+}
+
+.orders-table-order-input input {
+  @apply w-16 h-8 text-xs text-center;
+}
+
 /* Order Product Card Styles */
 .order-product-card {
   @apply transition-all duration-200 flex flex-col h-full;
@@ -379,12 +388,24 @@
   border: 2px dashed hsl(var(--primary));
 }
 
-.orders-table-item {
-  cursor: grab;
+/* Drag Handle Styles */
+.orders-table-drag-handle {
+  @apply flex items-center justify-center p-2 rounded hover:bg-muted/50 transition-colors touch-none;
+  min-width: 32px;
+  min-height: 32px;
 }
 
-.orders-table-item:active {
-  cursor: grabbing;
+.orders-table-drag-handle:hover {
+  @apply bg-muted/70;
+}
+
+.orders-table-drag-handle:active {
+  @apply bg-muted/90;
+}
+
+/* Ensure smooth dragging */
+.orders-table-item {
+  touch-action: none;
 }
 
 /* Confirmation Modal Styles */

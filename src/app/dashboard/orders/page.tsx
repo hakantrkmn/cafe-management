@@ -35,6 +35,7 @@ export default function OrdersPage() {
     onTransferOrder,
     availableTables,
     onTableOrderChange,
+    onCampaignSelect,
   } = useOrdersPage();
 
   // Auto page loading
@@ -124,9 +125,8 @@ export default function OrdersPage() {
           onMarkProductAsPaid={markProductAsPaid}
           onDeleteProduct={deleteProduct}
           onRefresh={refreshOrders}
-          onTransferOrder={onTransferOrder}
-          availableTables={availableTables}
           onSaveCartItemDirectly={saveCartItemDirectly}
+          onCampaignSelect={onCampaignSelect}
           isSaving={orderOperations.isSaving}
         />
       </div>

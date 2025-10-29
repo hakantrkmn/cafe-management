@@ -56,6 +56,7 @@ model Cafe {
   categories  Category[]
   menuItems   MenuItem[]
   extras      Extra[]
+  campaigns   Campaign[]
   tables      Table[]
   orders      Order[]
 
@@ -109,6 +110,7 @@ model MenuItem {
   category     Category        @relation(fields: [categoryId], references: [id])
   orderItems   OrderItem[]
   prices       MenuItemPrice[] // Size-specific prices
+  campaignItems CampaignItem[]
 
   @@map("menuItems")
 }
@@ -141,6 +143,38 @@ model Extra {
   @@map("extras")
 }
 
+model Campaign {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId      String   @db.ObjectId
+  name        String
+  description String?
+  price       Float
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  cafe          Cafe            @relation(fields: [cafeId], references: [id])
+  campaignItems CampaignItem[]
+  orders        Order[]
+
+  @@map("campaigns")
+}
+
+model CampaignItem {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  campaignId String       @db.ObjectId
+  menuItemId String       @db.ObjectId
+  quantity   Int
+  size       MenuItemSize?
+
+  // Relations
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@map("campaignItems")
+}
+
 model Table {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   cafeId     String   @db.ObjectId
@@ -164,6 +198,9 @@ model Order {
   totalAmount Float
   isPaid      Boolean   @default(false)
   products    Json[]    @default([]) // Her ürün için ayrı ödeme durumu: [{id: string, isPaid: boolean, price: number}]
+  campaignId  String?   @db.ObjectId // Optional campaign reference
+  campaignName String?  // Campaign name for display
+  campaignPrice Float?  // Campaign price for display
   createdAt   DateTime  @default(now())
   paidAt      DateTime?
   updatedAt   DateTime  @updatedAt
@@ -172,6 +209,7 @@ model Order {
   cafe       Cafe         @relation(fields: [cafeId], references: [id])
   table      Table        @relation(fields: [tableId], references: [id])
   staff      User         @relation(fields: [staffId], references: [id])
+  campaign   Campaign?    @relation(fields: [campaignId], references: [id])
   orderItems OrderItem[]
 
   @@map("orders")

@@ -9,6 +9,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SWIPE_THRESHOLD } from "@/lib/constants";
 import {
+  CampaignWithRelations,
   Category,
   Extra,
   ExtraWithQuantity,
@@ -16,7 +17,6 @@ import {
   MenuItemWithRelations,
   OrderCartItem,
   OrderWithRelations,
-  Table,
 } from "@/types";
 import { useRef, useState } from "react";
 import { ExtraSelectionDialog } from "./ExtraSelectionDialog";
@@ -50,14 +50,13 @@ interface OrderDialogProps {
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   onDeleteProduct: (orderId: string, productIndex: number) => void;
   onRefresh: () => void;
-  onTransferOrder?: (sourceTableId: string, targetTableId: string) => void;
-  availableTables?: Table[];
   onSaveCartItemDirectly: (
     menuItem: MenuItemWithRelations,
     quantity: number,
     extras: ExtraWithQuantity[],
     size?: MenuItemSize
   ) => Promise<void>;
+  onCampaignSelect: (campaign: CampaignWithRelations) => void;
   isSaving: boolean;
 }
 
@@ -82,9 +81,8 @@ export function OrderDialog({
   onMarkProductAsPaid,
   onDeleteProduct,
   onRefresh,
-  onTransferOrder,
-  availableTables,
   onSaveCartItemDirectly,
+  onCampaignSelect,
   isSaving,
 }: OrderDialogProps) {
   const [selectedMenuItem, setSelectedMenuItem] =
@@ -233,6 +231,7 @@ export function OrderDialog({
                       categories={categories}
                       menuItems={menuItems}
                       onItemSelect={handleItemSelect}
+                      onCampaignSelect={onCampaignSelect}
                     />
                   </div>
                 </div>

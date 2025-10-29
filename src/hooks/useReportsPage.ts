@@ -80,6 +80,7 @@ export function useReportsPage() {
         orders: [],
         topProducts: [],
         tableStats: [],
+        campaignStats: [],
         chartData: {
           hourlyRevenue: [],
           dailyRevenue: [],

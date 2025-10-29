@@ -1,6 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { CreateOrderItemRequest } from "@/types";
+import { CreateOrderItemRequest, OrderProduct } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -220,11 +220,67 @@ export async function PATCH(
           select: { products: true },
         });
 
-        // Combine with existing products in this order only (allow duplicates)
-        const updatedProducts = [
-          ...(currentOrder?.products || []),
-          ...resolvedNewProducts.flat(),
-        ];
+        let updatedProducts: OrderProduct[] = [];
+
+        // Check if this is a campaign addition with campaign info
+        if (body.campaignId && body.campaignName && body.campaignPrice) {
+          // Create campaign product with internal products array
+          const campaignProducts = [];
+
+          for (const item of body.orderItems) {
+            const menuItem = await tx.menuItem.findUniqueOrThrow({
+              where: { id: item.menuItemId },
+              include: { prices: true },
+            });
+
+            // Size fiyatını hesapla
+            let itemPrice = menuItem.price;
+            if (menuItem.hasSizes && item.size && menuItem.prices) {
+              const sizePrice = menuItem.prices.find(
+                (p) => p.size === item.size
+              );
+              if (sizePrice) {
+                itemPrice = sizePrice.price;
+              }
+            }
+
+            // Add to campaign products array
+            campaignProducts.push({
+              id: item.menuItemId,
+              price: itemPrice,
+              quantity: item.quantity,
+              size: item.size,
+            });
+          }
+
+          // Create campaign product
+          const existingProducts =
+            (currentOrder?.products as unknown as OrderProduct[]) || [];
+          updatedProducts = [
+            ...existingProducts,
+            {
+              id: body.campaignId, // Use actual campaign ID from database
+              isPaid: false,
+              price: body.campaignPrice,
+              size: undefined,
+              extras: undefined,
+              campaignId: body.campaignId,
+              campaignName: body.campaignName,
+              products: campaignProducts, // Campaign's internal products
+            },
+          ];
+
+          // Update additionalTotal to use campaign price
+          additionalTotal = body.campaignPrice;
+        } else {
+          // Regular order - combine with existing products (allow duplicates)
+          const existingProducts =
+            (currentOrder?.products as unknown as OrderProduct[]) || [];
+          updatedProducts = [
+            ...existingProducts,
+            ...resolvedNewProducts.flat(),
+          ];
+        }
 
         // Create new order items
         for (const orderItem of body.orderItems) {
@@ -307,7 +363,8 @@ export async function PATCH(
             totalAmount: {
               increment: additionalTotal,
             },
-            products: updatedProducts, // Sadece bu siparişin ürünleri
+            // @ts-expect-error Prisma JSON field type compatibility
+            products: updatedProducts,
           },
           include: {
             table: true,

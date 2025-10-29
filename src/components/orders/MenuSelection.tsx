@@ -1,5 +1,6 @@
 "use client";
 
+import { CampaignSelectionCard } from "@/components/orders/CampaignSelectionCard";
 import { MenuItemSelectionCard } from "@/components/orders/MenuItemSelectionCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,23 +11,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/queries/auth";
+import { useCampaigns } from "@/queries/campaign";
 import { usePopularProductsStore } from "@/store/popularProductsStore";
-import { Category, MenuItemSize, MenuItemWithRelations } from "@/types";
-import { ChevronDown, Coffee, Search, Star } from "lucide-react";
+import {
+  CampaignWithRelations,
+  Category,
+  MenuItemSize,
+  MenuItemWithRelations,
+} from "@/types";
+import { ChevronDown, Coffee, Search, Star, Tag } from "lucide-react";
 import { useState } from "react";
 
 interface MenuSelectionProps {
   categories: Category[];
   menuItems: MenuItemWithRelations[];
   onItemSelect: (menuItem: MenuItemWithRelations, size?: MenuItemSize) => void;
+  onCampaignSelect: (campaign: CampaignWithRelations) => void;
 }
 
 export function MenuSelection({
   categories,
   menuItems,
   onItemSelect,
+  onCampaignSelect,
 }: MenuSelectionProps) {
   const { popularProducts } = usePopularProductsStore();
+  const { user } = useAuth();
+
+  // Get cafeId early to avoid conditional hooks
+  const cafeId = user?.cafeId || user?.managedCafe?.id;
+  const { data: campaigns = [] } = useCampaigns(cafeId || "");
+
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null // Başlangıçta "Tümü" seçili
   );
@@ -42,6 +58,10 @@ export function MenuSelection({
       return menuItems.filter(
         (item) => popularIds.includes(item.id) && item.isAvailable
       );
+    }
+    if (categoryId === "campaigns") {
+      // Kampanyaları göster
+      return [];
     }
     return menuItems.filter(
       (item) => item.categoryId === categoryId && item.isAvailable
@@ -59,6 +79,7 @@ export function MenuSelection({
   const getSelectedCategoryName = () => {
     if (selectedCategoryId === null) return "Tüm Kategoriler";
     if (selectedCategoryId === "popular") return "Popüler Ürünler";
+    if (selectedCategoryId === "campaigns") return "Kampanyalar";
     return selectedCategory?.name || "Kategori Seçin";
   };
 
@@ -96,6 +117,15 @@ export function MenuSelection({
               >
                 Tüm Kategoriler
               </DropdownMenuItem>
+              {campaigns.length > 0 && (
+                <DropdownMenuItem
+                  onClick={() => setSelectedCategoryId("campaigns")}
+                  className="cursor-pointer flex items-center gap-2"
+                >
+                  <Tag className="h-4 w-4 text-primary" />
+                  Kampanyalar ({campaigns.length})
+                </DropdownMenuItem>
+              )}
               {popularProducts.length > 0 && (
                 <DropdownMenuItem
                   onClick={() => setSelectedCategoryId("popular")}
@@ -128,8 +158,27 @@ export function MenuSelection({
         </div>
       </div>
 
-      {/* Menu Items Grid */}
-      {categoryItems.length === 0 ? (
+      {/* Content Grid */}
+      {selectedCategoryId === "campaigns" ? (
+        // Show Campaigns
+        campaigns.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">Aktif kampanya bulunmuyor</p>
+          </Card>
+        ) : (
+          <div className="menu-selection-grid">
+            {campaigns
+              .filter((campaign) => campaign.isActive)
+              .map((campaign) => (
+                <CampaignSelectionCard
+                  key={campaign.id}
+                  campaign={campaign}
+                  onSelect={onCampaignSelect}
+                />
+              ))}
+          </div>
+        )
+      ) : categoryItems.length === 0 ? (
         <Card className="p-8 text-center">
           <p className="text-muted-foreground">Bu kategoride ürün bulunmuyor</p>
         </Card>

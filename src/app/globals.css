@@ -578,3 +578,6 @@
   flex-shrink: 0;
   margin-top: auto;
 }
+
+/* Import component-specific styles */
+@import "../styles/campaigns.css";

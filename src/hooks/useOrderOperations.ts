@@ -21,9 +21,15 @@ interface UseOrderOperationsReturn {
   orders: OrderWithRelations[];
   getTableOrders: (tableId: string) => OrderWithRelations[];
   saveOrder: (tableId: string, cartItems: OrderCartItem[]) => Promise<void>;
+  createOrder: ReturnType<typeof useCreateOrder>;
   addToExistingOrder: (
     orderId: string,
-    cartItems: OrderCartItem[]
+    cartItems: OrderCartItem[],
+    campaignInfo?: {
+      campaignId: string;
+      campaignName: string;
+      campaignPrice: number;
+    }
   ) => Promise<void>;
   markOrderAsPaid: (
     orderId: string,
@@ -121,7 +127,15 @@ export function useOrderOperations({
 
   // Add items to existing order using centralized calculator
   const addToExistingOrder = useCallback(
-    async (orderId: string, cartItems: OrderCartItem[]): Promise<void> => {
+    async (
+      orderId: string,
+      cartItems: OrderCartItem[],
+      campaignInfo?: {
+        campaignId: string;
+        campaignName: string;
+        campaignPrice: number;
+      }
+    ): Promise<void> => {
       if (!cafeId || cartItems.length === 0) return;
 
       // Validate cart items before adding
@@ -151,7 +165,14 @@ export function useOrderOperations({
         await updateOrderMutation.mutateAsync({
           cafeId,
           orderId,
-          data: { orderItems: orderData.orderItems },
+          data: {
+            orderItems: orderData.orderItems,
+            ...(campaignInfo && {
+              campaignId: campaignInfo.campaignId,
+              campaignName: campaignInfo.campaignName,
+              campaignPrice: campaignInfo.campaignPrice,
+            }),
+          },
         });
       } catch (error) {
         console.error("Error adding to existing order:", error);
@@ -426,6 +447,7 @@ export function useOrderOperations({
     orders,
     getTableOrders,
     saveOrder,
+    createOrder: createOrderMutation,
     addToExistingOrder,
     markOrderAsPaid,
     markProductAsPaid,

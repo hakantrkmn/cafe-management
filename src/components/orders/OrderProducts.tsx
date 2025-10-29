@@ -35,6 +35,73 @@ export function OrderProducts({
   return (
     <div className="order-products-grid">
       {order.products.map((product: OrderProduct, index) => {
+        // Check if this is a campaign product
+        if (product.campaignId && product.campaignName) {
+          return (
+            <Card
+              key={`${product.id}-${index}`}
+              className={`order-product-card ${
+                product.isPaid ? "paid" : "unpaid"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-medium">{product.campaignName}</h4>
+                    <Badge variant="secondary" className="text-xs">
+                      Kampanya
+                    </Badge>
+                  </div>
+                  <p className="text-sm font-medium text-primary">
+                    {formatPrice(product.price)}
+                  </p>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Kampanya içeriği:
+                    {product.products?.map((campaignProduct, itemIndex) => {
+                      // Find menu item name from orderItems
+                      const menuItem = order.orderItems.find(
+                        (item) => item.menuItemId === campaignProduct.id
+                      )?.menuItem;
+                      const menuItemName = menuItem?.name || "Bilinmeyen Ürün";
+
+                      return (
+                        <span key={itemIndex}>
+                          {itemIndex > 0 && ", "}
+                          {campaignProduct.quantity} adet {menuItemName}
+                          {campaignProduct.size &&
+                            ` (${
+                              campaignProduct.size === "SMALL"
+                                ? "Küçük"
+                                : campaignProduct.size === "MEDIUM"
+                                ? "Orta"
+                                : "Büyük"
+                            })`}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {product.isPaid ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onMarkProductAsPaid(order.id, index)}
+                      disabled={isSaving}
+                    >
+                      <CreditCard className="h-4 w-4 mr-1" />
+                      Öde
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          );
+        }
+
+        // Regular product handling
         // Bu ürün için menu item bilgisini bul
         const menuItem = order.orderItems.find(
           (item) => item.menuItemId === product.id

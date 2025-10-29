@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: for ai to remember and save memory
+alwaysApply: false
 ---
 
 # Cline's Memory Bank

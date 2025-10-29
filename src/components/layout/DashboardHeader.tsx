@@ -19,6 +19,7 @@ import {
   Settings,
   ShoppingCart,
   Table,
+  Tag,
   User,
   Users,
   X,
@@ -72,6 +73,13 @@ export function DashboardHeader() {
                 <Link href="/dashboard/menu" className="dashboard-nav-link">
                   <Menu className="h-4 w-4" />
                   Menü Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/campaigns"
+                  className="dashboard-nav-link"
+                >
+                  <Tag className="h-4 w-4" />
+                  Kampanyalar
                 </Link>
                 <Link href="/dashboard/tables" className="dashboard-nav-link">
                   <Table className="h-4 w-4" />
@@ -223,6 +231,14 @@ export function DashboardHeader() {
                 >
                   <Menu className="h-5 w-5" />
                   Menü Yönetimi
+                </Link>
+                <Link
+                  href="/dashboard/campaigns"
+                  className="dashboard-mobile-menu-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Tag className="h-5 w-5" />
+                  Kampanyalar
                 </Link>
                 <Link
                   href="/dashboard/tables"

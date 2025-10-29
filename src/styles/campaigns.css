@@ -1,0 +1,174 @@
+/* Campaign Management Styles */
+
+.campaigns-content-container {
+  @apply space-y-6;
+}
+
+/* Campaign Card Styles */
+.campaign-card {
+  @apply transition-all duration-200 hover:shadow-md;
+}
+
+.campaign-card:hover {
+  @apply transform -translate-y-1;
+}
+
+/* Campaign Form Styles */
+.campaign-form-container {
+  @apply space-y-6;
+}
+
+.campaign-item-row {
+  @apply flex items-center gap-3 p-3 border rounded-lg bg-muted/30;
+}
+
+.campaign-item-row:hover {
+  @apply bg-muted/50;
+}
+
+.campaign-price-summary {
+  @apply p-4 bg-muted rounded-lg space-y-2;
+}
+
+.campaign-price-row {
+  @apply flex items-center justify-between text-sm;
+}
+
+.campaign-price-total {
+  @apply font-bold text-primary text-lg;
+}
+
+.campaign-discount {
+  @apply text-green-600 font-semibold;
+}
+
+/* Campaign List Styles */
+.campaign-list-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.campaign-empty-state {
+  @apply flex flex-col items-center justify-center py-12 text-center;
+}
+
+.campaign-empty-icon {
+  @apply w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4;
+}
+
+.campaign-empty-title {
+  @apply text-lg font-semibold mb-2;
+}
+
+.campaign-empty-description {
+  @apply text-muted-foreground mb-4 max-w-md;
+}
+
+/* Campaign Status Badges */
+.campaign-status-active {
+  @apply bg-green-100 text-green-800 border-green-200;
+}
+
+.campaign-status-inactive {
+  @apply bg-gray-100 text-gray-800 border-gray-200;
+}
+
+/* Campaign Item Display */
+.campaign-item-display {
+  @apply space-y-1;
+}
+
+.campaign-item-row-display {
+  @apply flex items-center justify-between text-sm;
+}
+
+.campaign-item-quantity {
+  @apply font-medium;
+}
+
+.campaign-item-size-badge {
+  @apply text-xs;
+}
+
+.campaign-item-price {
+  @apply text-muted-foreground;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .campaign-list-grid {
+    @apply grid-cols-1;
+  }
+
+  .campaign-item-row {
+    @apply flex-col items-stretch gap-2;
+  }
+
+  .campaign-item-row > div {
+    @apply w-full;
+  }
+}
+
+/* Animation for campaign cards */
+@keyframes campaign-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.campaign-card {
+  animation: campaign-fade-in 0.3s ease-out;
+}
+
+/* Campaign selection in orders */
+.campaign-selection-card {
+  @apply border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-colors cursor-pointer;
+}
+
+.campaign-selection-card:hover {
+  @apply bg-primary/5;
+}
+
+.campaign-selection-card.selected {
+  @apply border-primary bg-primary/10;
+}
+
+/* Campaign form validation */
+.campaign-form-error {
+  @apply border-destructive;
+}
+
+.campaign-form-error-message {
+  @apply text-sm text-destructive mt-1;
+}
+
+/* Campaign loading states */
+.campaign-loading-skeleton {
+  @apply h-64 bg-muted animate-pulse rounded-lg;
+}
+
+/* Campaign dialog styles */
+.campaign-dialog-content {
+  @apply max-w-2xl max-h-[90vh] overflow-y-auto;
+}
+
+/* Campaign price comparison */
+.campaign-price-comparison {
+  @apply p-3 bg-muted rounded-lg space-y-1;
+}
+
+.campaign-price-normal {
+  @apply text-sm text-muted-foreground line-through;
+}
+
+.campaign-price-campaign {
+  @apply text-lg font-bold text-primary;
+}
+
+.campaign-savings {
+  @apply text-sm font-semibold text-green-600;
+}

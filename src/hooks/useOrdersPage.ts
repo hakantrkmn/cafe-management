@@ -6,7 +6,9 @@ import { useMenu } from "@/queries/menu";
 import { useTables } from "@/queries/tables";
 import { useTableOrderStore } from "@/store/tableOrderStore";
 import {
+  CampaignWithRelations,
   ExtraWithQuantity,
+  MenuItemPrice,
   MenuItemSize,
   MenuItemWithRelations,
   Table,
@@ -266,6 +268,138 @@ export function useOrdersPage() {
     [cafeId, setTableOrder]
   );
 
+  // Handle campaign selection
+  const handleCampaignSelect = useCallback(
+    async (campaign: CampaignWithRelations) => {
+      if (!selectedTableId) {
+        toast.error("Lütfen önce bir masa seçin");
+        return;
+      }
+
+      try {
+        // Check if there are existing unpaid orders for this table
+        const existingOrders = orderOperations.getTableOrders(selectedTableId);
+
+        if (existingOrders.length > 0) {
+          // Add campaign to existing order
+          const campaignCartItems = campaign.campaignItems.map(
+            (campaignItem) => {
+              // Find the full menu item from our menu data
+              const fullMenuItem = menu.menuItems.find(
+                (item: MenuItemWithRelations) =>
+                  item.id === campaignItem.menuItemId
+              );
+
+              if (!fullMenuItem) {
+                throw new Error(
+                  `Menu item not found: ${campaignItem.menuItemId}`
+                );
+              }
+
+              let size = campaignItem.size;
+              let itemPrice = fullMenuItem.price;
+
+              // If menu item has sizes but no size is specified in campaign, use the first available size
+              if (fullMenuItem.hasSizes && !size) {
+                const availableSizes =
+                  fullMenuItem.prices?.map((p: MenuItemPrice) => p.size) || [];
+                if (availableSizes.length > 0) {
+                  size = availableSizes[0]; // Use the first available size as default
+                }
+              }
+
+              // Calculate price based on size
+              if (fullMenuItem.hasSizes && size && fullMenuItem.prices) {
+                const sizePrice = fullMenuItem.prices.find(
+                  (p: MenuItemPrice) => p.size === size
+                );
+                if (sizePrice) {
+                  itemPrice = sizePrice.price;
+                }
+              }
+
+              return {
+                id: `${campaignItem.menuItemId}_${Date.now()}`, // temporary ID for local state
+                menuItemId: campaignItem.menuItemId,
+                menuItemName: fullMenuItem.name,
+                menuItemPrice: itemPrice,
+                quantity: campaignItem.quantity,
+                size: size || undefined,
+                extras: [], // Campaign items don't have extras
+                subtotal: itemPrice * campaignItem.quantity,
+              };
+            }
+          );
+
+          // Add campaign to existing order with campaign info
+          await orderOperations.addToExistingOrder(
+            existingOrders[0].id,
+            campaignCartItems,
+            {
+              campaignId: campaign.id,
+              campaignName: campaign.name,
+              campaignPrice: campaign.price,
+            }
+          );
+          toast.success(`${campaign.name} kampanyası mevcut siparişe eklendi`);
+        } else {
+          // Create new order with campaign
+          const campaignOrderItems = campaign.campaignItems.map(
+            (campaignItem) => {
+              // Find the full menu item from our menu data
+              const fullMenuItem = menu.menuItems.find(
+                (item: MenuItemWithRelations) =>
+                  item.id === campaignItem.menuItemId
+              );
+
+              if (!fullMenuItem) {
+                throw new Error(
+                  `Menu item not found: ${campaignItem.menuItemId}`
+                );
+              }
+
+              let size = campaignItem.size;
+
+              // If menu item has sizes but no size is specified in campaign, use the first available size
+              if (fullMenuItem.hasSizes && !size) {
+                const availableSizes =
+                  fullMenuItem.prices?.map((p: MenuItemPrice) => p.size) || [];
+                if (availableSizes.length > 0) {
+                  size = availableSizes[0]; // Use the first available size as default
+                }
+              }
+
+              return {
+                menuItemId: campaignItem.menuItemId,
+                quantity: campaignItem.quantity,
+                size: size || undefined,
+                extras: [], // Campaign items don't have extras
+              };
+            }
+          );
+
+          // Create order with campaign
+          const orderData = {
+            tableId: selectedTableId,
+            orderItems: campaignOrderItems,
+          };
+
+          // Use the createOrder mutation directly
+          await orderOperations.createOrder.mutateAsync({
+            cafeId: cafeId!,
+            data: orderData,
+          });
+
+          toast.success(`${campaign.name} kampanyası siparişe eklendi`);
+        }
+      } catch (error) {
+        console.error("Error adding campaign to order:", error);
+        toast.error("Kampanya siparişe eklenirken hata oluştu");
+      }
+    },
+    [selectedTableId, menu.menuItems, orderOperations, cafeId]
+  );
+
   return {
     // Auth state
     isAuthenticated,
@@ -301,6 +435,9 @@ export function useOrdersPage() {
 
     // Direct save functionality
     saveCartItemDirectly,
+
+    // Campaign functionality
+    onCampaignSelect: handleCampaignSelect,
 
     // Transfer functionality
     onTransferOrder: handleTransferOrder,
