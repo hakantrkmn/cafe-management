@@ -17,6 +17,7 @@ import {
   ChevronUp,
   Eye,
   GripVertical,
+  Package,
   Table as TableIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -31,6 +32,11 @@ interface TableLayoutEditorProps {
   availableTables?: Table[];
   isSaving?: boolean;
   onTableOrderChange?: (tableIds: string[]) => void;
+  takeawayOrders?: {
+    orderCount: number;
+    totalAmount: number;
+  };
+  onTakeawayClick?: () => void;
 }
 
 export function TableLayoutEditor({
@@ -42,6 +48,8 @@ export function TableLayoutEditor({
   availableTables = [],
   isSaving = false,
   onTableOrderChange,
+  takeawayOrders,
+  onTakeawayClick,
 }: TableLayoutEditorProps) {
   const { showConfirmation } = useConfirmationModal();
   const isMobile = useIsMobile();
@@ -151,6 +159,70 @@ export function TableLayoutEditor({
           Siparişleri yönetmek için bir masa seçin
         </p>
       </div>
+
+      {/* Takeaway Card */}
+      {onTakeawayClick && (
+        <div
+          className={`orders-table-item ${
+            !isMobile ? "cursor-pointer" : "touch-none"
+          } bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 dark:from-orange-950/20 dark:to-orange-900/10 dark:border-orange-800`}
+          onClick={!isMobile ? onTakeawayClick : undefined}
+          onTouchStart={isMobile ? (e) => e.preventDefault() : undefined}
+        >
+          <div className="orders-table-item-header">
+            <div className="flex items-center gap-3">
+              <div className="orders-table-item-icon bg-orange-500">
+                <Package className="h-5 w-5 text-white" />
+              </div>
+              <div className="orders-table-item-content">
+                <h3 className="orders-table-item-name">Paket Servis</h3>
+                <Badge className="bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-400 dark:border-orange-800">
+                  Takeaway
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* View Button - Only show on mobile */}
+              {isMobile && (
+                <div
+                  className="orders-table-view-button"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={onTakeawayClick}
+                    className="orders-table-view-btn"
+                    title="Paket servisi görüntüle"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span className="text-xs">Görüntüle</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {takeawayOrders && takeawayOrders.orderCount > 0 && (
+            <div className="orders-table-item-orders">
+              <div className="orders-table-item-stat">
+                <span className="text-xs text-muted-foreground">
+                  Siparişler
+                </span>
+                <span className="font-semibold">
+                  {takeawayOrders.orderCount}
+                </span>
+              </div>
+              <div className="orders-table-item-stat">
+                <span className="text-xs text-muted-foreground">Toplam</span>
+                <span className="font-semibold">
+                  {takeawayOrders.totalAmount.toFixed(2)} ₺
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Table List */}
       <ReactSortable

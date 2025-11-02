@@ -2,6 +2,7 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { OrderDialog } from "@/components/orders/OrderDialog";
+import { TakeawayOrderDialog } from "@/components/orders/TakeawayOrderDialog";
 import { TableLayoutEditor } from "@/components/orders/TableLayoutEditor";
 import { useOrdersPage } from "@/hooks/useOrdersPage";
 import { usePageLoading } from "@/hooks/usePageLoading";
@@ -19,9 +20,12 @@ export default function OrdersPage() {
     menu,
     selectedTableId,
     orderDialogOpen,
+    takeawayDialogOpen,
     tableManagement,
     cartManagement,
+    takeawayCartManagement,
     orderOperations,
+    takeawayOrderOperations,
     getTableOrders,
     getTablePaidOrders,
     saveOrder,
@@ -36,6 +40,18 @@ export default function OrdersPage() {
     availableTables,
     onTableOrderChange,
     onCampaignSelect,
+    onTakeawayClick,
+    closeTakeawayDialog,
+    saveTakeawayOrder,
+    addToExistingTakeawayOrder,
+    markAllTakeawayAsPaid,
+    saveTakeawayCartItemDirectly,
+    getTakeawayOrders,
+    getTakeawayPaidOrders,
+    takeawayOrdersStats,
+    markTakeawayProductAsPaid,
+    deleteTakeawayProduct,
+    refreshTakeawayOrders,
   } = useOrdersPage();
 
   // Auto page loading
@@ -101,6 +117,8 @@ export default function OrdersPage() {
           availableTables={availableTables}
           isSaving={orderOperations.isSaving}
           onTableOrderChange={onTableOrderChange}
+          takeawayOrders={takeawayOrdersStats}
+          onTakeawayClick={onTakeawayClick}
         />
 
         {/* Order Dialog */}
@@ -128,6 +146,31 @@ export default function OrdersPage() {
           onSaveCartItemDirectly={saveCartItemDirectly}
           onCampaignSelect={onCampaignSelect}
           isSaving={orderOperations.isSaving}
+        />
+
+        {/* Takeaway Order Dialog */}
+        <TakeawayOrderDialog
+          open={takeawayDialogOpen}
+          onOpenChange={closeTakeawayDialog}
+          categories={menu.categories}
+          menuItems={menu.menuItems}
+          extras={menu.extras}
+          cartItems={takeawayCartManagement.cartItems}
+          cartTotal={takeawayCartManagement.cartTotal}
+          existingOrders={getTakeawayOrders()}
+          paidOrders={getTakeawayPaidOrders()}
+          onAddToCart={takeawayCartManagement.addToCart}
+          onUpdateQuantity={takeawayCartManagement.updateCartItemQuantity}
+          onRemoveItem={takeawayCartManagement.removeFromCart}
+          onSaveOrder={saveTakeawayOrder}
+          onAddToExistingOrder={addToExistingTakeawayOrder}
+          onMarkAllAsPaid={markAllTakeawayAsPaid}
+          onMarkProductAsPaid={markTakeawayProductAsPaid}
+          onDeleteProduct={deleteTakeawayProduct}
+          onRefresh={refreshTakeawayOrders}
+          onSaveCartItemDirectly={saveTakeawayCartItemDirectly}
+          onCampaignSelect={onCampaignSelect}
+          isSaving={takeawayOrderOperations.isSaving}
         />
       </div>
     </DashboardLayout>

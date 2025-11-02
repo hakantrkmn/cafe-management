@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatOrderId, formatPrice } from "@/lib/formatters";
-import { OrderCartItem, OrderWithRelations } from "@/types";
+import {
+  OrderCartItem,
+  OrderWithRelations,
+  TakeawayOrderWithRelations,
+} from "@/types";
 import {
   CreditCard,
   Minus,
@@ -20,7 +24,7 @@ import { OrderProducts } from "./OrderProducts";
 interface OrderSummaryProps {
   cartItems: OrderCartItem[];
   cartTotal: number;
-  existingOrders: OrderWithRelations[];
+  existingOrders: (OrderWithRelations | TakeawayOrderWithRelations)[];
   onUpdateQuantity: (itemId: string, quantity: number) => void;
   onRemoveItem: (itemId: string) => void;
   onSaveOrder: () => void;
@@ -31,6 +35,13 @@ interface OrderSummaryProps {
   onRefresh: () => void;
   isSaving: boolean;
   selectedTableName?: string;
+}
+
+// Type guard to check if order is a regular order
+function isOrderWithRelations(
+  order: OrderWithRelations | TakeawayOrderWithRelations
+): order is OrderWithRelations {
+  return "orderItems" in order && "table" in order;
 }
 
 export function OrderSummary({
@@ -115,7 +126,11 @@ export function OrderSummary({
                               acc[product.campaignName] =
                                 (acc[product.campaignName] || 0) + 1;
                             } else {
-                              const menuItem = order.orderItems.find(
+                              // Handle both regular orders and takeaway orders
+                              const orderItems = isOrderWithRelations(order)
+                                ? order.orderItems
+                                : order.takeawayOrderItems;
+                              const menuItem = orderItems.find(
                                 (item) => item.menuItemId === product.id
                               )?.menuItem;
                               const name = menuItem?.name || "Bilinmeyen Ürün";

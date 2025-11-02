@@ -6,13 +6,23 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatOrderId, formatPrice } from "@/lib/formatters";
-import { OrderWithRelations } from "@/types";
+import {
+  OrderWithRelations,
+  TakeawayOrderWithRelations,
+} from "@/types";
 import { Calendar, Clock, User } from "lucide-react";
 import { useState } from "react";
 
 interface OrderHistoryProps {
-  paidOrders: OrderWithRelations[];
+  paidOrders: (OrderWithRelations | TakeawayOrderWithRelations)[];
   selectedTableName?: string;
+}
+
+// Type guard to check if order is a regular order
+function isOrderWithRelations(
+  order: OrderWithRelations | TakeawayOrderWithRelations
+): order is OrderWithRelations {
+  return "orderItems" in order && "table" in order;
 }
 
 export function OrderHistory({
@@ -203,9 +213,12 @@ export function OrderHistory({
                                   <div className="ml-4 space-y-1 border-l-2 border-blue-200 pl-2">
                                     {product.products.map(
                                       (internalProduct, internalIndex) => {
-                                        // Find menu item for internal product
+                                        // Find menu item for internal product (support both order types)
+                                        const orderItems = isOrderWithRelations(order)
+                                          ? order.orderItems
+                                          : order.takeawayOrderItems;
                                         const internalMenuItem =
-                                          order.orderItems.find(
+                                          orderItems.find(
                                             (item) =>
                                               item.menuItemId ===
                                               internalProduct.id
@@ -244,8 +257,11 @@ export function OrderHistory({
                         }
 
                         // Regular product
-                        // Find menu item info
-                        const menuItem = order.orderItems.find(
+                        // Find menu item info (support both order types)
+                        const orderItems = isOrderWithRelations(order)
+                          ? order.orderItems
+                          : order.takeawayOrderItems;
+                        const menuItem = orderItems.find(
                           (item) => item.menuItemId === product.id
                         )?.menuItem;
 

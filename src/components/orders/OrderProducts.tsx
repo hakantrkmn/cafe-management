@@ -5,14 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatPrice } from "@/lib/formatters";
-import { OrderProduct, OrderWithRelations } from "@/types";
+import {
+  OrderProduct,
+  OrderWithRelations,
+  TakeawayOrderWithRelations,
+} from "@/types";
 import { CheckCircle, CreditCard } from "lucide-react";
 
 interface OrderProductsProps {
-  order: OrderWithRelations;
+  order: OrderWithRelations | TakeawayOrderWithRelations;
   onMarkProductAsPaid: (orderId: string, productIndex: number) => void;
   onDeleteProduct: (orderId: string, productIndex: number) => void;
   isSaving: boolean;
+}
+
+// Type guard to check if order is a regular order
+function isOrderWithRelations(
+  order: OrderWithRelations | TakeawayOrderWithRelations
+): order is OrderWithRelations {
+  return "orderItems" in order && "table" in order;
 }
 
 export function OrderProducts({
@@ -58,8 +69,11 @@ export function OrderProducts({
                   <div className="text-xs text-muted-foreground mt-1">
                     Kampanya içeriği:
                     {product.products?.map((campaignProduct, itemIndex) => {
-                      // Find menu item name from orderItems
-                      const menuItem = order.orderItems.find(
+                      // Find menu item name from orderItems (support both order types)
+                      const orderItems = isOrderWithRelations(order)
+                        ? order.orderItems
+                        : order.takeawayOrderItems;
+                      const menuItem = orderItems.find(
                         (item) => item.menuItemId === campaignProduct.id
                       )?.menuItem;
                       const menuItemName = menuItem?.name || "Bilinmeyen Ürün";
@@ -102,20 +116,32 @@ export function OrderProducts({
         }
 
         // Regular product handling
-        // Bu ürün için menu item bilgisini bul
-        const menuItem = order.orderItems.find(
+        // Bu ürün için menu item bilgisini bul (support both order types)
+        const orderItems = isOrderWithRelations(order)
+          ? order.orderItems
+          : order.takeawayOrderItems;
+        const menuItem = orderItems.find(
           (item) => item.menuItemId === product.id
         )?.menuItem;
 
         // Bu ürün için tüm orderItems'i bul (birden fazla olabilir)
-        const matchingOrderItems = order.orderItems.filter(
-          (item) => item.menuItemId === product.id
-        );
-
-        // Tüm orderItemExtras'ları topla
-        const allOrderItemExtras = matchingOrderItems.flatMap(
-          (item) => item.orderItemExtras
-        );
+        // Tüm orderItemExtras'ları topla (support both order types)
+        let allOrderItemExtras;
+        if (isOrderWithRelations(order)) {
+          const matchingOrderItems = order.orderItems.filter(
+            (item) => item.menuItemId === product.id
+          );
+          allOrderItemExtras = matchingOrderItems.flatMap(
+            (item) => item.orderItemExtras
+          );
+        } else {
+          const matchingOrderItems = order.takeawayOrderItems.filter(
+            (item) => item.menuItemId === product.id
+          );
+          allOrderItemExtras = matchingOrderItems.flatMap(
+            (item) => item.takeawayOrderItemExtras
+          );
+        }
 
         return (
           <Card

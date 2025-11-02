@@ -35,6 +35,7 @@ model User {
   cafe         Cafe?         @relation(fields: [cafeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   managedCafe  Cafe?         @relation("CafeManager")
   orders       Order[]
+  takeawayOrders TakeawayOrder[]
   allowedStaff AllowedStaff[]
 
   @@map("users")
@@ -59,6 +60,7 @@ model Cafe {
   campaigns   Campaign[]
   tables      Table[]
   orders      Order[]
+  takeawayOrders TakeawayOrder[]
 
   @@map("cafes")
 }
@@ -109,6 +111,7 @@ model MenuItem {
   cafe         Cafe            @relation(fields: [cafeId], references: [id])
   category     Category        @relation(fields: [categoryId], references: [id])
   orderItems   OrderItem[]
+  takeawayOrderItems TakeawayOrderItem[]
   prices       MenuItemPrice[] // Size-specific prices
   campaignItems CampaignItem[]
 
@@ -139,6 +142,7 @@ model Extra {
   // Relations
   cafe           Cafe              @relation(fields: [cafeId], references: [id])
   orderItemExtras OrderItemExtra[]
+  takeawayOrderItemExtras TakeawayOrderItemExtra[]
 
   @@map("extras")
 }
@@ -157,6 +161,7 @@ model Campaign {
   cafe          Cafe            @relation(fields: [cafeId], references: [id])
   campaignItems CampaignItem[]
   orders        Order[]
+  takeawayOrders TakeawayOrder[]
 
   @@map("campaigns")
 }
@@ -247,4 +252,61 @@ model OrderItemExtra {
   extra     Extra     @relation(fields: [extraId], references: [id])
 
   @@map("orderItemExtras")
+}
+
+model TakeawayOrder {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  cafeId      String    @db.ObjectId
+  staffId     String    @db.ObjectId
+  totalAmount Float
+  isPaid      Boolean   @default(false)
+  products    Json[]    @default([]) // Her ürün için ayrı ödeme durumu: [{id: string, isPaid: boolean, price: number}]
+  campaignId  String?   @db.ObjectId // Optional campaign reference
+  campaignName String?  // Campaign name for display
+  campaignPrice Float?  // Campaign price for display
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  cafe       Cafe         @relation(fields: [cafeId], references: [id])
+  staff      User         @relation(fields: [staffId], references: [id])
+  campaign   Campaign?    @relation(fields: [campaignId], references: [id])
+  takeawayOrderItems TakeawayOrderItem[]
+
+  @@map("takeawayOrders")
+}
+
+model TakeawayOrderItem {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  takeawayOrderId        String        @db.ObjectId
+  menuItemId     String        @db.ObjectId
+  menuItemName   String
+  menuItemPrice  Float
+  quantity       Int
+  subtotal       Float
+  size           MenuItemSize? // Optional size for items with sizes
+  createdAt      DateTime      @default(now())
+
+  // Relations
+  takeawayOrder         TakeawayOrder           @relation(fields: [takeawayOrderId], references: [id])
+  menuItem      MenuItem        @relation(fields: [menuItemId], references: [id])
+  takeawayOrderItemExtras TakeawayOrderItemExtra[]
+
+  @@map("takeawayOrderItems")
+}
+
+model TakeawayOrderItemExtra {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  takeawayOrderItemId  String  @db.ObjectId
+  extraId      String  @db.ObjectId
+  extraName    String
+  extraPrice   Float
+  quantity     Int
+
+  // Relations
+  takeawayOrderItem TakeawayOrderItem @relation(fields: [takeawayOrderItemId], references: [id])
+  extra     Extra     @relation(fields: [extraId], references: [id])
+
+  @@map("takeawayOrderItemExtras")
 }

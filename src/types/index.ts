@@ -12,6 +12,9 @@ import {
   OrderItem,
   OrderItemExtra,
   Table,
+  TakeawayOrder,
+  TakeawayOrderItem,
+  TakeawayOrderItemExtra,
   User,
   UserRole,
 } from "@prisma/client";
@@ -31,6 +34,9 @@ export type {
   OrderItem,
   OrderItemExtra,
   Table,
+  TakeawayOrder,
+  TakeawayOrderItem,
+  TakeawayOrderItemExtra,
   User,
   UserRole,
 };
@@ -94,6 +100,27 @@ export interface OrderItemWithRelations extends OrderItem {
 
 export interface OrderItemExtraWithRelations extends OrderItemExtra {
   orderItem: OrderItem;
+  extra: Extra;
+}
+
+export interface TakeawayOrderWithRelations
+  extends Omit<TakeawayOrder, "products"> {
+  cafe: Cafe;
+  staff: User;
+  takeawayOrderItems: TakeawayOrderItemWithRelations[];
+  products: OrderProduct[]; // Her ürün için ayrı ödeme durumu
+  campaign?: Campaign; // Optional campaign relation
+}
+
+export interface TakeawayOrderItemWithRelations extends TakeawayOrderItem {
+  takeawayOrder: TakeawayOrder;
+  menuItem: MenuItem;
+  takeawayOrderItemExtras: TakeawayOrderItemExtraWithRelations[];
+}
+
+export interface TakeawayOrderItemExtraWithRelations
+  extends TakeawayOrderItemExtra {
+  takeawayOrderItem: TakeawayOrderItem;
   extra: Extra;
 }
 
@@ -224,6 +251,18 @@ export interface CreateOrderItemExtraRequest {
 }
 
 export interface UpdateOrderRequest {
+  isPaid?: boolean;
+  orderItems?: CreateOrderItemRequest[];
+  products?: OrderProduct[];
+  totalAmount?: number;
+  paidAt?: Date | null;
+}
+
+export interface CreateTakeawayOrderRequest {
+  orderItems: CreateOrderItemRequest[];
+}
+
+export interface UpdateTakeawayOrderRequest {
   isPaid?: boolean;
   orderItems?: CreateOrderItemRequest[];
   products?: OrderProduct[];
@@ -378,6 +417,8 @@ export const QueryKeys = {
   table: (id: string) => ["tables", id] as const,
   orders: (cafeId: string) => ["orders", cafeId] as const,
   order: (id: string) => ["orders", id] as const,
+  takeawayOrders: (cafeId: string) => ["takeawayOrders", cafeId] as const,
+  takeawayOrder: (id: string) => ["takeawayOrders", id] as const,
   reports: (
     cafeId: string,
     dateRange: { from?: Date; to?: Date },

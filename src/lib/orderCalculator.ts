@@ -329,21 +329,23 @@ export class OrderCalculator {
       errors.push("Subtotal cannot be negative");
     }
 
-    // Validate extras
-    cartItem.extras.forEach((extra, index) => {
-      if (!extra.extraId) {
-        errors.push(`Extra ${index + 1} ID is required`);
-      }
-      if (!extra.extraName) {
-        errors.push(`Extra ${index + 1} name is required`);
-      }
-      if (extra.quantity <= 0) {
-        errors.push(`Extra ${index + 1} quantity must be greater than 0`);
-      }
-      if (extra.extraPrice < 0) {
-        errors.push(`Extra ${index + 1} price cannot be negative`);
-      }
-    });
+    // Validate extras (optional)
+    if (cartItem.extras && Array.isArray(cartItem.extras)) {
+      cartItem.extras.forEach((extra, index) => {
+        if (!extra.extraId) {
+          errors.push(`Extra ${index + 1} ID is required`);
+        }
+        if (!extra.extraName) {
+          errors.push(`Extra ${index + 1} name is required`);
+        }
+        if (extra.quantity <= 0) {
+          errors.push(`Extra ${index + 1} quantity must be greater than 0`);
+        }
+        if (extra.extraPrice < 0) {
+          errors.push(`Extra ${index + 1} price cannot be negative`);
+        }
+      });
+    }
 
     return {
       isValid: errors.length === 0,

@@ -17,12 +17,14 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useCartManagement } from "./useCartManagement";
 import { useOrderOperations } from "./useOrderOperations";
+import { useTakeawayOrderOperations } from "./useTakeawayOrderOperations";
 import { useTableManagement } from "./useTableManagement";
 
 export function useOrdersPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [takeawayDialogOpen, setTakeawayDialogOpen] = useState(false);
 
   const cafeId = user?.cafeId || user?.managedCafe?.id || null;
 
@@ -69,7 +71,9 @@ export function useOrdersPage() {
 
   // Initialize specialized hooks
   const orderOperations = useOrderOperations({ cafeId });
+  const takeawayOrderOperations = useTakeawayOrderOperations({ cafeId });
   const cartManagement = useCartManagement();
+  const takeawayCartManagement = useCartManagement();
 
   // Handle table selection
   const handleTableSelect = useCallback(
@@ -207,6 +211,133 @@ export function useOrdersPage() {
     cartManagement.clearCart();
   }, [cartManagement]);
 
+  // Handle takeaway selection
+  const handleTakeawayClick = useCallback(() => {
+    setTakeawayDialogOpen(true);
+    takeawayCartManagement.clearCart(); // Reset cart
+  }, [takeawayCartManagement]);
+
+  // Close takeaway dialog
+  const closeTakeawayDialog = useCallback(() => {
+    setTakeawayDialogOpen(false);
+    takeawayCartManagement.clearCart();
+  }, [takeawayCartManagement]);
+
+  // Save takeaway order
+  const saveTakeawayOrder = useCallback(async () => {
+    if (takeawayCartManagement.cartItems.length === 0) return;
+
+    try {
+      // Ödenmemiş takeaway sipariş var mı kontrol et
+      const existingOrders =
+        takeawayOrderOperations.getUnpaidTakeawayOrders();
+
+      if (existingOrders.length > 0) {
+        // Ödenmemiş sipariş varsa, ilk siparişe ekle
+        const firstOrder = existingOrders[0];
+        await takeawayOrderOperations.addToExistingTakeawayOrder(
+          firstOrder.id,
+          takeawayCartManagement.cartItems
+        );
+      } else {
+        // Ödenmemiş sipariş yoksa, yeni sipariş oluştur
+        await takeawayOrderOperations.saveTakeawayOrder(
+          takeawayCartManagement.cartItems
+        );
+      }
+
+      takeawayCartManagement.clearCart();
+    } catch (error) {
+      console.error("Error saving takeaway order:", error);
+    }
+  }, [takeawayCartManagement, takeawayOrderOperations]);
+
+  const addToExistingTakeawayOrder = useCallback(
+    async (orderId: string) => {
+      if (takeawayCartManagement.cartItems.length === 0) return;
+
+      try {
+        await takeawayOrderOperations.addToExistingTakeawayOrder(
+          orderId,
+          takeawayCartManagement.cartItems
+        );
+
+        takeawayCartManagement.clearCart();
+      } catch (error) {
+        console.error("Error adding to existing takeaway order:", error);
+      }
+    },
+    [takeawayCartManagement, takeawayOrderOperations]
+  );
+
+  const markAllTakeawayAsPaid = useCallback(async () => {
+    try {
+      await takeawayOrderOperations.markAllTakeawayAsPaid();
+    } catch (error) {
+      console.error("Error marking all takeaway orders as paid:", error);
+    }
+  }, [takeawayOrderOperations]);
+
+  // Direct save function for takeaway - saves cart item immediately without confirmation
+  const saveTakeawayCartItemDirectly = useCallback(
+    async (
+      menuItem: MenuItemWithRelations,
+      quantity: number,
+      extras: ExtraWithQuantity[] = [],
+      size?: MenuItemSize
+    ) => {
+      if (!cafeId) return;
+
+      try {
+        const existingOrders =
+          takeawayOrderOperations.getUnpaidTakeawayOrders();
+
+        // Create cart item using centralized calculator (same as orders)
+        const cartItem = OrderCalculator.createCartItem(
+          menuItem,
+          quantity,
+          extras,
+          size
+        );
+
+        if (existingOrders.length > 0) {
+          await takeawayOrderOperations.addToExistingTakeawayOrder(
+            existingOrders[0].id,
+            [cartItem]
+          );
+        } else {
+          await takeawayOrderOperations.saveTakeawayOrder([cartItem]);
+        }
+      } catch (error) {
+        console.error("Error saving takeaway cart item directly:", error);
+        throw error;
+      }
+    },
+    [cafeId, takeawayOrderOperations]
+  );
+
+  // Get existing takeaway orders
+  const getTakeawayOrders = useCallback(() => {
+    return takeawayOrderOperations.getUnpaidTakeawayOrders();
+  }, [takeawayOrderOperations]);
+
+  // Get paid takeaway orders
+  const getTakeawayPaidOrders = useCallback(() => {
+    return takeawayOrderOperations.getTakeawayPaidOrders();
+  }, [takeawayOrderOperations]);
+
+  // Get takeaway orders stats
+  const takeawayOrdersStats = useMemo(() => {
+    const unpaidOrders = takeawayOrderOperations.getUnpaidTakeawayOrders();
+    return {
+      orderCount: unpaidOrders.length,
+      totalAmount: unpaidOrders.reduce(
+        (sum, order) => sum + (order.totalAmount || 0),
+        0
+      ),
+    };
+  }, [takeawayOrderOperations]);
+
   // Get existing orders for selected table
   const getTableOrders = useCallback(() => {
     if (!selectedTableId) return [];
@@ -271,14 +402,19 @@ export function useOrdersPage() {
   // Handle campaign selection
   const handleCampaignSelect = useCallback(
     async (campaign: CampaignWithRelations) => {
-      if (!selectedTableId) {
+      // Check if this is a takeaway order (takeaway dialog is open)
+      const isTakeawayOrder = takeawayDialogOpen;
+
+      if (!selectedTableId && !isTakeawayOrder) {
         toast.error("Lütfen önce bir masa seçin");
         return;
       }
 
       try {
-        // Check if there are existing unpaid orders for this table
-        const existingOrders = orderOperations.getTableOrders(selectedTableId);
+        // Check if there are existing unpaid orders
+        const existingOrders = isTakeawayOrder
+          ? takeawayOrderOperations.getUnpaidTakeawayOrders()
+          : orderOperations.getTableOrders(selectedTableId!);
 
         if (existingOrders.length > 0) {
           // Add campaign to existing order
@@ -332,72 +468,121 @@ export function useOrdersPage() {
           );
 
           // Add campaign to existing order with campaign info
-          await orderOperations.addToExistingOrder(
-            existingOrders[0].id,
-            campaignCartItems,
-            {
-              campaignId: campaign.id,
-              campaignName: campaign.name,
-              campaignPrice: campaign.price,
-            }
-          );
+          if (isTakeawayOrder) {
+            await takeawayOrderOperations.addToExistingTakeawayOrder(
+              existingOrders[0].id,
+              campaignCartItems,
+              {
+                campaignId: campaign.id,
+                campaignName: campaign.name,
+                campaignPrice: campaign.price,
+              }
+            );
+          } else {
+            await orderOperations.addToExistingOrder(
+              existingOrders[0].id,
+              campaignCartItems,
+              {
+                campaignId: campaign.id,
+                campaignName: campaign.name,
+                campaignPrice: campaign.price,
+              }
+            );
+          }
           toast.success(`${campaign.name} kampanyası mevcut siparişe eklendi`);
         } else {
           // Create new order with campaign
-          const campaignOrderItems = campaign.campaignItems.map(
-            (campaignItem) => {
-              // Find the full menu item from our menu data
-              const fullMenuItem = menu.menuItems.find(
-                (item: MenuItemWithRelations) =>
-                  item.id === campaignItem.menuItemId
-              );
+          if (isTakeawayOrder) {
+            // Create takeaway order with campaign - need to convert campaignItems to cart items
+            const takeawayCartItems = campaign.campaignItems.map(
+              (campaignItem) => {
+                const fullMenuItem = menu.menuItems.find(
+                  (item: MenuItemWithRelations) =>
+                    item.id === campaignItem.menuItemId
+                );
 
-              if (!fullMenuItem) {
-                throw new Error(
-                  `Menu item not found: ${campaignItem.menuItemId}`
+                if (!fullMenuItem) {
+                  throw new Error(
+                    `Menu item not found: ${campaignItem.menuItemId}`
+                  );
+                }
+
+                let size = campaignItem.size;
+                if (fullMenuItem.hasSizes && !size) {
+                  const availableSizes =
+                    fullMenuItem.prices?.map((p: MenuItemPrice) => p.size) || [];
+                  if (availableSizes.length > 0) {
+                    size = availableSizes[0];
+                  }
+                }
+
+                return OrderCalculator.createCartItem(
+                  fullMenuItem,
+                  campaignItem.quantity,
+                  [],
+                  size || undefined
                 );
               }
+            );
 
-              let size = campaignItem.size;
+            await takeawayOrderOperations.saveTakeawayOrder(takeawayCartItems);
+            toast.success(`${campaign.name} kampanyası paket servis siparişine eklendi`);
+          } else {
+            const campaignOrderItems = campaign.campaignItems.map(
+              (campaignItem) => {
+                // Find the full menu item from our menu data
+                const fullMenuItem = menu.menuItems.find(
+                  (item: MenuItemWithRelations) =>
+                    item.id === campaignItem.menuItemId
+                );
 
-              // If menu item has sizes but no size is specified in campaign, use the first available size
-              if (fullMenuItem.hasSizes && !size) {
-                const availableSizes =
-                  fullMenuItem.prices?.map((p: MenuItemPrice) => p.size) || [];
-                if (availableSizes.length > 0) {
-                  size = availableSizes[0]; // Use the first available size as default
+                if (!fullMenuItem) {
+                  throw new Error(
+                    `Menu item not found: ${campaignItem.menuItemId}`
+                  );
                 }
+
+                let size = campaignItem.size;
+
+                // If menu item has sizes but no size is specified in campaign, use the first available size
+                if (fullMenuItem.hasSizes && !size) {
+                  const availableSizes =
+                    fullMenuItem.prices?.map((p: MenuItemPrice) => p.size) || [];
+                  if (availableSizes.length > 0) {
+                    size = availableSizes[0]; // Use the first available size as default
+                  }
+                }
+
+                return {
+                  menuItemId: campaignItem.menuItemId,
+                  quantity: campaignItem.quantity,
+                  size: size || undefined,
+                  extras: [], // Campaign items don't have extras
+                };
               }
+            );
 
-              return {
-                menuItemId: campaignItem.menuItemId,
-                quantity: campaignItem.quantity,
-                size: size || undefined,
-                extras: [], // Campaign items don't have extras
-              };
-            }
-          );
+            // Create order with campaign
+            const orderData = {
+              tableId: selectedTableId!,
+              orderItems: campaignOrderItems,
+            };
 
-          // Create order with campaign
-          const orderData = {
-            tableId: selectedTableId,
-            orderItems: campaignOrderItems,
-          };
+            // Use the createOrder mutation directly
+            await orderOperations.createOrder.mutateAsync({
+              cafeId: cafeId!,
+              data: orderData,
+            });
 
-          // Use the createOrder mutation directly
-          await orderOperations.createOrder.mutateAsync({
-            cafeId: cafeId!,
-            data: orderData,
-          });
-
-          toast.success(`${campaign.name} kampanyası siparişe eklendi`);
+            toast.success(`${campaign.name} kampanyası siparişe eklendi`);
+          }
         }
       } catch (error) {
         console.error("Error adding campaign to order:", error);
         toast.error("Kampanya siparişe eklenirken hata oluştu");
       }
     },
-    [selectedTableId, menu.menuItems, orderOperations, cafeId]
+    [selectedTableId, takeawayDialogOpen, menu.menuItems, orderOperations, takeawayOrderOperations, cafeId]
   );
 
   return {
@@ -414,15 +599,18 @@ export function useOrdersPage() {
     // UI state
     selectedTableId,
     orderDialogOpen,
+    takeawayDialogOpen,
 
     // Table management
     tableManagement,
 
     // Cart management
     cartManagement,
+    takeawayCartManagement,
 
     // Order operations
     orderOperations,
+    takeawayOrderOperations,
     getTableOrders,
     getTablePaidOrders,
     saveOrder,
@@ -445,5 +633,20 @@ export function useOrdersPage() {
 
     // Table ordering
     onTableOrderChange: handleTableOrderChange,
+
+    // Takeaway functionality
+    onTakeawayClick: handleTakeawayClick,
+    closeTakeawayDialog,
+    saveTakeawayOrder,
+    addToExistingTakeawayOrder,
+    markAllTakeawayAsPaid,
+    saveTakeawayCartItemDirectly,
+    getTakeawayOrders,
+    getTakeawayPaidOrders,
+    takeawayOrdersStats,
+    markTakeawayProductAsPaid:
+      takeawayOrderOperations.markTakeawayProductAsPaid,
+    deleteTakeawayProduct: takeawayOrderOperations.deleteTakeawayProduct,
+    refreshTakeawayOrders: takeawayOrderOperations.refreshTakeawayOrders,
   };
 }
