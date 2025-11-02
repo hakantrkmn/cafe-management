@@ -35,6 +35,7 @@ import {
   DollarSign,
   Filter,
   Package,
+  Truck,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -43,8 +44,17 @@ interface ReportsTableProps {
 }
 
 export function ReportsTable({ data }: ReportsTableProps) {
-  const { orders, topProducts, tableStats } = data;
+  const { orders, takeawayOrders, topProducts, takeawayTopProducts, tableStats } = data;
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+
+  // Combine orders and takeaway orders
+  const allOrders = useMemo(() => {
+    const tableOrders = orders.map((order) => ({ ...order, isTakeaway: false }));
+    const takeaway = (takeawayOrders || []).map((order) => ({ ...order, isTakeaway: true }));
+    return [...tableOrders, ...takeaway].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [orders, takeawayOrders]);
 
   // Filter states for top products table
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
@@ -139,15 +149,22 @@ export function ReportsTable({ data }: ReportsTableProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {orders.length === 0 ? (
+          {allOrders.length === 0 ? (
             <div className="reports-table-empty">
               <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Seçilen dönemde sipariş bulunamadı</p>
             </div>
           ) : (
             <div className="space-y-2">
-              {orders.map((order) => (
-                <Card key={order.id} className="border-l-4 border-l-primary">
+              {allOrders.map((order) => (
+                <Card
+                  key={order.id}
+                  className={`border-l-4 ${
+                    order.isTakeaway
+                      ? "border-l-amber-500 bg-amber-50/30"
+                      : "border-l-primary"
+                  }`}
+                >
                   <CardContent className="p-4">
                     {/* Order Header */}
                     <div className="reports-table-row-header">
@@ -163,10 +180,24 @@ export function ReportsTable({ data }: ReportsTableProps) {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">
-                            Masa:
-                          </span>
-                          <Badge variant="outline">{order.tableName}</Badge>
+                          {order.isTakeaway ? (
+                            <>
+                              <Truck className="h-4 w-4 text-amber-600" />
+                              <Badge
+                                variant="outline"
+                                className="border-amber-300 text-amber-700 bg-amber-50"
+                              >
+                                Takeaway
+                              </Badge>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-sm text-muted-foreground">
+                                Masa:
+                              </span>
+                              <Badge variant="outline">{order.tableName}</Badge>
+                            </>
+                          )}
                         </div>
                         <Badge
                           variant={order.isPaid ? "default" : "destructive"}
@@ -221,8 +252,17 @@ export function ReportsTable({ data }: ReportsTableProps) {
                               {order.products.map((product) => (
                                 <TableRow key={product.id}>
                                   <TableCell className="font-medium">
-                                    {product.name}
-                                    {product.size ? ` (${product.size})` : ""}
+                                    <div className="flex items-center gap-2">
+                                      {product.isCampaign && (
+                                        <Badge variant="secondary" className="text-xs">
+                                          Kampanya
+                                        </Badge>
+                                      )}
+                                      <span>
+                                        {product.name}
+                                        {product.size ? ` (${product.size})` : ""}
+                                      </span>
+                                    </div>
                                   </TableCell>
                                   <TableCell className="text-center">
                                     {product.quantity}
@@ -248,13 +288,13 @@ export function ReportsTable({ data }: ReportsTableProps) {
         </CardContent>
       </Card>
 
-      {/* Top Products Table */}
+      {/* Top Products Table - Table Orders */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Package className="h-5 w-5" />
-              En Çok Satan Ürünler
+              Masa Siparişleri - En Çok Satan Ürünler
               {(selectedCategories.size > 0 || selectedSizes.size > 0) && (
                 <Badge variant="secondary" className="ml-2">
                   {filteredTopProducts.length} / {topProducts.length}
@@ -425,6 +465,57 @@ export function ReportsTable({ data }: ReportsTableProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Takeaway Top Products Table */}
+      {takeawayTopProducts && takeawayTopProducts.length > 0 && (
+        <Card className="border-amber-200 bg-amber-50/30">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2 text-amber-900">
+              <Truck className="h-5 w-5 text-amber-700" />
+              Takeaway - En Çok Satan Ürünler
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ürün Adı</TableHead>
+                  <TableHead className="text-center">Satış Adedi</TableHead>
+                  <TableHead className="text-right">Toplam Gelir</TableHead>
+                  <TableHead className="text-right">Ortalama Fiyat</TableHead>
+                  <TableHead className="text-center">
+                    En Çok Satılan Saat
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {takeawayTopProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="font-medium">
+                      {product.name}
+                      {product.size ? ` (${product.size})` : ""}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {product.totalSold}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatPrice(product.totalRevenue)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatPrice(product.averagePrice)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {product.peakHour !== undefined
+                        ? `${product.peakHour}:00`
+                        : "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Table Statistics */}
       <Card>

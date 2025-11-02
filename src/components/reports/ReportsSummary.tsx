@@ -11,6 +11,7 @@ import {
   Table,
   TrendingUp,
   Users,
+  Truck,
 } from "lucide-react";
 
 interface ReportsSummaryProps {
@@ -18,7 +19,7 @@ interface ReportsSummaryProps {
 }
 
 export function ReportsSummary({ data }: ReportsSummaryProps) {
-  const { summary, orders, topProducts, campaignStats } = data;
+  const { summary, takeawaySummary, orders, topProducts, campaignStats } = data;
 
   const summaryCards = [
     {
@@ -68,27 +69,95 @@ export function ReportsSummary({ data }: ReportsSummaryProps) {
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {summaryCards.map((card, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {card.title}
-              </CardTitle>
-              <div className={`p-2 rounded-full ${card.bgColor}`}>
-                <card.icon className={`h-4 w-4 ${card.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-              <p className="text-xs text-muted-foreground">
-                {card.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Summary Cards - Table Orders */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-purple-700">Masa Siparişleri</h3>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {summaryCards.map((card, index) => (
+            <Card key={index}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {card.title}
+                </CardTitle>
+                <div className={`p-2 rounded-full ${card.bgColor}`}>
+                  <card.icon className={`h-4 w-4 ${card.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{card.value}</div>
+                <p className="text-xs text-muted-foreground">
+                  {card.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
+
+      {/* Summary Cards - Takeaway Orders */}
+      {takeawaySummary && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-amber-700">Takeaway</h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="border-amber-200 bg-amber-50/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-amber-900">
+                  Toplam Takeaway
+                </CardTitle>
+                <div className="p-2 rounded-full bg-amber-100">
+                  <Truck className="h-4 w-4 text-amber-700" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-amber-900">
+                  {takeawaySummary.totalTakeawayOrders}
+                </div>
+                <p className="text-xs text-amber-700">
+                  Seçilen dönemde
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-amber-200 bg-amber-50/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-amber-900">
+                  Takeaway Geliri
+                </CardTitle>
+                <div className="p-2 rounded-full bg-amber-100">
+                  <DollarSign className="h-4 w-4 text-amber-700" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-amber-900">
+                  {formatPrice(takeawaySummary.totalTakeawayRevenue)}
+                </div>
+                <p className="text-xs text-amber-700">
+                  Toplam ciro
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-amber-200 bg-amber-50/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-amber-900">
+                  Ortalama Takeaway
+                </CardTitle>
+                <div className="p-2 rounded-full bg-amber-100">
+                  <TrendingUp className="h-4 w-4 text-amber-700" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-amber-900">
+                  {formatPrice(takeawaySummary.averageTakeawayOrderValue)}
+                </div>
+                <p className="text-xs text-amber-700">
+                  Sipariş başına ortalama
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
 
       {/* Payment Status Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

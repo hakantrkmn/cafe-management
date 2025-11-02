@@ -11,6 +11,7 @@ export interface ReportsProduct {
   price: number;
   quantity: number;
   total: number;
+  isCampaign?: boolean;
 }
 
 export interface ReportsOrder {
@@ -48,6 +49,12 @@ export interface ReportsSummary {
   averageOrderValue: number;
 }
 
+export interface TakeawaySummary {
+  totalTakeawayOrders: number;
+  totalTakeawayRevenue: number;
+  averageTakeawayOrderValue: number;
+}
+
 export interface ReportsCampaignStat {
   campaignId: string;
   campaignName: string;
@@ -58,8 +65,11 @@ export interface ReportsCampaignStat {
 
 export interface ReportsData {
   summary: ReportsSummary;
+  takeawaySummary?: TakeawaySummary;
   orders: ReportsOrder[];
+  takeawayOrders?: ReportsOrder[];
   topProducts: ReportsTopProduct[];
+  takeawayTopProducts?: ReportsTopProduct[];
   tableStats: ReportsTableStat[];
   campaignStats: ReportsCampaignStat[];
   // Chart data
